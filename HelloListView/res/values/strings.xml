@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, HelloListViewActivity!</string>
+    <string name="app_name">HelloListView</string>
+    <string-array name="countries_array">
+        <item>Niger</item>
+        <item>Romania</item>
+        <item>Russia</item>
+        <item>French Southern Territories</item>
+    </string-array>
+</resources>
