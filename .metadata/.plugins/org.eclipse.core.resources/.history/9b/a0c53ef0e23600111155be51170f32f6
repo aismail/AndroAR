@@ -1,0 +1,70 @@
+package com.androar;
+
+import java.io.*;
+import java.net.Socket;
+
+import com.androar.CommunicationProtos.AuthentificationInfo;
+import com.androar.CommunicationProtos.ClientMessage;
+import com.androar.CommunicationProtos.ServerMessage;
+import com.androar.CommunicationProtos.ClientMessage.ClientMessageType;
+import com.androar.ImageFeaturesProtos.DetectedObject;
+import com.androar.ImageFeaturesProtos.Image;
+import com.androar.ImageFeaturesProtos.ImageContents;
+import com.androar.ImageFeaturesProtos.ObjectBoundingBox;
+import com.androar.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
+
+public class MockClient {
+	
+	public static void main(String[] args) {
+		Socket socket;
+		DataOutputStream out;
+        DataInputStream in;
+        
+		try {
+			socket = new Socket("localhost", 6666);
+			out = new DataOutputStream(socket.getOutputStream());
+            in = new DataInputStream(socket.getInputStream());
+            
+            // Read a message
+            ServerMessage server_message = ServerMessage.parseFrom(Communication.readMessage(in));
+            Logging.LOG(2, "***\n " + server_message.toString() + "\n***");
+            
+            // Assume that the message was a HELLO. Let's now send an image to see if this works.
+            
+            Image image = Image.newBuilder().
+            	addDetectedObjects(
+            		DetectedObject.newBuilder().
+            		setObjectType(DetectedObjectType.BUILDING).
+            		setName("OBJECT_1").
+            		setBoundingBox(
+            			ObjectBoundingBox.newBuilder().
+            			setTop(0).
+            			setBottom(100).
+            			setLeft(0).
+            			setRight(100).
+            			build()).
+            		build()).
+            	setImage(
+            		ImageContents.newBuilder().
+            		setImageHash("IMAGE_HASH").
+            		setImageContents(value)).
+            	build();
+            
+            ClientMessage.Builder builder = ClientMessage.newBuilder();
+            
+            builder.
+            	setAuthentificationInfo(
+            		AuthentificationInfo.newBuilder().
+            		setPhoneId("PHONE_ID").
+            		setHash("CURRENT_HASH_OF_PHONE_ID").
+            		build()).
+            	setMessageType(ClientMessageType.IMAGE_TO_PROCESS).
+            	setImageToProcess(Image.newBuilder().)
+            
+            socket.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+		}
+	}
+}

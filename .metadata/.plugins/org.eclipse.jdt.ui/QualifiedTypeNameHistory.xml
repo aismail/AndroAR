@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="java.io.PrintStream"/>
+<fullyQualifiedTypeName name="java.io.PrintWriter"/>
+<fullyQualifiedTypeName name="java.io.IOException"/>
+<fullyQualifiedTypeName name="java.io.DataOutputStream"/>
+<fullyQualifiedTypeName name="com.google.protobuf.Message"/>
+<fullyQualifiedTypeName name="java.io.DataInput"/>
+<fullyQualifiedTypeName name="com.androar.Logging"/>
+<fullyQualifiedTypeName name="java.lang.reflect.Method"/>
+<fullyQualifiedTypeName name="com.androar.Communication"/>
+<fullyQualifiedTypeName name="com.androar.ClientConnection"/>
+<fullyQualifiedTypeName name="com.androar.CommunicationProtos.ServerMessage"/>
+<fullyQualifiedTypeName name="com.androar.CommunicationProtos.ClientMessage.ClientMessageType"/>
+<fullyQualifiedTypeName name="com.androar.CommunicationProtos.ServerMessage.ServerMessageType"/>
+</qualifiedTypeNameHistroy>
