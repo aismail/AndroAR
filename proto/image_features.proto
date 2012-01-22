@@ -1,0 +1,56 @@
+package androar;
+
+option java_package = "com.androar";
+option java_outer_classname = "ImageFeaturesProtos";
+
+// Next id = 3;
+message GPSPosition {
+	required float latitude = 1;
+	required float longitude = 2;
+}
+
+// Next id = 2;
+message CompassPosition {
+	required float angle = 1;
+}
+
+// Next id = 3
+message LocalizationFeatures {
+	optional GPSPosition gps_position = 1;
+	optional CompassPosition compass_position = 2;
+}
+
+// Next id = 5
+message ObjectBoundingBox {
+	required int32 bottom = 1;
+	required int32 top = 2;
+	required int32 left = 3;
+	required int32 right = 4;
+}
+
+// Next id = 4
+message DetectedObject {
+	enum DetectedObjectType {
+		UNKNOWN = 1;
+		BUILDING = 2;
+		LAST_ELEMENT = 3;
+	}
+	
+	required DetectedObjectType object_type = 1;
+	required ObjectBoundingBox bounding_box = 2;
+	required string name = 3;
+	optional int32 id = 4;
+}
+
+// Next id = 3
+message ImageContents {
+	required string image_hash = 1;
+	required bytes image_contents = 2;
+}
+
+// Next id = 4
+message Image {
+	required ImageContents image = 1;
+	optional LocalizationFeatures localization_features = 2;
+	repeated DetectedObject detected_objects = 3;
+}

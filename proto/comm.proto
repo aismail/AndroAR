@@ -1,0 +1,63 @@
+import "image_features.proto";
+
+package androar;
+
+option java_package = "com.androar";
+option java_outer_classname = "CommunicationProtos";
+
+// CLIENT
+
+// Next id = 3
+message AuthentificationInfo {
+	required string phone_id = 1;
+	required string hash = 2;
+}
+
+// Next id = 20
+message ClientMessage {
+	enum ClientMessageType {
+		UNDEFINED = 1;
+		IMAGE_TO_PROCESS = 2;
+		IMAGES_TO_STORE = 3;
+		LAST_MESSAGE = 4;
+	}
+	
+	// Message header
+	// Authentification information
+	required AuthentificationInfo authentification_info = 1;
+	// Message type: see all message types defined in the enum above
+	required ClientMessageType message_type = 2;
+	
+	// Message contents
+	optional Image image_to_process = 10;
+	repeated Image images_to_store = 11;
+}
+
+
+// SERVER
+
+// Next id = 2;
+message AuthentificationNewKey {
+	required string new_hash = 1;
+}
+
+// Next id = 20
+message ServerMessage {
+	enum ServerMessageType {
+		UNDEFINED = 1;
+		HELLO_MESSAGE = 2;
+		AUTHENTIFICATION_DENIED = 3;
+		AUTHENTIFICATION_NEW_KEY = 4;
+		IMAGE_PROCESSED = 5;
+		LAST_MESSAGE = 6;
+	}
+	
+	// Message header
+	// Message type: see all message types defined in the enum above
+	required ServerMessageType message_type = 1;
+	
+	// Message contents
+	optional AuthentificationNewKey authentification_new_key = 14;
+	optional Image processed_image = 15;
+}
+
