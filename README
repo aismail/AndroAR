@@ -1,1 +1,6 @@
 Android-based Augmented Reality using crowd-sourced meta-data
+
+quick tutorial:
+* create eclipse project
+* run server
+* run client with first argument as "path/to/image/you/want/to/send.jpg"
