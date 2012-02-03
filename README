@@ -4,3 +4,11 @@ quick tutorial:
 * create eclipse project
 * run server
 * run client with first argument as "path/to/image/you/want/to/send.jpg"
+
+AndroAR GUI:
+- pre:
+	* you need at least a phone with android 2.1
+- setup:
+	* use eclipse to install SDK (http://developer.android.com/sdk/installing.html)
+	* load project from AndroARGUI/* to eclipse
+	* use a phone / emulator and run
