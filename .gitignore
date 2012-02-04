@@ -1,3 +1,5 @@
 *.class
 *.dex
 *.apk
+bin/
+gen/
