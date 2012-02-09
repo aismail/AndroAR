@@ -4,5 +4,6 @@
     <string name="hello">Hello World, DrawWithCanvasActivity!</string>
     <string name="app_name">AndroAR</string>
     <string name="drag">drag</string>
+    <string name="send_button">Send</string>
         
 </resources>
