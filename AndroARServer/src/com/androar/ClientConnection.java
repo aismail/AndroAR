@@ -46,11 +46,13 @@ public class ClientConnection implements Runnable {
 	private static ServerMessage processAndReturnReplyToCurrentMessage(ClientMessage client_message) {
 		ServerMessage.Builder builder = ServerMessage.newBuilder();
 		ClientMessageType messageType = client_message.getMessageType();
-		if (messageType == ClientMessageType.IMAGE_TO_PROCESS) {
+		ServerMessage returnMessage = null;
+		if (messageType == ClientMessageType.IMAGES_TO_STORE) {
 			
 		} else if (messageType == ClientMessageType.IMAGE_TO_PROCESS) {
 			// Let's just store the image for now
 			// TODO(alex): Fix.
+			Logging.LOG(2, client_message.toString() + "\n");
 			FileOutputStream fout;
 			try {
 				fout = new FileOutputStream("out.jpeg");
@@ -60,9 +62,10 @@ public class ClientConnection implements Runnable {
 				Logging.LOG(2, e.getMessage());
 			}
 			builder.setMessageType(ServerMessageType.IMAGE_PROCESSED);
+			returnMessage = builder.build();
 		}
 		
-		return builder.build();
+		return returnMessage;
 	}
 	
 	private static ServerMessage createServerMessage(ServerMessageType messageType) {

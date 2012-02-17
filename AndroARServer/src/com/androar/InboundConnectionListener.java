@@ -1,5 +1,7 @@
 package com.androar;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,6 +32,7 @@ public class InboundConnectionListener extends Thread {
 	public void run() {
 		// Start the server_socket
 		try {
+			//serverSocket = new ServerSocket(listeningPort, 1, (Inet4Address) InetAddress.getByName("192.168.100.104"));
 			serverSocket = new ServerSocket(listeningPort);
 		} catch (Exception e) {
 			Logging.LOG(0,  e.getMessage());

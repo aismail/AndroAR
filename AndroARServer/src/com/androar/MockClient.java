@@ -22,7 +22,7 @@ public class MockClient {
         DataInputStream in;
         
 		try {
-			socket = new Socket("localhost", 6666);
+			socket = new Socket("192.168.100.104", 6666);
 			out = new DataOutputStream(socket.getOutputStream());
             in = new DataInputStream(socket.getInputStream());
             
