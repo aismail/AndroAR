@@ -18,9 +18,10 @@ public class ClientConnection implements Runnable {
 		} catch (IOException e) {
 			Logging.LOG(0, e.getMessage());
 		}
-		this.run();
 		// Initialize a connection to the Cassandra Cluster;
 		cassandraConnection = new CassandraConnection();
+		
+		this.run();
 	}
 	
 	@Override
@@ -35,9 +36,14 @@ public class ClientConnection implements Runnable {
 		// Parse incoming messages
 		while (true) {
 			try {
-				ClientMessage currentClientMessage = ClientMessage.parseFrom(Communication.readMessage(in));
+				byte[] serializedInputMessage = Communication.readMessage(in);
+				if (serializedInputMessage == null) {
+					break;
+				}
+				ClientMessage currentClientMessage = ClientMessage.parseFrom(serializedInputMessage);
 				ServerMessage replyMessage = processAndReturnReplyToCurrentMessage(currentClientMessage);
 				if (replyMessage != null) {
+					Logging.LOG(2, replyMessage.toString());
 					Communication.sendMessage(replyMessage, out);
 				}
 			} catch (InvalidProtocolBufferException e) {
@@ -55,7 +61,6 @@ public class ClientConnection implements Runnable {
 		} else if (messageType == ClientMessageType.IMAGE_TO_PROCESS) {
 			// Let's just store the image for now
 			// TODO(alex): Fix.
-			Logging.LOG(2, client_message.toString() + "\n");
 			FileOutputStream fout;
 			try {
 				fout = new FileOutputStream("out.jpeg");
