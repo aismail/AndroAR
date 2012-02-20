@@ -19,6 +19,8 @@ public class ClientConnection implements Runnable {
 			Logging.LOG(0, e.getMessage());
 		}
 		this.run();
+		// Initialize a connection to the Cassandra Cluster;
+		cassandraConnection = new CassandraConnection();
 	}
 	
 	@Override
@@ -43,12 +45,13 @@ public class ClientConnection implements Runnable {
 			}
 		}
 	}
-	private static ServerMessage processAndReturnReplyToCurrentMessage(ClientMessage client_message) {
+	
+	private ServerMessage processAndReturnReplyToCurrentMessage(ClientMessage client_message) {
 		ServerMessage.Builder builder = ServerMessage.newBuilder();
 		ClientMessageType messageType = client_message.getMessageType();
 		ServerMessage returnMessage = null;
 		if (messageType == ClientMessageType.IMAGES_TO_STORE) {
-			
+			cassandraConnection.storeImages(client_message.getImagesToStoreList());
 		} else if (messageType == ClientMessageType.IMAGE_TO_PROCESS) {
 			// Let's just store the image for now
 			// TODO(alex): Fix.
@@ -85,6 +88,8 @@ public class ClientConnection implements Runnable {
 		return builder.build();
 	}
 	
+	// Cassandra client
+	private CassandraConnection cassandraConnection;
 	// Socket between this server and the client
 	private Socket clientSocket;
 	// Output stream
