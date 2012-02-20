@@ -22,7 +22,7 @@ public class MockClient {
         DataInputStream in;
         
 		try {
-			socket = new Socket("192.168.100.104", 6666);
+			socket = new Socket(args[0], 6666);
 			out = new DataOutputStream(socket.getOutputStream());
             in = new DataInputStream(socket.getInputStream());
             
@@ -32,8 +32,8 @@ public class MockClient {
             
             // Assume that the message was a HELLO. Let's now send an image to see if this works.
             // We will read an image stored on the Hard Drive for now, it's path is being passed through params
-            Logging.LOG(2, args[0]);
-            File in_file = new File(args[0]);
+            Logging.LOG(2, args[1]);
+            File in_file = new File(args[1]);
             FileInputStream fin = new FileInputStream(in_file);
             byte file_contents[] = new byte[(int) in_file.length()];
             fin.read(file_contents);
