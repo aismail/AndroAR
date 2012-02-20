@@ -12,7 +12,7 @@ import me.prettyprint.hector.api.factory.HFactory;
 public class CassandraConnection {
 
 	public CassandraConnection() {
-		cluster = HFactory.getOrCreateCluster("TestCluster", "emerald:9160");
+		//cluster = HFactory.getOrCreateCluster("TestCluster", "emerald:9160");
 	}
 
 	// Processes and stores the information associated with the list of items sent by a client
@@ -38,6 +38,6 @@ public class CassandraConnection {
 	}
 	
 	// The Cassandra cluster we are connected to.
-	private Cluster cluster;
+	private Cluster cluster = null;
 	
 }
