@@ -69,8 +69,6 @@ public class MockClient {
             	.setImageToProcess(image)
             	.build();
             
-            Logging.LOG(2, "***\n " + client_message.toString() + "\n***");
-            
             Communication.sendMessage(client_message, out);
             
             socket.close();
