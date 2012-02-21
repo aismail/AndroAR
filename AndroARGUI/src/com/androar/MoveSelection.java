@@ -17,16 +17,18 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Toast;
 
-import com.androar.CommunicationProtos.AuthentificationInfo;
-import com.androar.CommunicationProtos.ClientMessage;
-import com.androar.CommunicationProtos.ClientMessage.ClientMessageType;
-import com.androar.CommunicationProtos.ServerMessage;
-import com.androar.ImageFeaturesProtos.DetectedObject;
-import com.androar.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
-import com.androar.ImageFeaturesProtos.Image;
-import com.androar.ImageFeaturesProtos.ImageContents;
-import com.androar.ImageFeaturesProtos.ObjectBoundingBox;
+import com.androar.comm.Communication;
+import com.androar.comm.CommunicationProtos.AuthentificationInfo;
+import com.androar.comm.CommunicationProtos.ClientMessage;
+import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
+import com.androar.comm.CommunicationProtos.ServerMessage;
+import com.androar.comm.ImageFeaturesProtos.DetectedObject;
+import com.androar.comm.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
+import com.androar.comm.ImageFeaturesProtos.Image;
+import com.androar.comm.ImageFeaturesProtos.ImageContents;
+import com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox;
 import com.google.protobuf.ByteString;
+
 
 public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback {
 	private SurfaceHolder mSurfaceHolder;
