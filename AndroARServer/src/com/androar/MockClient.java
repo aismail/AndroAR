@@ -3,15 +3,16 @@ package com.androar;
 import java.io.*;
 import java.net.Socket;
 
-import com.androar.CommunicationProtos.AuthentificationInfo;
-import com.androar.CommunicationProtos.ClientMessage;
-import com.androar.CommunicationProtos.ServerMessage;
-import com.androar.CommunicationProtos.ClientMessage.ClientMessageType;
-import com.androar.ImageFeaturesProtos.DetectedObject;
-import com.androar.ImageFeaturesProtos.Image;
-import com.androar.ImageFeaturesProtos.ImageContents;
-import com.androar.ImageFeaturesProtos.ObjectBoundingBox;
-import com.androar.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
+import com.androar.comm.Communication;
+import com.androar.comm.CommunicationProtos.AuthentificationInfo;
+import com.androar.comm.CommunicationProtos.ClientMessage;
+import com.androar.comm.CommunicationProtos.ServerMessage;
+import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
+import com.androar.comm.ImageFeaturesProtos.DetectedObject;
+import com.androar.comm.ImageFeaturesProtos.Image;
+import com.androar.comm.ImageFeaturesProtos.ImageContents;
+import com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox;
+import com.androar.comm.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
 import com.google.protobuf.ByteString;
 
 public class MockClient {
@@ -31,7 +32,8 @@ public class MockClient {
             Logging.LOG(2, "***\n " + server_message.toString() + "\n***");
             
             // Assume that the message was a HELLO. Let's now send an image to see if this works.
-            // We will read an image stored on the Hard Drive for now, it's path is being passed through params
+            // We will read an image stored on the Hard Drive for now, it's path is being passed 
+            // through params
             Logging.LOG(2, args[1]);
             File in_file = new File(args[1]);
             FileInputStream fin = new FileInputStream(in_file);

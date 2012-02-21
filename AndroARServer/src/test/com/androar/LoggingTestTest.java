@@ -7,8 +7,8 @@ import java.lang.reflect.Method;
 import org.junit.Test;
 
 import com.androar.ClientConnection;
-import com.androar.CommunicationProtos.ServerMessage;
-import com.androar.CommunicationProtos.ServerMessage.ServerMessageType;
+import com.androar.comm.CommunicationProtos.ServerMessage;
+import com.androar.comm.CommunicationProtos.ServerMessage.ServerMessageType;
 
 public class LoggingTestTest {
 

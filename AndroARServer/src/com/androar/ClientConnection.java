@@ -3,13 +3,17 @@ package com.androar;
 import java.io.*;
 import java.net.Socket;
 
-import com.androar.CommunicationProtos.ClientMessage.ClientMessageType;
-import com.androar.CommunicationProtos.ServerMessage.ServerMessageType;
-import com.androar.CommunicationProtos.*;
+import com.androar.comm.Communication;
+import com.androar.comm.CommunicationProtos.*;
+import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
+import com.androar.comm.CommunicationProtos.ServerMessage.ServerMessageType;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 public class ClientConnection implements Runnable {
 	
+	/*
+	 * Creates a bridge between the requesting client and backend systems (i.e. Cassandra)
+	 */
 	public ClientConnection(Socket clientSocket) {
 		this.clientSocket = clientSocket;
 		try {
@@ -18,7 +22,7 @@ public class ClientConnection implements Runnable {
 		} catch (IOException e) {
 			Logging.LOG(0, e.getMessage());
 		}
-		// Initialize a connection to the Cassandra Cluster;
+		// Initialize a connection to the Cassandra Cluster.
 		cassandraConnection = new CassandraConnection();
 		
 		this.run();
@@ -29,7 +33,8 @@ public class ClientConnection implements Runnable {
 		Logging.LOG(0, "Client " + clientSocket.getInetAddress() + " connected.");
 		
 		// Just send a friendly hello
-		ServerMessage helloMessage = ClientConnection.createServerMessage(ServerMessageType.HELLO_MESSAGE);
+		ServerMessage helloMessage = 
+				ClientConnection.createServerMessage(ServerMessageType.HELLO_MESSAGE);
 		Logging.LOG(2, "Created hello message");
 		Communication.sendMessage(helloMessage, out);
 		
@@ -40,10 +45,11 @@ public class ClientConnection implements Runnable {
 				if (serializedInputMessage == null) {
 					break;
 				}
-				ClientMessage currentClientMessage = ClientMessage.parseFrom(serializedInputMessage);
-				ServerMessage replyMessage = processAndReturnReplyToCurrentMessage(currentClientMessage);
+				ClientMessage currentClientMessage = 
+						ClientMessage.parseFrom(serializedInputMessage);
+				ServerMessage replyMessage = 
+						processAndReturnReplyToCurrentMessage(currentClientMessage);
 				if (replyMessage != null) {
-					Logging.LOG(2, replyMessage.toString());
 					Communication.sendMessage(replyMessage, out);
 				}
 			} catch (InvalidProtocolBufferException e) {
@@ -52,22 +58,32 @@ public class ClientConnection implements Runnable {
 		}
 	}
 	
-	private ServerMessage processAndReturnReplyToCurrentMessage(ClientMessage client_message) {
+	/*
+	 * Processes a message received from the client and returns the appropriate response that should
+	 * be sent back.
+	 * @param clientMessage message received from client
+	 */
+	private ServerMessage processAndReturnReplyToCurrentMessage(ClientMessage clientMessage) {
 		ServerMessage.Builder builder = ServerMessage.newBuilder();
-		ClientMessageType messageType = client_message.getMessageType();
+		ClientMessageType messageType = clientMessage.getMessageType();
 		ServerMessage returnMessage = null;
 		if (messageType == ClientMessageType.IMAGES_TO_STORE) {
-			cassandraConnection.storeImages(client_message.getImagesToStoreList());
+			cassandraConnection.storeImages(clientMessage.getImagesToStoreList());
 		} else if (messageType == ClientMessageType.IMAGE_TO_PROCESS) {
 			// Let's just store the image for now
 			// TODO(alex): Fix.
 			FileOutputStream fout;
 			try {
 				fout = new FileOutputStream("out.jpeg");
-				fout.write(client_message.getImageToProcess().getImage().getImageContents().toByteArray());
+				fout.write(
+						clientMessage
+							.getImageToProcess()
+							.getImage()
+							.getImageContents()
+							.toByteArray());
 				fout.close();
 			} catch (IOException e) {
-				Logging.LOG(2, e.getMessage());
+				e.printStackTrace();
 			}
 			builder.setMessageType(ServerMessageType.IMAGE_PROCESSED);
 			returnMessage = builder.build();
@@ -76,10 +92,13 @@ public class ClientConnection implements Runnable {
 		return returnMessage;
 	}
 	
+	/*
+	 * Creates a server message based on what the message type should be
+	 * @param messageType the message type
+	 */
 	private static ServerMessage createServerMessage(ServerMessageType messageType) {
 		ServerMessage.Builder builder = ServerMessage.newBuilder();
 		
-		// HELLO message
 		if (messageType == ServerMessageType.HELLO_MESSAGE) {
 			
 		} else if (messageType == ServerMessageType.AUTHENTIFICATION_DENIED) {
