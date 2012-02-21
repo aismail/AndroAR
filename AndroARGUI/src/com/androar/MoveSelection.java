@@ -157,12 +157,7 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 	public boolean onTouchEvent(MotionEvent event) {
 		float off_x = event.getX();
 		float off_y = event.getY();
-
-		try {
-			Thread.sleep(50);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_UP:
 			if (moving) {
