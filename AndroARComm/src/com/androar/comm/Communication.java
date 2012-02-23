@@ -16,6 +16,7 @@ public class Communication {
 			message = new byte[size];
 			in.readFully(message);
 		} catch (IOException e) {
+			e.printStackTrace();
 			return null;
 		}
 		return message;
@@ -27,6 +28,7 @@ public class Communication {
 			out.writeInt(size);
 			out.write(message.toByteArray());
 		} catch (IOException e) {
+			e.printStackTrace();
 			return;
 		}
 	}
