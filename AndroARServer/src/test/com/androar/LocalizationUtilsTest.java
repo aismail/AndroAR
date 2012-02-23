@@ -20,7 +20,6 @@ public class LocalizationUtilsTest {
 	
 	@Test
 	public void testGetDistanceDifferentPoints() {
-		//1.13938e+6 m
 		GPSPosition first = GPSPosition.newBuilder()
 				.setLatitude((float) 44.43620)
 				.setLongitude((float) 26.1027)
