@@ -50,6 +50,9 @@ public class MockDatabase implements IDatabaseConnection {
 					good_images.add(current_image);
 				} else if (LocalizationUtils.
 						getDistance(current_position, position.getGpsPosition()) < range) {
+					// That might be too computationally complex for the final product. We could
+					// just use a bounding square of radius range, centered in the current_position.
+					// TODO(alex, andrei): see how this works
 					good_images.add(current_image);
 				}
 			}
