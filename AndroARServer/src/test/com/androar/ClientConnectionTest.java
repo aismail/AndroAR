@@ -10,7 +10,7 @@ import com.androar.ClientConnection;
 import com.androar.comm.CommunicationProtos.ServerMessage;
 import com.androar.comm.CommunicationProtos.ServerMessage.ServerMessageType;
 
-public class LoggingTestTest {
+public class ClientConnectionTest {
 
 	@Test
 	public void testCreateServerMessage_HelloMessage() {
