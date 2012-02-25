@@ -67,8 +67,8 @@ public class MockClient {
             		.setPhoneId("PHONE_ID")
             		.setHash("CURRENT_HASH_OF_PHONE_ID")
             		.build())
-            	.setMessageType(ClientMessageType.IMAGE_TO_PROCESS)
-            	.setImageToProcess(image)
+            	.setMessageType(ClientMessageType.IMAGES_TO_STORE)
+            	.addImagesToStore(image)
             	.build();
             
             Communication.sendMessage(client_message, out);
