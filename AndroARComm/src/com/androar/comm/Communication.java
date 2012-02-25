@@ -2,7 +2,9 @@ package com.androar.comm;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
+import java.net.SocketException;
 
 import com.google.protobuf.Message;
 
@@ -15,6 +17,8 @@ public class Communication {
 			int size = in.readInt();
 			message = new byte[size];
 			in.readFully(message);
+		} catch (EOFException e) {
+			return null;
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
@@ -27,6 +31,8 @@ public class Communication {
 		try {
 			out.writeInt(size);
 			out.write(message.toByteArray());
+		} catch (SocketException e) {
+			return;
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
