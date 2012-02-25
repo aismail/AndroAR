@@ -15,7 +15,9 @@ import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
 public interface IDatabaseConnection {
 
 	/*
-	 * Attempts to store an image in the database, along with its metadata.
+	 * Attempts to store an image in the database, along with its metadata. This will store the
+	 * image along with all the objects associated with it. It will also add the image's metadata
+	 * to each object row.
 	 * @param image Image to be stored
 	 * @returns true if the operation was successful
 	 */
