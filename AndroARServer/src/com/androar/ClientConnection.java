@@ -23,7 +23,8 @@ public class ClientConnection implements Runnable {
 			Logging.LOG(0, e.getMessage());
 		}
 		// Initialize a connection to the Cassandra Cluster.
-		cassandraConnection = new CassandraConnection();
+		cassandra_connection = 
+				new CassandraDatabaseConnection(Constants.DATABASE_HOST, Constants.DATABASE_PORT);
 		
 		this.run();
 	}
@@ -56,6 +57,7 @@ public class ClientConnection implements Runnable {
 				e.printStackTrace();
 			}
 		}
+		cassandra_connection.closeConnection();
 	}
 	
 	/*
@@ -68,7 +70,12 @@ public class ClientConnection implements Runnable {
 		ClientMessageType messageType = clientMessage.getMessageType();
 		ServerMessage returnMessage = null;
 		if (messageType == ClientMessageType.IMAGES_TO_STORE) {
-			cassandraConnection.storeImages(clientMessage.getImagesToStoreList());
+			for (int image = 0; image < clientMessage.getImagesToStoreCount(); ++image) {
+				// Right now we're just storing the image, assuming that it's relevant and that the
+				// user input is correct.
+				// TODO(alex, andrei): Fix.
+				cassandra_connection.storeImage(clientMessage.getImagesToStore(image));
+			}
 		} else if (messageType == ClientMessageType.IMAGE_TO_PROCESS) {
 			// Let's just store the image for now
 			// TODO(alex): Fix.
@@ -112,8 +119,8 @@ public class ClientConnection implements Runnable {
 		return builder.build();
 	}
 	
-	// Cassandra client
-	private CassandraConnection cassandraConnection;
+	// Cassandra connection
+	private CassandraDatabaseConnection cassandra_connection;
 	// Socket between this server and the client
 	private Socket clientSocket;
 	// Output stream
