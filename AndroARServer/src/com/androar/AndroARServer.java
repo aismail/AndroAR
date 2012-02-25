@@ -11,6 +11,7 @@ public class AndroARServer {
 	 * @param args Arguments.
 	 */
 	public static void main(String[] args) {
+		Logging.setLOGLevel(10);
 		InboundConnectionListener.Init(6666, 10);
 		InboundConnectionListener connectionListener = 
 				InboundConnectionListener.getConnectionListener();
