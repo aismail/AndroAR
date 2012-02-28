@@ -1,5 +1,23 @@
+## Binary files
 *.class
+*.obj
+*.o
+*.out
+
+## Temporary files
+*.swp
+*~
+
+## Android generated files and folders
 *.dex
 *.apk
 bin/
 gen/
+
+## Eclipse generated files and folders
+.metadata/*
+*/.classpath
+*/.project
+*/.settings/
+
+## Misc

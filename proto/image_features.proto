@@ -1,6 +1,6 @@
 package androar;
 
-option java_package = "com.androar";
+option java_package = "com.androar.comm";
 option java_outer_classname = "ImageFeaturesProtos";
 
 // Next id = 3;

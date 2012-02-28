@@ -6,6 +6,9 @@ import java.util.concurrent.Executors;
 
 public class InboundConnectionListener extends Thread {
 	
+	/*
+	 * Returns a connection listener
+	 */
 	public static synchronized InboundConnectionListener getConnectionListener() {
 		if (connectionListener == null) {
 			connectionListener = new InboundConnectionListener();
@@ -13,12 +16,16 @@ public class InboundConnectionListener extends Thread {
 		return connectionListener;
 	}
 	
-	// Constructor
+	// Ctor
 	private InboundConnectionListener() {
 		connectionsThreadPool = Executors.newFixedThreadPool(numThreads);
 	}
 	
-	// Initialization function. Call before use!
+	/*
+	 * Initializes the internal state for the Connection Listener.
+	 * <p>
+	 * <b>Should be called before use!</b>
+	 */
 	public static void Init(int port, int numThreads) {
 		if (!inited) {
 			InboundConnectionListener.listeningPort = port;
@@ -28,21 +35,20 @@ public class InboundConnectionListener extends Thread {
 	}
 
 	public void run() {
-		// Start the server_socket
 		try {
 			serverSocket = new ServerSocket(listeningPort);
 		} catch (Exception e) {
-			Logging.LOG(0,  e.getMessage());
+			e.printStackTrace();
 		}
 		// Listen for connections_s
-		Logging.LOG(0, "Listening for connections on port " + listeningPort + ", using maximum " + numThreads + " threads.");
+		Logging.LOG(0, "Listening for connections on port " + listeningPort + 
+				", using maximum " + numThreads + " threads.");
 		while (true) {
 			try {
 				for (; !stopped ;) {
 					connectionsThreadPool.execute(new ClientConnection(serverSocket.accept()));
 				}
 			} catch (Exception e) {
-				Logging.LOG(0, e.getMessage());
 				connectionsThreadPool.shutdown();
 			}
 		}
@@ -52,6 +58,9 @@ public class InboundConnectionListener extends Thread {
 		this.start();
 	}
 	
+	/*
+	 * Returns the port that the clients are requesting a connection on.
+	 */
 	public static int getListeningPort() {
 		return listeningPort;
 	}
@@ -64,7 +73,8 @@ public class InboundConnectionListener extends Thread {
 	private static int numThreads;
 	// True if the user ran the Init function
 	private static Boolean inited = false;
-	// True if the server is stopped (all clients should terminate and we shouldn't accept any more clients)
+	// True if the server is stopped (all clients should terminate and we shouldn't accept any more
+	// clients)
 	private static Boolean stopped = false;
 
 	// Thread pool executor

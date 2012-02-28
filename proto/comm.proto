@@ -2,7 +2,7 @@ import "image_features.proto";
 
 package androar;
 
-option java_package = "com.androar";
+option java_package = "com.androar.comm";
 option java_outer_classname = "CommunicationProtos";
 
 // CLIENT
