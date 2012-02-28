@@ -29,7 +29,6 @@ import com.androar.comm.ImageFeaturesProtos.ImageContents;
 import com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox;
 import com.google.protobuf.ByteString;
 
-
 public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback {
 	private SurfaceHolder mSurfaceHolder;
 	private DrawThread mThread = null;
@@ -45,7 +44,7 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 	public MoveSelection(Context context) {
 		super(context);
 		context_ = context;
-		init();
+		initSurface();
 	}
 	
 	/**
@@ -55,7 +54,7 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 	public MoveSelection(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		context_ = context;
-		init();
+		initSurface();
 	}
 
 	/**
@@ -65,7 +64,7 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 	public MoveSelection(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		context_ = context;
-		init();
+		initSurface();
 	}
 	
 	private void sendMockPB() {
@@ -132,9 +131,12 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 		return;
 	}
 	
-	public void init() {
+	public void initSurface() {
 		mSurfaceHolder = getHolder();
 		mSurfaceHolder.addCallback(this);
+	}
+	
+	public void initResources() {
 		bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
 		background = BitmapFactory.decodeResource(getResources(), R.drawable.street);
 		mThread = new DrawThread(mSurfaceHolder, this);
@@ -184,6 +186,7 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
+		initResources();
 		x = holder.getSurfaceFrame().exactCenterX();
 		y = holder.getSurfaceFrame().exactCenterY();
 		mThread.setRunning(true);
