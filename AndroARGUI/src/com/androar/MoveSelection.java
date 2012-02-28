@@ -9,6 +9,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -20,13 +21,13 @@ import android.widget.Toast;
 import com.androar.comm.Communication;
 import com.androar.comm.CommunicationProtos.AuthentificationInfo;
 import com.androar.comm.CommunicationProtos.ClientMessage;
-import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
 import com.androar.comm.CommunicationProtos.ServerMessage;
+import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
 import com.androar.comm.ImageFeaturesProtos.DetectedObject;
-import com.androar.comm.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.ImageContents;
 import com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox;
+import com.androar.comm.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
 import com.google.protobuf.ByteString;
 
 public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback {
@@ -36,6 +37,8 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 	private float x = 0, y = 0;
 	private boolean moving = false;
 	private Context context_ = null;
+	
+	private final int DEFAULT_SELECTION_SIZE = 200;
 	
 	/**
 	 * Subclass of SurfaceView. Moves a bitmap on the SurfaceView by
@@ -138,6 +141,7 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 	
 	public void initResources() {
 		bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+		resizeBitmap(DEFAULT_SELECTION_SIZE, DEFAULT_SELECTION_SIZE);
 		background = BitmapFactory.decodeResource(getResources(), R.drawable.street);
 		mThread = new DrawThread(mSurfaceHolder, this);
 		setFocusable(true);
@@ -152,6 +156,22 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 		Rect newR = new Rect(0, 0, this.getWidth(), this.getHeight());
 		canvas.drawBitmap(background, oldR, newR, null);
 		canvas.drawBitmap(bitmap, x - (bitmap.getWidth() / 2), y - (bitmap.getHeight() / 2), null);
+	}
+	
+	/* Resize a bitmap to the newWidth 
+	 * and newHeight using a Matrix
+	 */
+	public void resizeBitmap(int newWidth, int newHeight) {
+		int width = bitmap.getWidth();
+		int height = bitmap.getHeight();
+		
+		float scaleW = ((float) newWidth) / width;
+		float scaleH = ((float) newHeight) / height;
+		
+		Matrix matrix = new Matrix();
+		matrix.postScale(scaleW, scaleH);
+		// resize the bitmap now
+		bitmap = Bitmap.createBitmap(bitmap, (int) x, (int) y, width, height, matrix, true);
 	}
 
 	/*
