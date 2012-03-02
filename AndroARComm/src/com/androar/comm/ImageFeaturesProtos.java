@@ -1917,9 +1917,9 @@ public final class ImageFeaturesProtos {
     boolean hasId();
     int getId();
     
-    // required string distance_to_viewer = 5;
+    // required int32 distance_to_viewer = 5;
     boolean hasDistanceToViewer();
-    String getDistanceToViewer();
+    int getDistanceToViewer();
   }
   public static final class DetectedObject extends
       com.google.protobuf.GeneratedMessage
@@ -2087,36 +2087,14 @@ public final class ImageFeaturesProtos {
       return id_;
     }
     
-    // required string distance_to_viewer = 5;
+    // required int32 distance_to_viewer = 5;
     public static final int DISTANCE_TO_VIEWER_FIELD_NUMBER = 5;
-    private java.lang.Object distanceToViewer_;
+    private int distanceToViewer_;
     public boolean hasDistanceToViewer() {
       return ((bitField0_ & 0x00000010) == 0x00000010);
     }
-    public String getDistanceToViewer() {
-      java.lang.Object ref = distanceToViewer_;
-      if (ref instanceof String) {
-        return (String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        String s = bs.toStringUtf8();
-        if (com.google.protobuf.Internal.isValidUtf8(bs)) {
-          distanceToViewer_ = s;
-        }
-        return s;
-      }
-    }
-    private com.google.protobuf.ByteString getDistanceToViewerBytes() {
-      java.lang.Object ref = distanceToViewer_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-        distanceToViewer_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
+    public int getDistanceToViewer() {
+      return distanceToViewer_;
     }
     
     private void initFields() {
@@ -2124,7 +2102,7 @@ public final class ImageFeaturesProtos {
       boundingBox_ = com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox.getDefaultInstance();
       name_ = "";
       id_ = 0;
-      distanceToViewer_ = "";
+      distanceToViewer_ = 0;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -2171,7 +2149,7 @@ public final class ImageFeaturesProtos {
         output.writeInt32(4, id_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeBytes(5, getDistanceToViewerBytes());
+        output.writeInt32(5, distanceToViewer_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -2200,7 +2178,7 @@ public final class ImageFeaturesProtos {
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(5, getDistanceToViewerBytes());
+          .computeInt32Size(5, distanceToViewer_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2339,7 +2317,7 @@ public final class ImageFeaturesProtos {
         bitField0_ = (bitField0_ & ~0x00000004);
         id_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
-        distanceToViewer_ = "";
+        distanceToViewer_ = 0;
         bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
@@ -2515,9 +2493,9 @@ public final class ImageFeaturesProtos {
               id_ = input.readInt32();
               break;
             }
-            case 42: {
+            case 40: {
               bitField0_ |= 0x00000010;
-              distanceToViewer_ = input.readBytes();
+              distanceToViewer_ = input.readInt32();
               break;
             }
           }
@@ -2697,40 +2675,25 @@ public final class ImageFeaturesProtos {
         return this;
       }
       
-      // required string distance_to_viewer = 5;
-      private java.lang.Object distanceToViewer_ = "";
+      // required int32 distance_to_viewer = 5;
+      private int distanceToViewer_ ;
       public boolean hasDistanceToViewer() {
         return ((bitField0_ & 0x00000010) == 0x00000010);
       }
-      public String getDistanceToViewer() {
-        java.lang.Object ref = distanceToViewer_;
-        if (!(ref instanceof String)) {
-          String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
-          distanceToViewer_ = s;
-          return s;
-        } else {
-          return (String) ref;
-        }
+      public int getDistanceToViewer() {
+        return distanceToViewer_;
       }
-      public Builder setDistanceToViewer(String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000010;
+      public Builder setDistanceToViewer(int value) {
+        bitField0_ |= 0x00000010;
         distanceToViewer_ = value;
         onChanged();
         return this;
       }
       public Builder clearDistanceToViewer() {
         bitField0_ = (bitField0_ & ~0x00000010);
-        distanceToViewer_ = getDefaultInstance().getDistanceToViewer();
+        distanceToViewer_ = 0;
         onChanged();
         return this;
-      }
-      void setDistanceToViewer(com.google.protobuf.ByteString value) {
-        bitField0_ |= 0x00000010;
-        distanceToViewer_ = value;
-        onChanged();
       }
       
       // @@protoc_insertion_point(builder_scope:androar.DetectedObject)
@@ -4131,7 +4094,7 @@ public final class ImageFeaturesProtos {
       "ndroar.DetectedObject.DetectedObjectType",
       "\0220\n\014bounding_box\030\002 \002(\0132\032.androar.ObjectB" +
       "oundingBox\022\014\n\004name\030\003 \002(\t\022\n\n\002id\030\004 \001(\005\022\032\n\022" +
-      "distance_to_viewer\030\005 \002(\t\"A\n\022DetectedObje" +
+      "distance_to_viewer\030\005 \002(\005\"A\n\022DetectedObje" +
       "ctType\022\013\n\007UNKNOWN\020\001\022\014\n\010BUILDING\020\002\022\020\n\014LAS" +
       "T_ELEMENT\020\003\";\n\rImageContents\022\022\n\nimage_ha" +
       "sh\030\001 \002(\t\022\026\n\016image_contents\030\002 \002(\014\"\237\001\n\005Ima" +
