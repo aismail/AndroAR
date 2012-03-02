@@ -54,6 +54,7 @@ public class MockClient {
             			setLeft(0).
             			setRight(100).
             			build()).
+            		setDistanceToViewer(20).
             		build()).
             	setImage(
             		ImageContents.newBuilder().
