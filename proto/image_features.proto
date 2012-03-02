@@ -41,6 +41,7 @@ message DetectedObject {
 	required string name = 3;
 	optional int32 id = 4;
 	required int32 distance_to_viewer = 5;
+	required int32 angle_to_viewer = 6;
 }
 
 // Next id = 3
