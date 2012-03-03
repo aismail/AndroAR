@@ -35,11 +35,28 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 	private DrawThread mThread = null;
 	private Bitmap bitmap, background;
 	private float x = 0, y = 0;
-	private boolean moving = false;
 	private Context context_ = null;
 	
+	// selection modes
+	private final int NONE = 0;
+	private final int DRAG = 1;
+	private final int PINCH = 2;
+	private int MODE = NONE;
+
 	private final int DEFAULT_SELECTION_SIZE = 200;
-	
+	private final float DEFAULT_EPSILON = (float) 0.5;
+
+	private class ImageParams {
+		// TODO: encapsulation stuff here
+		float epsilon = DEFAULT_EPSILON; // error of approximation
+
+		public float euclidianDist(float x1, float y1, float x2, float y2) {
+			float dx = x1 - x2;
+			float dy = y1 - y2;
+			return (float) Math.sqrt(dx * dx + dy * dy);
+		}
+	}
+
 	/**
 	 * Subclass of SurfaceView. Moves a bitmap on the SurfaceView by
 	 * permanently redrawing it, using threads.
@@ -49,7 +66,7 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 		context_ = context;
 		initSurface();
 	}
-	
+
 	/**
 	 * Subclass of SurfaceView. Moves a bitmap on the SurfaceView by
 	 * permanently redrawing it, using threads.
@@ -146,7 +163,7 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 		mThread = new DrawThread(mSurfaceHolder, this);
 		setFocusable(true);
 		// Just send a mock protocol buffer
-		sendMockPB();
+//		sendMockPB();
 	}
 	
 	@Override
@@ -171,7 +188,8 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 		Matrix matrix = new Matrix();
 		matrix.postScale(scaleW, scaleH);
 		// resize the bitmap now
-		bitmap = Bitmap.createBitmap(bitmap, (int) x, (int) y, width, height, matrix, true);
+		bitmap = Bitmap.createBitmap(bitmap, (int) 0, (int) 0, width, height,
+				matrix, true);
 	}
 
 	/*
@@ -181,24 +199,38 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 	public boolean onTouchEvent(MotionEvent event) {
 		float off_x = event.getX();
 		float off_y = event.getY();
-		
-		switch (event.getAction()) {
+		float oldDist;
+		ImageParams image = new ImageParams();
+
+		switch (event.getAction() & MotionEvent.ACTION_MASK) {
 		case MotionEvent.ACTION_UP:
-			if (moving) {
+			if (MODE == DRAG) {
 				x = off_x;
 				y = off_y;
 			}
-			moving = false;
+			MODE = NONE;
 			break;
 		case MotionEvent.ACTION_DOWN:
-			if ((Math.abs(off_x - x) <= bitmap.getWidth() / 2) &&
-				(Math.abs(off_y - y) <= bitmap.getHeight() / 2))
-				moving = true;
+			if ((Math.abs(off_x - x) <= bitmap.getWidth() / 2)
+					&& (Math.abs(off_y - y) <= bitmap.getHeight() / 2))
+				MODE = DRAG;
+			break;
 		case MotionEvent.ACTION_MOVE:
-			if (moving) {
+			if (MODE == DRAG) {
 				x = off_x;
 				y = off_y;
+			} else if (MODE == PINCH) {
+				float newDist = image.euclidianDist(event.getX(0), event
+						.getY(0), event.getX(1), event.getY(1));
+				if (newDist > 10f)
+					resizeBitmap((int) newDist, (int) newDist);
 			}
+			break;
+		case MotionEvent.ACTION_POINTER_DOWN:
+			oldDist = image.euclidianDist(event.getX(0), event.getY(0), event
+					.getX(1), event.getY(1));
+			if (oldDist > 10f)
+				MODE = PINCH;
 			break;
 		}
 		return true;
