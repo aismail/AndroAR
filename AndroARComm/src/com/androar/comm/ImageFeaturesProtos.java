@@ -1916,6 +1916,14 @@ public final class ImageFeaturesProtos {
     // optional int32 id = 4;
     boolean hasId();
     int getId();
+    
+    // required int32 distance_to_viewer = 5;
+    boolean hasDistanceToViewer();
+    int getDistanceToViewer();
+    
+    // required int32 angle_to_viewer = 6;
+    boolean hasAngleToViewer();
+    int getAngleToViewer();
   }
   public static final class DetectedObject extends
       com.google.protobuf.GeneratedMessage
@@ -2083,11 +2091,33 @@ public final class ImageFeaturesProtos {
       return id_;
     }
     
+    // required int32 distance_to_viewer = 5;
+    public static final int DISTANCE_TO_VIEWER_FIELD_NUMBER = 5;
+    private int distanceToViewer_;
+    public boolean hasDistanceToViewer() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    public int getDistanceToViewer() {
+      return distanceToViewer_;
+    }
+    
+    // required int32 angle_to_viewer = 6;
+    public static final int ANGLE_TO_VIEWER_FIELD_NUMBER = 6;
+    private int angleToViewer_;
+    public boolean hasAngleToViewer() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    public int getAngleToViewer() {
+      return angleToViewer_;
+    }
+    
     private void initFields() {
       objectType_ = com.androar.comm.ImageFeaturesProtos.DetectedObject.DetectedObjectType.UNKNOWN;
       boundingBox_ = com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox.getDefaultInstance();
       name_ = "";
       id_ = 0;
+      distanceToViewer_ = 0;
+      angleToViewer_ = 0;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -2103,6 +2133,14 @@ public final class ImageFeaturesProtos {
         return false;
       }
       if (!hasName()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasDistanceToViewer()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasAngleToViewer()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -2129,6 +2167,12 @@ public final class ImageFeaturesProtos {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeInt32(4, id_);
       }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeInt32(5, distanceToViewer_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeInt32(6, angleToViewer_);
+      }
       getUnknownFields().writeTo(output);
     }
     
@@ -2153,6 +2197,14 @@ public final class ImageFeaturesProtos {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(4, id_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(5, distanceToViewer_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(6, angleToViewer_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2291,6 +2343,10 @@ public final class ImageFeaturesProtos {
         bitField0_ = (bitField0_ & ~0x00000004);
         id_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
+        distanceToViewer_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000010);
+        angleToViewer_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000020);
         return this;
       }
       
@@ -2349,6 +2405,14 @@ public final class ImageFeaturesProtos {
           to_bitField0_ |= 0x00000008;
         }
         result.id_ = id_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.distanceToViewer_ = distanceToViewer_;
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
+        }
+        result.angleToViewer_ = angleToViewer_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -2377,6 +2441,12 @@ public final class ImageFeaturesProtos {
         if (other.hasId()) {
           setId(other.getId());
         }
+        if (other.hasDistanceToViewer()) {
+          setDistanceToViewer(other.getDistanceToViewer());
+        }
+        if (other.hasAngleToViewer()) {
+          setAngleToViewer(other.getAngleToViewer());
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
@@ -2391,6 +2461,14 @@ public final class ImageFeaturesProtos {
           return false;
         }
         if (!hasName()) {
+          
+          return false;
+        }
+        if (!hasDistanceToViewer()) {
+          
+          return false;
+        }
+        if (!hasAngleToViewer()) {
           
           return false;
         }
@@ -2452,6 +2530,16 @@ public final class ImageFeaturesProtos {
             case 32: {
               bitField0_ |= 0x00000008;
               id_ = input.readInt32();
+              break;
+            }
+            case 40: {
+              bitField0_ |= 0x00000010;
+              distanceToViewer_ = input.readInt32();
+              break;
+            }
+            case 48: {
+              bitField0_ |= 0x00000020;
+              angleToViewer_ = input.readInt32();
               break;
             }
           }
@@ -2627,6 +2715,48 @@ public final class ImageFeaturesProtos {
       public Builder clearId() {
         bitField0_ = (bitField0_ & ~0x00000008);
         id_ = 0;
+        onChanged();
+        return this;
+      }
+      
+      // required int32 distance_to_viewer = 5;
+      private int distanceToViewer_ ;
+      public boolean hasDistanceToViewer() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      public int getDistanceToViewer() {
+        return distanceToViewer_;
+      }
+      public Builder setDistanceToViewer(int value) {
+        bitField0_ |= 0x00000010;
+        distanceToViewer_ = value;
+        onChanged();
+        return this;
+      }
+      public Builder clearDistanceToViewer() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        distanceToViewer_ = 0;
+        onChanged();
+        return this;
+      }
+      
+      // required int32 angle_to_viewer = 6;
+      private int angleToViewer_ ;
+      public boolean hasAngleToViewer() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
+      }
+      public int getAngleToViewer() {
+        return angleToViewer_;
+      }
+      public Builder setAngleToViewer(int value) {
+        bitField0_ |= 0x00000020;
+        angleToViewer_ = value;
+        onChanged();
+        return this;
+      }
+      public Builder clearAngleToViewer() {
+        bitField0_ = (bitField0_ & ~0x00000020);
+        angleToViewer_ = 0;
         onChanged();
         return this;
       }
@@ -4024,20 +4154,21 @@ public final class ImageFeaturesProtos {
       "\001(\0132\024.androar.GPSPosition\0222\n\020compass_pos" +
       "ition\030\002 \001(\0132\030.androar.CompassPosition\"M\n" +
       "\021ObjectBoundingBox\022\016\n\006bottom\030\001 \002(\005\022\013\n\003to" +
-      "p\030\002 \002(\005\022\014\n\004left\030\003 \002(\005\022\r\n\005right\030\004 \002(\005\"\340\001\n" +
+      "p\030\002 \002(\005\022\014\n\004left\030\003 \002(\005\022\r\n\005right\030\004 \002(\005\"\225\002\n" +
       "\016DetectedObject\022?\n\013object_type\030\001 \002(\0162*.a" +
       "ndroar.DetectedObject.DetectedObjectType",
       "\0220\n\014bounding_box\030\002 \002(\0132\032.androar.ObjectB" +
-      "oundingBox\022\014\n\004name\030\003 \002(\t\022\n\n\002id\030\004 \001(\005\"A\n\022" +
-      "DetectedObjectType\022\013\n\007UNKNOWN\020\001\022\014\n\010BUILD" +
-      "ING\020\002\022\020\n\014LAST_ELEMENT\020\003\";\n\rImageContents" +
-      "\022\022\n\nimage_hash\030\001 \002(\t\022\026\n\016image_contents\030\002" +
-      " \002(\014\"\237\001\n\005Image\022%\n\005image\030\001 \002(\0132\026.androar." +
-      "ImageContents\022<\n\025localization_features\030\002" +
-      " \001(\0132\035.androar.LocalizationFeatures\0221\n\020d" +
-      "etected_objects\030\003 \003(\0132\027.androar.Detected" +
-      "ObjectB\'\n\020com.androar.commB\023ImageFeature",
-      "sProtos"
+      "oundingBox\022\014\n\004name\030\003 \002(\t\022\n\n\002id\030\004 \001(\005\022\032\n\022" +
+      "distance_to_viewer\030\005 \002(\005\022\027\n\017angle_to_vie" +
+      "wer\030\006 \002(\005\"A\n\022DetectedObjectType\022\013\n\007UNKNO" +
+      "WN\020\001\022\014\n\010BUILDING\020\002\022\020\n\014LAST_ELEMENT\020\003\";\n\r" +
+      "ImageContents\022\022\n\nimage_hash\030\001 \002(\t\022\026\n\016ima" +
+      "ge_contents\030\002 \002(\014\"\237\001\n\005Image\022%\n\005image\030\001 \002" +
+      "(\0132\026.androar.ImageContents\022<\n\025localizati" +
+      "on_features\030\002 \001(\0132\035.androar.Localization" +
+      "Features\0221\n\020detected_objects\030\003 \003(\0132\027.and",
+      "roar.DetectedObjectB\'\n\020com.androar.commB" +
+      "\023ImageFeaturesProtos"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -4081,7 +4212,7 @@ public final class ImageFeaturesProtos {
           internal_static_androar_DetectedObject_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_androar_DetectedObject_descriptor,
-              new java.lang.String[] { "ObjectType", "BoundingBox", "Name", "Id", },
+              new java.lang.String[] { "ObjectType", "BoundingBox", "Name", "Id", "DistanceToViewer", "AngleToViewer", },
               com.androar.comm.ImageFeaturesProtos.DetectedObject.class,
               com.androar.comm.ImageFeaturesProtos.DetectedObject.Builder.class);
           internal_static_androar_ImageContents_descriptor =
