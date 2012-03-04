@@ -203,6 +203,11 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 		ImageParams image = new ImageParams();
 
 		switch (event.getAction() & MotionEvent.ACTION_MASK) {
+		case MotionEvent.ACTION_POINTER_UP:
+			if (MODE == PINCH) {
+				MODE = DRAG;
+			}
+			break;
 		case MotionEvent.ACTION_UP:
 			if (MODE == DRAG) {
 				x = off_x;
