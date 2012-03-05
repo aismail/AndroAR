@@ -12,6 +12,7 @@ import me.prettyprint.cassandra.service.ThriftKsDef;
 import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
 import me.prettyprint.hector.api.beans.HColumn;
+import me.prettyprint.hector.api.beans.HSuperColumn;
 import me.prettyprint.hector.api.ddl.ColumnFamilyDefinition;
 import me.prettyprint.hector.api.ddl.ColumnType;
 import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
@@ -224,6 +225,36 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		}
 		Logging.LOG(10, "Done storing image");
 		return true;
+	}
+
+	public ObjectMetadata getObjectMetadata(String object_id) {
+		// The ObjectMetadata object contains:
+		//  * name
+		//  * description
+		ObjectMetadata.Builder builder = ObjectMetadata.newBuilder();
+		SuperColumnQuery<String, String, String, String> super_column_query =
+				HFactory.createSuperColumnQuery(keyspace_operator, string_serializer,
+						string_serializer, string_serializer, string_serializer);
+		super_column_query
+				.setColumnFamily(Constants.CASSANDRA_OBJECT_TO_IMAGE_ASSOCIATIONS_COLUMN_FAMILY)
+				.setKey(object_id)
+				.setSuperName("metadata");
+		HSuperColumn<String, String, String> result = super_column_query.execute().get();
+		if (result == null) {
+			return null;
+		}
+		HColumn<String, String> name_column = result.getSubColumnByName("name");
+		if (name_column != null) {
+			builder.setName(name_column.getValue());
+		} else {
+			builder.setName(object_id);
+		}
+		HColumn<String, String> description_column = result.getSubColumnByName("description");
+		if (description_column != null) {
+			builder.setDescription(description_column.getValue());
+		}
+		
+		return builder.build();
 	}
 	
 	/*

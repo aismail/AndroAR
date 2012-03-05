@@ -9,6 +9,7 @@ import java.util.List;
 import com.androar.comm.ImageFeaturesProtos.GPSPosition;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
+import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
 
 /**
  * @author Alexandru Damian (alex.m.damian@gmail.com)
@@ -58,6 +59,14 @@ public class MockDatabase implements IDatabaseConnection {
 			}
 		}
 		return good_images;
+	}
+
+	@Override
+	public ObjectMetadata getObjectMetadata(String object_id) {
+		return ObjectMetadata.newBuilder().
+				setName("NAME").
+				setDescription("DESCRIPTION").
+				build();
 	}
 
 }

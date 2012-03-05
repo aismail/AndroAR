@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
+import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
 
 /**
  * @author Alexandru Damian (alex.m.damian@gmail.com)
@@ -29,5 +30,11 @@ public interface IDatabaseConnection {
 	 * @returns a list of Image objects that are in the current range
 	 */
 	public List<Image> getImagesInRange(LocalizationFeatures position, double range);
-	
+
+	/*
+	 * Fetches an object's metadata
+	 * @param object_id the object's id
+	 * @returns the object's metadata
+	 */
+	public ObjectMetadata getObjectMetadata(String object_id);
 }
