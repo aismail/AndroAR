@@ -259,7 +259,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 				.setKey(object_id)
 				.setSuperColumn("image_index")
 				.setColumn("first_available_image_id");
-        QueryResult<HColumn<String, String>> result = sub_column_query.execute();
+        QueryResult<HColumn<String, Integer>> result = sub_column_query.execute();
         return (result.get() != null);
 	}
 
