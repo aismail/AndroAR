@@ -35,6 +35,7 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 	private DrawThread mThread = null;
 	private Bitmap bitmap, background;
 	private float x = 0, y = 0;
+	float saved_dx = 0, saved_dy = 0;
 	private Context context_ = null;
 	
 	// selection modes
@@ -197,8 +198,8 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 	 */
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		float off_x = event.getX();
-		float off_y = event.getY();
+		float current_x = event.getX();
+		float current_y = event.getY();
 		float oldDist;
 		ImageParams image = new ImageParams();
 
@@ -210,20 +211,23 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 			break;
 		case MotionEvent.ACTION_UP:
 			if (MODE == DRAG) {
-				x = off_x;
-				y = off_y;
+				x = current_x - saved_dx;
+				y = current_y - saved_dy;
 			}
 			MODE = NONE;
 			break;
 		case MotionEvent.ACTION_DOWN:
-			if ((Math.abs(off_x - x) <= bitmap.getWidth() / 2)
-					&& (Math.abs(off_y - y) <= bitmap.getHeight() / 2))
+			if ((Math.abs(current_x - x) <= bitmap.getWidth() / 2)
+					&& (Math.abs(current_y - y) <= bitmap.getHeight() / 2)) {
 				MODE = DRAG;
+				saved_dx = current_x - x;
+				saved_dy = current_y - y;
+			}
 			break;
 		case MotionEvent.ACTION_MOVE:
 			if (MODE == DRAG) {
-				x = off_x;
-				y = off_y;
+				x = current_x - saved_dx;
+				y = current_y - saved_dy;
 			} else if (MODE == PINCH) {
 				float newDist = image.euclidianDist(event.getX(0), event
 						.getY(0), event.getX(1), event.getY(1));
