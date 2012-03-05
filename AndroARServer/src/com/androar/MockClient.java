@@ -13,6 +13,7 @@ import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.ImageContents;
 import com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox;
 import com.androar.comm.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
+import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
 import com.google.protobuf.ByteString;
 
 public class MockClient {
@@ -46,7 +47,7 @@ public class MockClient {
             	addDetectedObjects(
             		DetectedObject.newBuilder().
             		setObjectType(DetectedObjectType.BUILDING).
-            		setName("OBJECT_1").
+            		setId("666").
             		setBoundingBox(
             			ObjectBoundingBox.newBuilder().
             			setTop(0).
@@ -56,6 +57,9 @@ public class MockClient {
             			build()).
             		setDistanceToViewer(20).
             		setAngleToViewer(15).
+            		setMetadata(ObjectMetadata.newBuilder().
+            				setName("OBJECT_1").
+            				setDescription("OBJECT_1_DESCRIPTION_LONG")).
             		build()).
             	setImage(
             		ImageContents.newBuilder().

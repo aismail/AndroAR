@@ -26,6 +26,7 @@ import com.androar.comm.ImageFeaturesProtos.DetectedObject;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.ImageContents;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
+import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
 
 public class CassandraDatabaseConnection implements IDatabaseConnection {
 
@@ -105,11 +106,10 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		// Detected Objects
 		for (int object = 0; object < image.getDetectedObjectsCount(); ++object) {
 			DetectedObject detected_object = image.getDetectedObjects(object);
-			Logging.LOG(10, "Storing detected object: " + detected_object.getName());
+			Logging.LOG(10, "Storing detected object: " + detected_object.getId());
 			mutator.insert(image_hash,
 					Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY,
-					HFactory.createStringColumn("object" + object,
-							detected_object.getName()));
+					HFactory.createStringColumn("object" + object, detected_object.getId()));
 		}
 		mutator.insert(image_hash,
 				Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY, 
@@ -154,7 +154,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		// The row key is the object hash / id / name.
 		for (int object = 0; object < image.getDetectedObjectsCount(); ++object) {
 			DetectedObject detected_object = image.getDetectedObjects(object);
-			String object_id = detected_object.getName();
+			String object_id = detected_object.getId();
 			int first_unused_image_id;
 			boolean object_exists = detectedObjectExists(object_id);
 			if (!object_exists) {
@@ -162,8 +162,18 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 				first_unused_image_id = 0;
 				ArrayList<HColumn<String, String>> metadata_values =
 						new ArrayList<HColumn<String,String>>();
-				metadata_values.add(HFactory.createStringColumn("name", detected_object.getName()));
-				metadata_values.add(HFactory.createStringColumn("description", ""));
+				if (detected_object.hasMetadata()) {
+					ObjectMetadata metadata = detected_object.getMetadata();
+					String name = (metadata.hasName()) ? metadata.getName() : detected_object.getId();
+					metadata_values.add(HFactory.createStringColumn("name", name));
+					if (metadata.hasDescription()) {
+						metadata_values.add(HFactory.createStringColumn(
+								"description", metadata.getDescription()));
+					}
+				} else {
+					metadata_values.add(
+							HFactory.createStringColumn("name", detected_object.getId()));
+				}
 				mutator.insert(object_id,
 						Constants.CASSANDRA_OBJECT_TO_IMAGE_ASSOCIATIONS_COLUMN_FAMILY,
 						HFactory.createSuperColumn(
@@ -171,7 +181,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 								string_serializer));
 			} else {
 				first_unused_image_id = 
-						getDetectedObjectFirstAvailableImageId(detected_object.getName());
+						getDetectedObjectFirstAvailableImageId(object_id);
 				
 			}
 			// Add the image super column
@@ -216,6 +226,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		return true;
 	}
 
+	
 	/*
 	 * (non-Javadoc)
 	 * @see com.androar.IDatabaseConnection#getImagesInRange(com.androar.comm.ImageFeaturesProtos.LocalizationFeatures, double)

@@ -1897,6 +1897,475 @@ public final class ImageFeaturesProtos {
     // @@protoc_insertion_point(class_scope:androar.ObjectBoundingBox)
   }
   
+  public interface ObjectMetadataOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+    
+    // optional string name = 1;
+    boolean hasName();
+    String getName();
+    
+    // optional string description = 2;
+    boolean hasDescription();
+    String getDescription();
+  }
+  public static final class ObjectMetadata extends
+      com.google.protobuf.GeneratedMessage
+      implements ObjectMetadataOrBuilder {
+    // Use ObjectMetadata.newBuilder() to construct.
+    private ObjectMetadata(Builder builder) {
+      super(builder);
+    }
+    private ObjectMetadata(boolean noInit) {}
+    
+    private static final ObjectMetadata defaultInstance;
+    public static ObjectMetadata getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public ObjectMetadata getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.androar.comm.ImageFeaturesProtos.internal_static_androar_ObjectMetadata_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.androar.comm.ImageFeaturesProtos.internal_static_androar_ObjectMetadata_fieldAccessorTable;
+    }
+    
+    private int bitField0_;
+    // optional string name = 1;
+    public static final int NAME_FIELD_NUMBER = 1;
+    private java.lang.Object name_;
+    public boolean hasName() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    public String getName() {
+      java.lang.Object ref = name_;
+      if (ref instanceof String) {
+        return (String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        String s = bs.toStringUtf8();
+        if (com.google.protobuf.Internal.isValidUtf8(bs)) {
+          name_ = s;
+        }
+        return s;
+      }
+    }
+    private com.google.protobuf.ByteString getNameBytes() {
+      java.lang.Object ref = name_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8((String) ref);
+        name_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    
+    // optional string description = 2;
+    public static final int DESCRIPTION_FIELD_NUMBER = 2;
+    private java.lang.Object description_;
+    public boolean hasDescription() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    public String getDescription() {
+      java.lang.Object ref = description_;
+      if (ref instanceof String) {
+        return (String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        String s = bs.toStringUtf8();
+        if (com.google.protobuf.Internal.isValidUtf8(bs)) {
+          description_ = s;
+        }
+        return s;
+      }
+    }
+    private com.google.protobuf.ByteString getDescriptionBytes() {
+      java.lang.Object ref = description_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8((String) ref);
+        description_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    
+    private void initFields() {
+      name_ = "";
+      description_ = "";
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+      
+      memoizedIsInitialized = 1;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBytes(1, getNameBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(2, getDescriptionBytes());
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, getNameBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, getDescriptionBytes());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+    
+    public static com.androar.comm.ImageFeaturesProtos.ObjectMetadata parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.androar.comm.ImageFeaturesProtos.ObjectMetadata parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.androar.comm.ImageFeaturesProtos.ObjectMetadata parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.androar.comm.ImageFeaturesProtos.ObjectMetadata parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.androar.comm.ImageFeaturesProtos.ObjectMetadata parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.androar.comm.ImageFeaturesProtos.ObjectMetadata parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.androar.comm.ImageFeaturesProtos.ObjectMetadata parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.androar.comm.ImageFeaturesProtos.ObjectMetadata parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.androar.comm.ImageFeaturesProtos.ObjectMetadata parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.androar.comm.ImageFeaturesProtos.ObjectMetadata parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(com.androar.comm.ImageFeaturesProtos.ObjectMetadata prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements com.androar.comm.ImageFeaturesProtos.ObjectMetadataOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.androar.comm.ImageFeaturesProtos.internal_static_androar_ObjectMetadata_descriptor;
+      }
+      
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.androar.comm.ImageFeaturesProtos.internal_static_androar_ObjectMetadata_fieldAccessorTable;
+      }
+      
+      // Construct using com.androar.comm.ImageFeaturesProtos.ObjectMetadata.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+      
+      private Builder(BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+      
+      public Builder clear() {
+        super.clear();
+        name_ = "";
+        bitField0_ = (bitField0_ & ~0x00000001);
+        description_ = "";
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.androar.comm.ImageFeaturesProtos.ObjectMetadata.getDescriptor();
+      }
+      
+      public com.androar.comm.ImageFeaturesProtos.ObjectMetadata getDefaultInstanceForType() {
+        return com.androar.comm.ImageFeaturesProtos.ObjectMetadata.getDefaultInstance();
+      }
+      
+      public com.androar.comm.ImageFeaturesProtos.ObjectMetadata build() {
+        com.androar.comm.ImageFeaturesProtos.ObjectMetadata result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+      
+      private com.androar.comm.ImageFeaturesProtos.ObjectMetadata buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        com.androar.comm.ImageFeaturesProtos.ObjectMetadata result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return result;
+      }
+      
+      public com.androar.comm.ImageFeaturesProtos.ObjectMetadata buildPartial() {
+        com.androar.comm.ImageFeaturesProtos.ObjectMetadata result = new com.androar.comm.ImageFeaturesProtos.ObjectMetadata(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.name_ = name_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.description_ = description_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.androar.comm.ImageFeaturesProtos.ObjectMetadata) {
+          return mergeFrom((com.androar.comm.ImageFeaturesProtos.ObjectMetadata)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(com.androar.comm.ImageFeaturesProtos.ObjectMetadata other) {
+        if (other == com.androar.comm.ImageFeaturesProtos.ObjectMetadata.getDefaultInstance()) return this;
+        if (other.hasName()) {
+          setName(other.getName());
+        }
+        if (other.hasDescription()) {
+          setDescription(other.getDescription());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public final boolean isInitialized() {
+        return true;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              onChanged();
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                onChanged();
+                return this;
+              }
+              break;
+            }
+            case 10: {
+              bitField0_ |= 0x00000001;
+              name_ = input.readBytes();
+              break;
+            }
+            case 18: {
+              bitField0_ |= 0x00000002;
+              description_ = input.readBytes();
+              break;
+            }
+          }
+        }
+      }
+      
+      private int bitField0_;
+      
+      // optional string name = 1;
+      private java.lang.Object name_ = "";
+      public boolean hasName() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      public String getName() {
+        java.lang.Object ref = name_;
+        if (!(ref instanceof String)) {
+          String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
+          name_ = s;
+          return s;
+        } else {
+          return (String) ref;
+        }
+      }
+      public Builder setName(String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        name_ = value;
+        onChanged();
+        return this;
+      }
+      public Builder clearName() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        name_ = getDefaultInstance().getName();
+        onChanged();
+        return this;
+      }
+      void setName(com.google.protobuf.ByteString value) {
+        bitField0_ |= 0x00000001;
+        name_ = value;
+        onChanged();
+      }
+      
+      // optional string description = 2;
+      private java.lang.Object description_ = "";
+      public boolean hasDescription() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      public String getDescription() {
+        java.lang.Object ref = description_;
+        if (!(ref instanceof String)) {
+          String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
+          description_ = s;
+          return s;
+        } else {
+          return (String) ref;
+        }
+      }
+      public Builder setDescription(String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        description_ = value;
+        onChanged();
+        return this;
+      }
+      public Builder clearDescription() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        description_ = getDefaultInstance().getDescription();
+        onChanged();
+        return this;
+      }
+      void setDescription(com.google.protobuf.ByteString value) {
+        bitField0_ |= 0x00000002;
+        description_ = value;
+        onChanged();
+      }
+      
+      // @@protoc_insertion_point(builder_scope:androar.ObjectMetadata)
+    }
+    
+    static {
+      defaultInstance = new ObjectMetadata(true);
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:androar.ObjectMetadata)
+  }
+  
   public interface DetectedObjectOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
     
@@ -1909,13 +2378,14 @@ public final class ImageFeaturesProtos {
     com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox getBoundingBox();
     com.androar.comm.ImageFeaturesProtos.ObjectBoundingBoxOrBuilder getBoundingBoxOrBuilder();
     
-    // required string name = 3;
-    boolean hasName();
-    String getName();
+    // optional .androar.ObjectMetadata metadata = 3;
+    boolean hasMetadata();
+    com.androar.comm.ImageFeaturesProtos.ObjectMetadata getMetadata();
+    com.androar.comm.ImageFeaturesProtos.ObjectMetadataOrBuilder getMetadataOrBuilder();
     
-    // optional int32 id = 4;
+    // required string id = 4;
     boolean hasId();
-    int getId();
+    String getId();
     
     // required int32 distance_to_viewer = 5;
     boolean hasDistanceToViewer();
@@ -2049,14 +2519,27 @@ public final class ImageFeaturesProtos {
       return boundingBox_;
     }
     
-    // required string name = 3;
-    public static final int NAME_FIELD_NUMBER = 3;
-    private java.lang.Object name_;
-    public boolean hasName() {
+    // optional .androar.ObjectMetadata metadata = 3;
+    public static final int METADATA_FIELD_NUMBER = 3;
+    private com.androar.comm.ImageFeaturesProtos.ObjectMetadata metadata_;
+    public boolean hasMetadata() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
-    public String getName() {
-      java.lang.Object ref = name_;
+    public com.androar.comm.ImageFeaturesProtos.ObjectMetadata getMetadata() {
+      return metadata_;
+    }
+    public com.androar.comm.ImageFeaturesProtos.ObjectMetadataOrBuilder getMetadataOrBuilder() {
+      return metadata_;
+    }
+    
+    // required string id = 4;
+    public static final int ID_FIELD_NUMBER = 4;
+    private java.lang.Object id_;
+    public boolean hasId() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    public String getId() {
+      java.lang.Object ref = id_;
       if (ref instanceof String) {
         return (String) ref;
       } else {
@@ -2064,31 +2547,21 @@ public final class ImageFeaturesProtos {
             (com.google.protobuf.ByteString) ref;
         String s = bs.toStringUtf8();
         if (com.google.protobuf.Internal.isValidUtf8(bs)) {
-          name_ = s;
+          id_ = s;
         }
         return s;
       }
     }
-    private com.google.protobuf.ByteString getNameBytes() {
-      java.lang.Object ref = name_;
+    private com.google.protobuf.ByteString getIdBytes() {
+      java.lang.Object ref = id_;
       if (ref instanceof String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-        name_ = b;
+        id_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
-    }
-    
-    // optional int32 id = 4;
-    public static final int ID_FIELD_NUMBER = 4;
-    private int id_;
-    public boolean hasId() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
-    }
-    public int getId() {
-      return id_;
     }
     
     // required int32 distance_to_viewer = 5;
@@ -2114,8 +2587,8 @@ public final class ImageFeaturesProtos {
     private void initFields() {
       objectType_ = com.androar.comm.ImageFeaturesProtos.DetectedObject.DetectedObjectType.UNKNOWN;
       boundingBox_ = com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox.getDefaultInstance();
-      name_ = "";
-      id_ = 0;
+      metadata_ = com.androar.comm.ImageFeaturesProtos.ObjectMetadata.getDefaultInstance();
+      id_ = "";
       distanceToViewer_ = 0;
       angleToViewer_ = 0;
     }
@@ -2132,7 +2605,7 @@ public final class ImageFeaturesProtos {
         memoizedIsInitialized = 0;
         return false;
       }
-      if (!hasName()) {
+      if (!hasId()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -2162,10 +2635,10 @@ public final class ImageFeaturesProtos {
         output.writeMessage(2, boundingBox_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeBytes(3, getNameBytes());
+        output.writeMessage(3, metadata_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeInt32(4, id_);
+        output.writeBytes(4, getIdBytes());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeInt32(5, distanceToViewer_);
@@ -2192,11 +2665,11 @@ public final class ImageFeaturesProtos {
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(3, getNameBytes());
+          .computeMessageSize(3, metadata_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(4, id_);
+          .computeBytesSize(4, getIdBytes());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
@@ -2323,6 +2796,7 @@ public final class ImageFeaturesProtos {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getBoundingBoxFieldBuilder();
+          getMetadataFieldBuilder();
         }
       }
       private static Builder create() {
@@ -2339,9 +2813,13 @@ public final class ImageFeaturesProtos {
           boundingBoxBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000002);
-        name_ = "";
+        if (metadataBuilder_ == null) {
+          metadata_ = com.androar.comm.ImageFeaturesProtos.ObjectMetadata.getDefaultInstance();
+        } else {
+          metadataBuilder_.clear();
+        }
         bitField0_ = (bitField0_ & ~0x00000004);
-        id_ = 0;
+        id_ = "";
         bitField0_ = (bitField0_ & ~0x00000008);
         distanceToViewer_ = 0;
         bitField0_ = (bitField0_ & ~0x00000010);
@@ -2400,7 +2878,11 @@ public final class ImageFeaturesProtos {
         if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
           to_bitField0_ |= 0x00000004;
         }
-        result.name_ = name_;
+        if (metadataBuilder_ == null) {
+          result.metadata_ = metadata_;
+        } else {
+          result.metadata_ = metadataBuilder_.build();
+        }
         if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
           to_bitField0_ |= 0x00000008;
         }
@@ -2435,8 +2917,8 @@ public final class ImageFeaturesProtos {
         if (other.hasBoundingBox()) {
           mergeBoundingBox(other.getBoundingBox());
         }
-        if (other.hasName()) {
-          setName(other.getName());
+        if (other.hasMetadata()) {
+          mergeMetadata(other.getMetadata());
         }
         if (other.hasId()) {
           setId(other.getId());
@@ -2460,7 +2942,7 @@ public final class ImageFeaturesProtos {
           
           return false;
         }
-        if (!hasName()) {
+        if (!hasId()) {
           
           return false;
         }
@@ -2523,13 +3005,17 @@ public final class ImageFeaturesProtos {
               break;
             }
             case 26: {
-              bitField0_ |= 0x00000004;
-              name_ = input.readBytes();
+              com.androar.comm.ImageFeaturesProtos.ObjectMetadata.Builder subBuilder = com.androar.comm.ImageFeaturesProtos.ObjectMetadata.newBuilder();
+              if (hasMetadata()) {
+                subBuilder.mergeFrom(getMetadata());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setMetadata(subBuilder.buildPartial());
               break;
             }
-            case 32: {
+            case 34: {
               bitField0_ |= 0x00000008;
-              id_ = input.readInt32();
+              id_ = input.readBytes();
               break;
             }
             case 40: {
@@ -2662,61 +3148,130 @@ public final class ImageFeaturesProtos {
         return boundingBoxBuilder_;
       }
       
-      // required string name = 3;
-      private java.lang.Object name_ = "";
-      public boolean hasName() {
+      // optional .androar.ObjectMetadata metadata = 3;
+      private com.androar.comm.ImageFeaturesProtos.ObjectMetadata metadata_ = com.androar.comm.ImageFeaturesProtos.ObjectMetadata.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          com.androar.comm.ImageFeaturesProtos.ObjectMetadata, com.androar.comm.ImageFeaturesProtos.ObjectMetadata.Builder, com.androar.comm.ImageFeaturesProtos.ObjectMetadataOrBuilder> metadataBuilder_;
+      public boolean hasMetadata() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
-      public String getName() {
-        java.lang.Object ref = name_;
+      public com.androar.comm.ImageFeaturesProtos.ObjectMetadata getMetadata() {
+        if (metadataBuilder_ == null) {
+          return metadata_;
+        } else {
+          return metadataBuilder_.getMessage();
+        }
+      }
+      public Builder setMetadata(com.androar.comm.ImageFeaturesProtos.ObjectMetadata value) {
+        if (metadataBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          metadata_ = value;
+          onChanged();
+        } else {
+          metadataBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      public Builder setMetadata(
+          com.androar.comm.ImageFeaturesProtos.ObjectMetadata.Builder builderForValue) {
+        if (metadataBuilder_ == null) {
+          metadata_ = builderForValue.build();
+          onChanged();
+        } else {
+          metadataBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      public Builder mergeMetadata(com.androar.comm.ImageFeaturesProtos.ObjectMetadata value) {
+        if (metadataBuilder_ == null) {
+          if (((bitField0_ & 0x00000004) == 0x00000004) &&
+              metadata_ != com.androar.comm.ImageFeaturesProtos.ObjectMetadata.getDefaultInstance()) {
+            metadata_ =
+              com.androar.comm.ImageFeaturesProtos.ObjectMetadata.newBuilder(metadata_).mergeFrom(value).buildPartial();
+          } else {
+            metadata_ = value;
+          }
+          onChanged();
+        } else {
+          metadataBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      public Builder clearMetadata() {
+        if (metadataBuilder_ == null) {
+          metadata_ = com.androar.comm.ImageFeaturesProtos.ObjectMetadata.getDefaultInstance();
+          onChanged();
+        } else {
+          metadataBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000004);
+        return this;
+      }
+      public com.androar.comm.ImageFeaturesProtos.ObjectMetadata.Builder getMetadataBuilder() {
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return getMetadataFieldBuilder().getBuilder();
+      }
+      public com.androar.comm.ImageFeaturesProtos.ObjectMetadataOrBuilder getMetadataOrBuilder() {
+        if (metadataBuilder_ != null) {
+          return metadataBuilder_.getMessageOrBuilder();
+        } else {
+          return metadata_;
+        }
+      }
+      private com.google.protobuf.SingleFieldBuilder<
+          com.androar.comm.ImageFeaturesProtos.ObjectMetadata, com.androar.comm.ImageFeaturesProtos.ObjectMetadata.Builder, com.androar.comm.ImageFeaturesProtos.ObjectMetadataOrBuilder> 
+          getMetadataFieldBuilder() {
+        if (metadataBuilder_ == null) {
+          metadataBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              com.androar.comm.ImageFeaturesProtos.ObjectMetadata, com.androar.comm.ImageFeaturesProtos.ObjectMetadata.Builder, com.androar.comm.ImageFeaturesProtos.ObjectMetadataOrBuilder>(
+                  metadata_,
+                  getParentForChildren(),
+                  isClean());
+          metadata_ = null;
+        }
+        return metadataBuilder_;
+      }
+      
+      // required string id = 4;
+      private java.lang.Object id_ = "";
+      public boolean hasId() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      public String getId() {
+        java.lang.Object ref = id_;
         if (!(ref instanceof String)) {
           String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
-          name_ = s;
+          id_ = s;
           return s;
         } else {
           return (String) ref;
         }
       }
-      public Builder setName(String value) {
+      public Builder setId(String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000004;
-        name_ = value;
-        onChanged();
-        return this;
-      }
-      public Builder clearName() {
-        bitField0_ = (bitField0_ & ~0x00000004);
-        name_ = getDefaultInstance().getName();
-        onChanged();
-        return this;
-      }
-      void setName(com.google.protobuf.ByteString value) {
-        bitField0_ |= 0x00000004;
-        name_ = value;
-        onChanged();
-      }
-      
-      // optional int32 id = 4;
-      private int id_ ;
-      public boolean hasId() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
-      }
-      public int getId() {
-        return id_;
-      }
-      public Builder setId(int value) {
-        bitField0_ |= 0x00000008;
+  bitField0_ |= 0x00000008;
         id_ = value;
         onChanged();
         return this;
       }
       public Builder clearId() {
         bitField0_ = (bitField0_ & ~0x00000008);
-        id_ = 0;
+        id_ = getDefaultInstance().getId();
         onChanged();
         return this;
+      }
+      void setId(com.google.protobuf.ByteString value) {
+        bitField0_ |= 0x00000008;
+        id_ = value;
+        onChanged();
       }
       
       // required int32 distance_to_viewer = 5;
@@ -4124,6 +4679,11 @@ public final class ImageFeaturesProtos {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_androar_ObjectBoundingBox_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_androar_ObjectMetadata_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_androar_ObjectMetadata_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_androar_DetectedObject_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -4154,21 +4714,23 @@ public final class ImageFeaturesProtos {
       "\001(\0132\024.androar.GPSPosition\0222\n\020compass_pos" +
       "ition\030\002 \001(\0132\030.androar.CompassPosition\"M\n" +
       "\021ObjectBoundingBox\022\016\n\006bottom\030\001 \002(\005\022\013\n\003to" +
-      "p\030\002 \002(\005\022\014\n\004left\030\003 \002(\005\022\r\n\005right\030\004 \002(\005\"\225\002\n" +
-      "\016DetectedObject\022?\n\013object_type\030\001 \002(\0162*.a" +
-      "ndroar.DetectedObject.DetectedObjectType",
-      "\0220\n\014bounding_box\030\002 \002(\0132\032.androar.ObjectB" +
-      "oundingBox\022\014\n\004name\030\003 \002(\t\022\n\n\002id\030\004 \001(\005\022\032\n\022" +
-      "distance_to_viewer\030\005 \002(\005\022\027\n\017angle_to_vie" +
-      "wer\030\006 \002(\005\"A\n\022DetectedObjectType\022\013\n\007UNKNO" +
-      "WN\020\001\022\014\n\010BUILDING\020\002\022\020\n\014LAST_ELEMENT\020\003\";\n\r" +
-      "ImageContents\022\022\n\nimage_hash\030\001 \002(\t\022\026\n\016ima" +
-      "ge_contents\030\002 \002(\014\"\237\001\n\005Image\022%\n\005image\030\001 \002" +
-      "(\0132\026.androar.ImageContents\022<\n\025localizati" +
-      "on_features\030\002 \001(\0132\035.androar.Localization" +
-      "Features\0221\n\020detected_objects\030\003 \003(\0132\027.and",
-      "roar.DetectedObjectB\'\n\020com.androar.commB" +
-      "\023ImageFeaturesProtos"
+      "p\030\002 \002(\005\022\014\n\004left\030\003 \002(\005\022\r\n\005right\030\004 \002(\005\"3\n\016" +
+      "ObjectMetadata\022\014\n\004name\030\001 \001(\t\022\023\n\013descript" +
+      "ion\030\002 \001(\t\"\262\002\n\016DetectedObject\022?\n\013object_t",
+      "ype\030\001 \002(\0162*.androar.DetectedObject.Detec" +
+      "tedObjectType\0220\n\014bounding_box\030\002 \002(\0132\032.an" +
+      "droar.ObjectBoundingBox\022)\n\010metadata\030\003 \001(" +
+      "\0132\027.androar.ObjectMetadata\022\n\n\002id\030\004 \002(\t\022\032" +
+      "\n\022distance_to_viewer\030\005 \002(\005\022\027\n\017angle_to_v" +
+      "iewer\030\006 \002(\005\"A\n\022DetectedObjectType\022\013\n\007UNK" +
+      "NOWN\020\001\022\014\n\010BUILDING\020\002\022\020\n\014LAST_ELEMENT\020\003\";" +
+      "\n\rImageContents\022\022\n\nimage_hash\030\001 \002(\t\022\026\n\016i" +
+      "mage_contents\030\002 \002(\014\"\237\001\n\005Image\022%\n\005image\030\001" +
+      " \002(\0132\026.androar.ImageContents\022<\n\025localiza",
+      "tion_features\030\002 \001(\0132\035.androar.Localizati" +
+      "onFeatures\0221\n\020detected_objects\030\003 \003(\0132\027.a" +
+      "ndroar.DetectedObjectB\'\n\020com.androar.com" +
+      "mB\023ImageFeaturesProtos"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -4207,16 +4769,24 @@ public final class ImageFeaturesProtos {
               new java.lang.String[] { "Bottom", "Top", "Left", "Right", },
               com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox.class,
               com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox.Builder.class);
-          internal_static_androar_DetectedObject_descriptor =
+          internal_static_androar_ObjectMetadata_descriptor =
             getDescriptor().getMessageTypes().get(4);
+          internal_static_androar_ObjectMetadata_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_androar_ObjectMetadata_descriptor,
+              new java.lang.String[] { "Name", "Description", },
+              com.androar.comm.ImageFeaturesProtos.ObjectMetadata.class,
+              com.androar.comm.ImageFeaturesProtos.ObjectMetadata.Builder.class);
+          internal_static_androar_DetectedObject_descriptor =
+            getDescriptor().getMessageTypes().get(5);
           internal_static_androar_DetectedObject_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_androar_DetectedObject_descriptor,
-              new java.lang.String[] { "ObjectType", "BoundingBox", "Name", "Id", "DistanceToViewer", "AngleToViewer", },
+              new java.lang.String[] { "ObjectType", "BoundingBox", "Metadata", "Id", "DistanceToViewer", "AngleToViewer", },
               com.androar.comm.ImageFeaturesProtos.DetectedObject.class,
               com.androar.comm.ImageFeaturesProtos.DetectedObject.Builder.class);
           internal_static_androar_ImageContents_descriptor =
-            getDescriptor().getMessageTypes().get(5);
+            getDescriptor().getMessageTypes().get(6);
           internal_static_androar_ImageContents_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_androar_ImageContents_descriptor,
@@ -4224,7 +4794,7 @@ public final class ImageFeaturesProtos {
               com.androar.comm.ImageFeaturesProtos.ImageContents.class,
               com.androar.comm.ImageFeaturesProtos.ImageContents.Builder.class);
           internal_static_androar_Image_descriptor =
-            getDescriptor().getMessageTypes().get(6);
+            getDescriptor().getMessageTypes().get(7);
           internal_static_androar_Image_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_androar_Image_descriptor,
