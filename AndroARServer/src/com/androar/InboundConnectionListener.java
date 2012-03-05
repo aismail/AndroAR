@@ -49,6 +49,7 @@ public class InboundConnectionListener extends Thread {
 					connectionsThreadPool.execute(new ClientConnection(serverSocket.accept()));
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 				connectionsThreadPool.shutdown();
 			}
 		}
