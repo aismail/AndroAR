@@ -225,7 +225,6 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		Logging.LOG(10, "Done storing image");
 		return true;
 	}
-
 	
 	/*
 	 * (non-Javadoc)
@@ -252,9 +251,9 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	}
 
 	private boolean detectedObjectExists(String object_id) {
-		SubColumnQuery<String, String, String, String> sub_column_query =
+		SubColumnQuery<String, String, String, Integer> sub_column_query =
 				HFactory.createSubColumnQuery(keyspace_operator, string_serializer,
-						string_serializer, string_serializer, string_serializer);
+						string_serializer, string_serializer, integer_serializer);
 		sub_column_query
 				.setColumnFamily(Constants.CASSANDRA_OBJECT_TO_IMAGE_ASSOCIATIONS_COLUMN_FAMILY)
 				.setKey(object_id)
