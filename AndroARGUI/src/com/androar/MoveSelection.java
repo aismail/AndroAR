@@ -206,7 +206,7 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 		switch (event.getAction() & MotionEvent.ACTION_MASK) {
 		case MotionEvent.ACTION_POINTER_UP:
 			if (MODE == PINCH) {
-				MODE = DRAG;
+				MODE = NONE;
 			}
 			break;
 		case MotionEvent.ACTION_UP:
