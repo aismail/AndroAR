@@ -17,14 +17,9 @@ import com.androar.comm.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
 import com.google.protobuf.ByteString;
 
 public class Mocking {
-	public static ClientMessage createMockClientMessage(String image_path) 
-			throws FileNotFoundException, IOException {
-		File in_file = new File(image_path);
-        FileInputStream fin = new FileInputStream(in_file);
-        byte file_contents[] = new byte[(int) in_file.length()];
-        fin.read(file_contents);
-        
-        ByteString image_contents = ByteString.copyFrom(file_contents);
+	
+	public static ClientMessage createMockClientMessage(byte[] content) {
+		ByteString image_contents = ByteString.copyFrom(content);
         
         Image image = Image.newBuilder().
         	addDetectedObjects(
@@ -61,5 +56,15 @@ public class Mocking {
         	.build();
         
         return client_message;
+	}
+	
+	public static ClientMessage createMockClientMessage(String image_path) 
+			throws FileNotFoundException, IOException {
+		File in_file = new File(image_path);
+        FileInputStream fin = new FileInputStream(in_file);
+        byte file_contents[] = new byte[(int) in_file.length()];
+        fin.read(file_contents);
+        
+        return createMockClientMessage(file_contents);
 	}
 }
