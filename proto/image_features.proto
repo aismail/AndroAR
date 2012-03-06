@@ -46,8 +46,8 @@ message DetectedObject {
 	required ObjectBoundingBox bounding_box = 2;
 	optional ObjectMetadata metadata = 3;
 	required string id = 4;
-	required int32 distance_to_viewer = 5;
-	required int32 angle_to_viewer = 6;
+	optional int32 distance_to_viewer = 5;
+	optional int32 angle_to_viewer = 6;
 }
 
 // Next id = 3

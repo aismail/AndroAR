@@ -195,14 +195,18 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 							detected_object).toByteArray(),
 					string_serializer, bytearray_serializer));
 			// Add distance_to_viewer = Integer;
-			// TODO(alex) remove?
-			image_values.add(HFactory.createColumn("distance_to_viewer",
-					detected_object.getDistanceToViewer(),
-					string_serializer, integer_serializer));
+			// TODO(alex) see if we need this and if not, remove it
+			if (detected_object.hasDistanceToViewer()) {
+				image_values.add(HFactory.createColumn("distance_to_viewer",
+						detected_object.getDistanceToViewer(),
+						string_serializer, integer_serializer));
+			}
 			// Add angle = Integer;
-			// TODO(alex) remove?
-			image_values.add(HFactory.createColumn("angle", detected_object.getAngleToViewer(),
-					string_serializer, integer_serializer));
+			// TODO(alex) see if we need this and if not, remove it
+			if (detected_object.hasAngleToViewer()) {
+				image_values.add(HFactory.createColumn("angle", detected_object.getAngleToViewer(),
+						string_serializer, integer_serializer));
+			}
 			// Add inferred_gps_position = String;
 			image_values.add(HFactory.createStringColumn("inferred_gps_position",
 					ImageUtils.inferGPSPosition(image.getLocalizationFeatures(), 

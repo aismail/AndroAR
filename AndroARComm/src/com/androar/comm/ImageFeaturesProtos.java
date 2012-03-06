@@ -2387,11 +2387,11 @@ public final class ImageFeaturesProtos {
     boolean hasId();
     String getId();
     
-    // required int32 distance_to_viewer = 5;
+    // optional int32 distance_to_viewer = 5;
     boolean hasDistanceToViewer();
     int getDistanceToViewer();
     
-    // required int32 angle_to_viewer = 6;
+    // optional int32 angle_to_viewer = 6;
     boolean hasAngleToViewer();
     int getAngleToViewer();
   }
@@ -2564,7 +2564,7 @@ public final class ImageFeaturesProtos {
       }
     }
     
-    // required int32 distance_to_viewer = 5;
+    // optional int32 distance_to_viewer = 5;
     public static final int DISTANCE_TO_VIEWER_FIELD_NUMBER = 5;
     private int distanceToViewer_;
     public boolean hasDistanceToViewer() {
@@ -2574,7 +2574,7 @@ public final class ImageFeaturesProtos {
       return distanceToViewer_;
     }
     
-    // required int32 angle_to_viewer = 6;
+    // optional int32 angle_to_viewer = 6;
     public static final int ANGLE_TO_VIEWER_FIELD_NUMBER = 6;
     private int angleToViewer_;
     public boolean hasAngleToViewer() {
@@ -2606,14 +2606,6 @@ public final class ImageFeaturesProtos {
         return false;
       }
       if (!hasId()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasDistanceToViewer()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasAngleToViewer()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -2946,14 +2938,6 @@ public final class ImageFeaturesProtos {
           
           return false;
         }
-        if (!hasDistanceToViewer()) {
-          
-          return false;
-        }
-        if (!hasAngleToViewer()) {
-          
-          return false;
-        }
         if (!getBoundingBox().isInitialized()) {
           
           return false;
@@ -3274,7 +3258,7 @@ public final class ImageFeaturesProtos {
         onChanged();
       }
       
-      // required int32 distance_to_viewer = 5;
+      // optional int32 distance_to_viewer = 5;
       private int distanceToViewer_ ;
       public boolean hasDistanceToViewer() {
         return ((bitField0_ & 0x00000010) == 0x00000010);
@@ -3295,7 +3279,7 @@ public final class ImageFeaturesProtos {
         return this;
       }
       
-      // required int32 angle_to_viewer = 6;
+      // optional int32 angle_to_viewer = 6;
       private int angleToViewer_ ;
       public boolean hasAngleToViewer() {
         return ((bitField0_ & 0x00000020) == 0x00000020);
@@ -4721,8 +4705,8 @@ public final class ImageFeaturesProtos {
       "tedObjectType\0220\n\014bounding_box\030\002 \002(\0132\032.an" +
       "droar.ObjectBoundingBox\022)\n\010metadata\030\003 \001(" +
       "\0132\027.androar.ObjectMetadata\022\n\n\002id\030\004 \002(\t\022\032" +
-      "\n\022distance_to_viewer\030\005 \002(\005\022\027\n\017angle_to_v" +
-      "iewer\030\006 \002(\005\"A\n\022DetectedObjectType\022\013\n\007UNK" +
+      "\n\022distance_to_viewer\030\005 \001(\005\022\027\n\017angle_to_v" +
+      "iewer\030\006 \001(\005\"A\n\022DetectedObjectType\022\013\n\007UNK" +
       "NOWN\020\001\022\014\n\010BUILDING\020\002\022\020\n\014LAST_ELEMENT\020\003\";" +
       "\n\rImageContents\022\022\n\nimage_hash\030\001 \002(\t\022\026\n\016i" +
       "mage_contents\030\002 \002(\014\"\237\001\n\005Image\022%\n\005image\030\001" +
