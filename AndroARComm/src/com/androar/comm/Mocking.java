@@ -33,7 +33,6 @@ public class Mocking {
         			setLeft(0).
         			setRight(100).
         			build()).
-        		setDistanceToViewer(20).
         		setAngleToViewer(15).
         		setMetadata(ObjectMetadata.newBuilder().
         				setName("OBJECT_1").
