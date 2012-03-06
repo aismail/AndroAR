@@ -2,6 +2,7 @@ package com.androar;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import me.prettyprint.cassandra.serializers.BytesArraySerializer;
 import me.prettyprint.cassandra.serializers.IntegerSerializer;
@@ -25,8 +26,10 @@ import me.prettyprint.hector.api.query.SuperSliceQuery;
 
 import com.androar.comm.ImageFeaturesProtos.DetectedObject;
 import com.androar.comm.ImageFeaturesProtos.Image;
+import com.androar.comm.ImageFeaturesProtos.ImageContents;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
 import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
+import com.google.protobuf.ByteString;
 
 public class CassandraDatabaseConnection implements IDatabaseConnection {
 
@@ -189,6 +192,10 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 			ArrayList image_values = new ArrayList();
 			// Add image_hash = String;
 			image_values.add(HFactory.createStringColumn("image_hash", image_hash));
+			// Add image_contents = ByteArray;
+			image_values.add(HFactory.createColumn("image_contents",
+					image.getImage().getImageContents().toByteArray(), string_serializer,
+					bytearray_serializer));
 			// Add cropped_image_contents = ByteArray;
 			image_values.add(HFactory.createColumn("cropped_image_contents",
 					ImageUtils.getCroppedImageContents(image.getImage(),
@@ -263,28 +270,38 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	}
 	
 	@Override
-	public List<Image> getAllImagesContainingObject(String object_id) {
-//		SuperColumnQuery super_column_query = HFactory.createSuperColumnQuery(keyspace_operator, string_serializer,
-//				string_serializer, string_serializer, TypeInferringSerializer.get());
-//		super_column_query
-//				.setColumnFamily(Constants.CASSANDRA_OBJECT_TO_IMAGE_ASSOCIATIONS_COLUMN_FAMILY)
-//				.setKey(object_id);
-		SuperSliceQuery<String, String, String, Object> query = HFactory.createSuperSliceQuery(
+	public List<ImageWithObject> getAllImagesContainingObject(String object_id) {
+		// We need to return only the big image and the small, cropped image, since we don't care
+		// about the GPS position of the image or the inferred gps position of the object
+		List<ImageWithObject> all_image_contents = new ArrayList<ImageWithObject>();
+		SuperSliceQuery<String, String, String, byte[]> query = HFactory.createSuperSliceQuery(
 				keyspace_operator, string_serializer, string_serializer, string_serializer,
-				TypeInferringSerializer.get());
+				bytearray_serializer);
 		query.setColumnFamily(Constants.CASSANDRA_OBJECT_TO_IMAGE_ASSOCIATIONS_COLUMN_FAMILY)
 				.setKey(object_id)
-				.setRange(null, null, false, 1000);
-		SuperSlice<String, String, Object> result_columns = query.execute().get();
-		List<HSuperColumn<String, String, Object>> all_super_columns =
+				.setRange("image0", "imageX", false, 1000);
+		SuperSlice<String, String, byte[]> result_columns = query.execute().get();
+		List<HSuperColumn<String, String, byte[]>> all_super_columns =
 				result_columns.getSuperColumns();
-		for (HSuperColumn<String, String, Object> super_column : all_super_columns) {
+		for (HSuperColumn<String, String, byte[]> super_column : all_super_columns) {
 			if (super_column.getName().contains("image")) {
-				HColumn<String, Object> column = super_column.getSubColumnByName("image_hash");
-				Logging.LOG(2, column.getValue().toString());
+				HColumn<String, byte[]> image_contents_column = 
+						super_column.getSubColumnByName("image_contents");
+				ByteString image_contents_bytes =
+						ByteString.copyFrom(image_contents_column.getValue());
+				HColumn<String, byte[]> cropped_image_contents_column =
+						super_column.getSubColumnByName("cropped_image_contents");
+				byte[] cropped_image_contents = cropped_image_contents_column.getValue();
+				String image_hash = 
+						new String(super_column.getSubColumnByName("image_hash").getValue());
+				ImageContents image_contents = ImageContents.newBuilder().
+						setImageContents(image_contents_bytes).
+						setImageHash(image_hash).
+						build();
+				all_image_contents.add(new ImageWithObject(image_contents, cropped_image_contents));
 			}
 		}
-		return null;
+		return all_image_contents;
 	}
 	
 	/*

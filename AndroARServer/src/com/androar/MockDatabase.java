@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.androar.comm.ImageFeaturesProtos.GPSPosition;
 import com.androar.comm.ImageFeaturesProtos.Image;
+import com.androar.comm.ImageFeaturesProtos.ImageContents;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
 import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
 
@@ -70,7 +71,7 @@ public class MockDatabase implements IDatabaseConnection {
 	}
 
 	@Override
-	public List<Image> getAllImagesContainingObject(String object_id) {
+	public List<ImageWithObject> getAllImagesContainingObject(String object_id) {
 		return null;
 	}
 

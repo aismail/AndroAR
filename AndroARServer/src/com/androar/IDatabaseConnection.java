@@ -6,6 +6,7 @@ package com.androar;
 import java.util.List;
 
 import com.androar.comm.ImageFeaturesProtos.Image;
+import com.androar.comm.ImageFeaturesProtos.ImageContents;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
 import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
 
@@ -43,5 +44,5 @@ public interface IDatabaseConnection {
 	 * @param object_id the object's id
 	 * @returns a list of images that contain the object.
 	 */
-	public List<Image> getAllImagesContainingObject(String object_id);
+	public List<ImageWithObject> getAllImagesContainingObject(String object_id);
 }
