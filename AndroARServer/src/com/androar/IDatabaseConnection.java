@@ -37,4 +37,11 @@ public interface IDatabaseConnection {
 	 * @returns the object's metadata
 	 */
 	public ObjectMetadata getObjectMetadata(String object_id);
+	
+	/*
+	 * Fetches all images that contain an object_id
+	 * @param object_id the object's id
+	 * @returns a list of images that contain the object.
+	 */
+	public List<Image> getAllImagesContainingObject(String object_id);
 }

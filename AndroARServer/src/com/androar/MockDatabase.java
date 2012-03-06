@@ -69,4 +69,9 @@ public class MockDatabase implements IDatabaseConnection {
 				build();
 	}
 
+	@Override
+	public List<Image> getAllImagesContainingObject(String object_id) {
+		return null;
+	}
+
 }

@@ -1,7 +1,6 @@
 package com.androar;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import me.prettyprint.cassandra.serializers.BytesArraySerializer;
@@ -13,19 +12,19 @@ import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
 import me.prettyprint.hector.api.beans.HColumn;
 import me.prettyprint.hector.api.beans.HSuperColumn;
+import me.prettyprint.hector.api.beans.SuperSlice;
 import me.prettyprint.hector.api.ddl.ColumnFamilyDefinition;
 import me.prettyprint.hector.api.ddl.ColumnType;
 import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
 import me.prettyprint.hector.api.factory.HFactory;
 import me.prettyprint.hector.api.mutation.Mutator;
-import me.prettyprint.hector.api.query.ColumnQuery;
 import me.prettyprint.hector.api.query.QueryResult;
 import me.prettyprint.hector.api.query.SubColumnQuery;
 import me.prettyprint.hector.api.query.SuperColumnQuery;
+import me.prettyprint.hector.api.query.SuperSliceQuery;
 
 import com.androar.comm.ImageFeaturesProtos.DetectedObject;
 import com.androar.comm.ImageFeaturesProtos.Image;
-import com.androar.comm.ImageFeaturesProtos.ImageContents;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
 import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
 
@@ -196,10 +195,12 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 							detected_object).toByteArray(),
 					string_serializer, bytearray_serializer));
 			// Add distance_to_viewer = Integer;
+			// TODO(alex) remove?
 			image_values.add(HFactory.createColumn("distance_to_viewer",
 					detected_object.getDistanceToViewer(),
 					string_serializer, integer_serializer));
 			// Add angle = Integer;
+			// TODO(alex) remove?
 			image_values.add(HFactory.createColumn("angle", detected_object.getAngleToViewer(),
 					string_serializer, integer_serializer));
 			// Add inferred_gps_position = String;
@@ -257,6 +258,31 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		return builder.build();
 	}
 	
+	@Override
+	public List<Image> getAllImagesContainingObject(String object_id) {
+//		SuperColumnQuery super_column_query = HFactory.createSuperColumnQuery(keyspace_operator, string_serializer,
+//				string_serializer, string_serializer, TypeInferringSerializer.get());
+//		super_column_query
+//				.setColumnFamily(Constants.CASSANDRA_OBJECT_TO_IMAGE_ASSOCIATIONS_COLUMN_FAMILY)
+//				.setKey(object_id);
+		SuperSliceQuery<String, String, String, Object> query = HFactory.createSuperSliceQuery(
+				keyspace_operator, string_serializer, string_serializer, string_serializer,
+				TypeInferringSerializer.get());
+		query.setColumnFamily(Constants.CASSANDRA_OBJECT_TO_IMAGE_ASSOCIATIONS_COLUMN_FAMILY)
+				.setKey(object_id)
+				.setRange(null, null, false, 1000);
+		SuperSlice<String, String, Object> result_columns = query.execute().get();
+		List<HSuperColumn<String, String, Object>> all_super_columns =
+				result_columns.getSuperColumns();
+		for (HSuperColumn<String, String, Object> super_column : all_super_columns) {
+			if (super_column.getName().contains("image")) {
+				HColumn<String, Object> column = super_column.getSubColumnByName("image_hash");
+				Logging.LOG(2, column.getValue().toString());
+			}
+		}
+		return null;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see com.androar.IDatabaseConnection#getImagesInRange(com.androar.comm.ImageFeaturesProtos.LocalizationFeatures, double)
@@ -293,5 +319,4 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
         QueryResult<HColumn<String, Integer>> result = sub_column_query.execute();
         return (result.get() != null);
 	}
-
 }
