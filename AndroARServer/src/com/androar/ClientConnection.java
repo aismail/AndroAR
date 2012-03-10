@@ -1,11 +1,15 @@
 package com.androar;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.Socket;
 
 import com.androar.comm.Communication;
-import com.androar.comm.CommunicationProtos.*;
+import com.androar.comm.CommunicationProtos.ClientMessage;
 import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
+import com.androar.comm.CommunicationProtos.ServerMessage;
 import com.androar.comm.CommunicationProtos.ServerMessage.ServerMessageType;
 import com.google.protobuf.InvalidProtocolBufferException;
 
