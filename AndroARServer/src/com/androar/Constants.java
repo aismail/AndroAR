@@ -13,6 +13,8 @@ public final class Constants {
 			"image_features_gps";
 	public static final int CASSANDRA_REPLICATION_FACTOR = 1;
 	
+	public static final int CASSANDRA_GPS_POSITION_TOLERANCE = 1000000;
+	
 	public static final String DATABASE_HOST = "emerald";
 	public static final int DATABASE_PORT = 9160;
 }

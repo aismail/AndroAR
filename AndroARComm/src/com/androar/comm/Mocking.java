@@ -9,11 +9,13 @@ import com.androar.comm.CommunicationProtos.AuthentificationInfo;
 import com.androar.comm.CommunicationProtos.ClientMessage;
 import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
 import com.androar.comm.ImageFeaturesProtos.DetectedObject;
+import com.androar.comm.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
+import com.androar.comm.ImageFeaturesProtos.GPSPosition;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.ImageContents;
+import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
 import com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox;
 import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
-import com.androar.comm.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
 import com.google.protobuf.ByteString;
 
 public class Mocking {
@@ -42,6 +44,14 @@ public class Mocking {
         		ImageContents.newBuilder().
         		setImageHash("IMAGE_HASH").
         		setImageContents(image_contents)).
+        	setLocalizationFeatures(
+        		LocalizationFeatures.newBuilder().
+        		setGpsPosition(
+        			GPSPosition.newBuilder().
+        			setLatitude((float) 44.5).
+        			setLongitude((float) 60.1).
+        			build()).
+        		build()).
         	build();
         
         ClientMessage client_message = ClientMessage.newBuilder()

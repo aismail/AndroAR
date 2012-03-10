@@ -2,10 +2,14 @@ package com.androar;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+import me.prettyprint.cassandra.model.BasicColumnDefinition;
+import me.prettyprint.cassandra.model.BasicColumnFamilyDefinition;
+import me.prettyprint.cassandra.model.IndexedSlicesQuery;
 import me.prettyprint.cassandra.serializers.BytesArraySerializer;
+import me.prettyprint.cassandra.serializers.FloatSerializer;
 import me.prettyprint.cassandra.serializers.IntegerSerializer;
+import me.prettyprint.cassandra.serializers.LongSerializer;
 import me.prettyprint.cassandra.serializers.StringSerializer;
 import me.prettyprint.cassandra.serializers.TypeInferringSerializer;
 import me.prettyprint.cassandra.service.ThriftKsDef;
@@ -13,18 +17,25 @@ import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
 import me.prettyprint.hector.api.beans.HColumn;
 import me.prettyprint.hector.api.beans.HSuperColumn;
+import me.prettyprint.hector.api.beans.OrderedRows;
+import me.prettyprint.hector.api.beans.Row;
+import me.prettyprint.hector.api.beans.Rows;
 import me.prettyprint.hector.api.beans.SuperSlice;
 import me.prettyprint.hector.api.ddl.ColumnFamilyDefinition;
+import me.prettyprint.hector.api.ddl.ColumnIndexType;
 import me.prettyprint.hector.api.ddl.ColumnType;
+import me.prettyprint.hector.api.ddl.ComparatorType;
 import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
 import me.prettyprint.hector.api.factory.HFactory;
 import me.prettyprint.hector.api.mutation.Mutator;
+import me.prettyprint.hector.api.query.MultigetSliceQuery;
 import me.prettyprint.hector.api.query.QueryResult;
 import me.prettyprint.hector.api.query.SubColumnQuery;
 import me.prettyprint.hector.api.query.SuperColumnQuery;
 import me.prettyprint.hector.api.query.SuperSliceQuery;
 
 import com.androar.comm.ImageFeaturesProtos.DetectedObject;
+import com.androar.comm.ImageFeaturesProtos.GPSPosition;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.ImageContents;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
@@ -36,6 +47,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	private static StringSerializer string_serializer = StringSerializer.get();
 	private static BytesArraySerializer bytearray_serializer = BytesArraySerializer.get();
 	private static IntegerSerializer integer_serializer = IntegerSerializer.get();
+	private static LongSerializer long_serializer = LongSerializer.get();
 	
 	private String hostname;
 	private int port;
@@ -65,17 +77,12 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 				HFactory.createColumnFamilyDefinition(Constants.CASSANDRA_KEYSPACE,
 						Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY);
 		image_features_column_family_definition.setColumnType(ColumnType.STANDARD);
-		ColumnFamilyDefinition image_features_indexed_by_gps_column_family_definition =
-				HFactory.createColumnFamilyDefinition(Constants.CASSANDRA_KEYSPACE,
-						Constants.CASSANDRA_IMAGE_FEATURES_INDEXED_BY_GPS_COLUMN_FAMILY);
-		image_features_indexed_by_gps_column_family_definition.setColumnType(ColumnType.STANDARD);
 		ColumnFamilyDefinition object_associations_column_family_definition =
 				HFactory.createColumnFamilyDefinition(Constants.CASSANDRA_KEYSPACE,
 						Constants.CASSANDRA_OBJECT_TO_IMAGE_ASSOCIATIONS_COLUMN_FAMILY);
 		object_associations_column_family_definition.setColumnType(ColumnType.SUPER);
 		List<ColumnFamilyDefinition> all_column_families = new ArrayList<ColumnFamilyDefinition>();
 		all_column_families.add(image_features_column_family_definition);
-		all_column_families.add(image_features_indexed_by_gps_column_family_definition);
 		all_column_families.add(object_associations_column_family_definition);
 		
 		KeyspaceDefinition new_keyspace = HFactory.createKeyspaceDefinition(
@@ -85,7 +92,31 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 				all_column_families);
 		// Add the schema to the cluster.
 		Logging.LOG(3, "Creating Cassandra keyspace " + Constants.CASSANDRA_KEYSPACE);
-		cluster.addKeyspace(new_keyspace, false /* Hector won't block */);
+		cluster.addKeyspace(new_keyspace, true);
+		// Edit the column family to add secondary indexes
+		KeyspaceDefinition from_cluster = cluster.describeKeyspace(Constants.CASSANDRA_KEYSPACE);
+		BasicColumnFamilyDefinition column_family_definition =
+				new BasicColumnFamilyDefinition(from_cluster.getCfDefs().get(0));
+		// Add the 2 secondary indexes: gps_latitude and gps_longitude
+		BasicColumnDefinition gps_latitude_column = new BasicColumnDefinition();
+		gps_latitude_column.setName(string_serializer.toByteBuffer("gps_latitude"));
+		gps_latitude_column.setValidationClass(ComparatorType.LONGTYPE.getClassName());
+		gps_latitude_column.setIndexName("gps_latitude_idx");
+		gps_latitude_column.setIndexType(ColumnIndexType.KEYS);
+		column_family_definition.addColumnDefinition(gps_latitude_column);
+		BasicColumnDefinition gps_longitude_column = new BasicColumnDefinition();
+		gps_longitude_column.setName(string_serializer.toByteBuffer("gps_longitude"));
+		gps_longitude_column.setValidationClass(ComparatorType.LONGTYPE.getClassName());
+		gps_longitude_column.setIndexName("gps_longitude_idx");
+		gps_longitude_column.setIndexType(ColumnIndexType.KEYS);
+		column_family_definition.addColumnDefinition(gps_longitude_column);
+		BasicColumnDefinition dumb = new BasicColumnDefinition();
+		dumb.setName(string_serializer.toByteBuffer("dumb"));
+		dumb.setValidationClass(ComparatorType.LONGTYPE.getClassName());
+		dumb.setIndexName("dumb_idx");
+		dumb.setIndexType(ColumnIndexType.KEYS);
+		column_family_definition.addColumnDefinition(dumb);
+		cluster.updateColumnFamily(column_family_definition);
 	}
 	
 	/*
@@ -129,15 +160,30 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		// Localization Features
 		Logging.LOG(10, 
 				"Storing image features: " + image.getLocalizationFeatures().toString());
+		float latitude = 0;
+		float longitude = 0;
+		if (image.getLocalizationFeatures().hasGpsPosition()) {
+			GPSPosition gps_position = image.getLocalizationFeatures().getGpsPosition();
+			latitude = gps_position.getLatitude();
+			longitude = gps_position.getLongitude();
+		}
+		mutator.insert(image_hash,
+				Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY,
+				HFactory.createColumn("gps_latitude", 
+						(long) (latitude * Constants.CASSANDRA_GPS_POSITION_TOLERANCE), 
+						string_serializer, long_serializer));
+		mutator.insert(image_hash,
+				Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY,
+				HFactory.createColumn("gps_longitude", 
+						(long) (longitude * Constants.CASSANDRA_GPS_POSITION_TOLERANCE),
+						string_serializer, long_serializer));
 		mutator.insert(image_hash,
 				Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY,
 				HFactory.createStringColumn("localization",
 						image.getLocalizationFeatures().toString()));
-		// IMAGE_FEATURES_INDEXED_BY_GPS column family
-		// * image_hash (Column)
-		// The row key is the gps position
-		// TODO(alex): add this here, indexed by gps
-		
+		mutator.insert(image_hash,
+				Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY,
+				HFactory.createColumn("dumb", 0L, string_serializer, long_serializer));
 		// OBJECTS_TO_IMAGE_ASSOCIATIONS super column family
 		// Since we can't put both standard columns (such as name, description) and super columns
 		// (such as images that contain the objects (with gps position, cropped image, etc.), we're
@@ -238,7 +284,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		Logging.LOG(10, "Done storing image");
 		return true;
 	}
-
+	
 	public ObjectMetadata getObjectMetadata(String object_id) {
 		// The ObjectMetadata object contains:
 		//  * name
@@ -309,10 +355,58 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	 * @see com.androar.IDatabaseConnection#getImagesInRange(com.androar.comm.ImageFeaturesProtos.LocalizationFeatures, double)
 	 */
 	@Override
-	public List<Image> getImagesInRange(LocalizationFeatures position,
-			double range) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Image> getImagesInRange(LocalizationFeatures position, double range) {
+		List<Image> ret = new ArrayList<Image>();
+		long big_range = (long) (range * Constants.CASSANDRA_GPS_POSITION_TOLERANCE);
+		long latitude = 0;
+		long longitude = 0;
+		if (!position.hasGpsPosition()) {
+			return ret;
+		}
+		latitude = (long) (position.getGpsPosition().getLatitude() * 
+				Constants.CASSANDRA_GPS_POSITION_TOLERANCE);
+		longitude = (long) (position.getGpsPosition().getLongitude() *
+				Constants.CASSANDRA_GPS_POSITION_TOLERANCE);
+		IndexedSlicesQuery<String, String, Long> indexed_query = 
+				HFactory.createIndexedSlicesQuery(keyspace_operator, string_serializer,
+						string_serializer, long_serializer);
+		
+		// Get all keys since f****ing Hector can't work with more serializers
+		indexed_query.addEqualsExpression("dumb", 0L);
+		indexed_query.addLteExpression("gps_latitude", latitude + big_range);
+		indexed_query.addGteExpression("gps_latitude", latitude - big_range);
+		indexed_query.addLteExpression("gps_longitude", longitude + big_range);
+		indexed_query.addGteExpression("gps_longitude", longitude - big_range);
+		indexed_query.setColumnFamily(Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY);
+		indexed_query.setColumnNames("gps_latitude", "gps_longitude");
+		indexed_query.setStartKey("");
+		
+		QueryResult<OrderedRows<String, String, Long>> indexed_result = indexed_query.execute();
+		List<Row<String, String, Long>> all_rows = indexed_result.get().getList();
+		List<String> row_keys = new ArrayList<String>();
+		for (Row<String, String, Long> row : all_rows) {
+			row_keys.add(row.getKey());
+		}
+		// Multiget ALL the keys!
+		MultigetSliceQuery<String, String, byte[]> multiget_query =
+				HFactory.createMultigetSliceQuery(keyspace_operator, string_serializer,
+						string_serializer, bytearray_serializer);
+		multiget_query.setColumnFamily(Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY);
+		multiget_query.setKeys(row_keys);
+		multiget_query.setRange(null, null, false, 10000);
+		QueryResult<Rows<String, String, byte[]>> multiget_result = multiget_query.execute();
+        Rows<String, String, byte[]> ordered_rows = multiget_result.get();
+        // Construct images
+        for (Row<String, String, byte[]> row : ordered_rows) {
+        	byte[] image_contents = 
+        			row.getColumnSlice().getColumnByName("image_contents").getValue();
+        	String image_hash = row.getKey();
+        	Image image = Image.newBuilder().setImage(
+        			ImageContents.newBuilder().setImageHash(image_hash)
+        			.setImageContents(ByteString.copyFrom(image_contents)).build()).build();
+        	ret.add(image);
+        }
+		return ret;
 	}
 	
 	private int getDetectedObjectFirstAvailableImageId(String object_id) {
