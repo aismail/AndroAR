@@ -1,13 +1,14 @@
 package com.androar;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import me.prettyprint.cassandra.model.BasicColumnDefinition;
 import me.prettyprint.cassandra.model.BasicColumnFamilyDefinition;
 import me.prettyprint.cassandra.model.IndexedSlicesQuery;
 import me.prettyprint.cassandra.serializers.BytesArraySerializer;
-import me.prettyprint.cassandra.serializers.FloatSerializer;
 import me.prettyprint.cassandra.serializers.IntegerSerializer;
 import me.prettyprint.cassandra.serializers.LongSerializer;
 import me.prettyprint.cassandra.serializers.StringSerializer;
@@ -20,6 +21,8 @@ import me.prettyprint.hector.api.beans.HSuperColumn;
 import me.prettyprint.hector.api.beans.OrderedRows;
 import me.prettyprint.hector.api.beans.Row;
 import me.prettyprint.hector.api.beans.Rows;
+import me.prettyprint.hector.api.beans.SuperRow;
+import me.prettyprint.hector.api.beans.SuperRows;
 import me.prettyprint.hector.api.beans.SuperSlice;
 import me.prettyprint.hector.api.ddl.ColumnFamilyDefinition;
 import me.prettyprint.hector.api.ddl.ColumnIndexType;
@@ -29,6 +32,7 @@ import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
 import me.prettyprint.hector.api.factory.HFactory;
 import me.prettyprint.hector.api.mutation.Mutator;
 import me.prettyprint.hector.api.query.MultigetSliceQuery;
+import me.prettyprint.hector.api.query.MultigetSuperSliceQuery;
 import me.prettyprint.hector.api.query.QueryResult;
 import me.prettyprint.hector.api.query.SubColumnQuery;
 import me.prettyprint.hector.api.query.SuperColumnQuery;
@@ -283,6 +287,47 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		}
 		Logging.LOG(10, "Done storing image");
 		return true;
+	}
+	
+	public Map<String, ObjectMetadata> getObjectsMetadata(List<String> object_ids) {
+		// The ObjectMetadata object contains:
+		//  * name
+		//  * description
+		Map<String, ObjectMetadata> ret = new HashMap<String, ObjectMetadata>();
+
+		MultigetSuperSliceQuery<String, String, String, String> multiget_query =
+				HFactory.createMultigetSuperSliceQuery(keyspace_operator, string_serializer,
+						string_serializer, string_serializer, string_serializer);
+		multiget_query.setColumnFamily(
+				Constants.CASSANDRA_OBJECT_TO_IMAGE_ASSOCIATIONS_COLUMN_FAMILY);
+		multiget_query.setKeys(object_ids);
+		multiget_query.setRange(null, null, false, object_ids.size());
+		QueryResult<SuperRows<String, String, String, String>> result = multiget_query.execute();
+        SuperRows<String, String, String, String> ordered_rows = result.get();
+        
+        for (SuperRow<String, String, String, String> row : ordered_rows) {
+        	String key = row.getKey();
+        	HSuperColumn<String, String, String> super_column = 
+        			row.getSuperSlice().getColumnByName("metadata");
+        	if (super_column == null) {
+        		continue;
+        	}
+        	HColumn<String, String> name_column = super_column.getSubColumnByName("name");
+        	HColumn<String, String> description_column = 
+        			super_column.getSubColumnByName("description");
+        	ObjectMetadata.Builder builder = ObjectMetadata.newBuilder();
+        	if (name_column != null) {
+    			builder.setName(name_column.getValue());
+    		} else {
+    			builder.setName(key);
+    		}
+    		if (description_column != null) {
+    			builder.setDescription(description_column.getValue());
+    		}
+    		ret.put(key, builder.build());
+        	
+        }
+		return ret;
 	}
 	
 	public ObjectMetadata getObjectMetadata(String object_id) {
