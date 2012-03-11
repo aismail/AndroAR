@@ -4,7 +4,9 @@
 package com.androar;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.androar.comm.ImageFeaturesProtos.GPSPosition;
 import com.androar.comm.ImageFeaturesProtos.Image;
@@ -73,6 +75,20 @@ public class MockDatabase implements IDatabaseConnection {
 	@Override
 	public List<ImageWithObject> getAllImagesContainingObject(String object_id) {
 		return null;
+	}
+
+	@Override
+	public Map<String, ObjectMetadata> getObjectsMetadata(
+			List<String> object_ids) {
+		Map<String, ObjectMetadata> ret = new HashMap<String, ObjectMetadata>();
+		for (String id : object_ids) {
+			ObjectMetadata metadata = ObjectMetadata.newBuilder().
+					setName("NAME").
+					setDescription("DESCRIPTION").
+					build();
+			ret.put(id, metadata);
+		}
+		return ret;
 	}
 
 }

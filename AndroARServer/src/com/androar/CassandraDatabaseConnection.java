@@ -289,6 +289,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		return true;
 	}
 	
+	@Override
 	public Map<String, ObjectMetadata> getObjectsMetadata(List<String> object_ids) {
 		// The ObjectMetadata object contains:
 		//  * name
@@ -330,6 +331,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		return ret;
 	}
 	
+	@Override
 	public ObjectMetadata getObjectMetadata(String object_id) {
 		// The ObjectMetadata object contains:
 		//  * name
