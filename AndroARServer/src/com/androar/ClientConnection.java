@@ -18,11 +18,11 @@ public class ClientConnection implements Runnable {
 	/*
 	 * Creates a bridge between the requesting client and backend systems (i.e. Cassandra)
 	 */
-	public ClientConnection(Socket clientSocket) {
-		this.clientSocket = clientSocket;
+	public ClientConnection(Socket client_socket) {
+		this.client_socket = client_socket;
 		try {
-			out = new DataOutputStream(clientSocket.getOutputStream());
-			in = new DataInputStream(clientSocket.getInputStream());
+			out = new DataOutputStream(client_socket.getOutputStream());
+			in = new DataInputStream(client_socket.getInputStream());
 		} catch (IOException e) {
 			Logging.LOG(0, e.getMessage());
 		}
@@ -35,27 +35,27 @@ public class ClientConnection implements Runnable {
 	
 	@Override
 	public void run() {
-		Logging.LOG(0, "Client " + clientSocket.getInetAddress() + " connected.");
+		Logging.LOG(0, "Client " + client_socket.getInetAddress() + " connected.");
 		
 		// Just send a friendly hello
-		ServerMessage helloMessage = 
+		ServerMessage hello_message = 
 				ClientConnection.createServerMessage(ServerMessageType.HELLO_MESSAGE);
 		Logging.LOG(2, "Created hello message");
-		Communication.sendMessage(helloMessage, out);
+		Communication.sendMessage(hello_message, out);
 		
 		// Parse incoming messages
 		while (true) {
 			try {
-				byte[] serializedInputMessage = Communication.readMessage(in);
-				if (serializedInputMessage == null) {
+				byte[] serialized_input_message = Communication.readMessage(in);
+				if (serialized_input_message == null) {
 					break;
 				}
-				ClientMessage currentClientMessage = 
-						ClientMessage.parseFrom(serializedInputMessage);
-				ServerMessage replyMessage = 
-						processAndReturnReplyToCurrentMessage(currentClientMessage);
-				if (replyMessage != null) {
-					Communication.sendMessage(replyMessage, out);
+				ClientMessage current_client_message = 
+						ClientMessage.parseFrom(serialized_input_message);
+				ServerMessage reply_message = 
+						processAndReturnReplyToCurrentMessage(current_client_message);
+				if (reply_message != null) {
+					Communication.sendMessage(reply_message, out);
 				}
 			} catch (InvalidProtocolBufferException e) {
 				e.printStackTrace();
@@ -69,25 +69,25 @@ public class ClientConnection implements Runnable {
 	 * be sent back.
 	 * @param clientMessage message received from client
 	 */
-	private ServerMessage processAndReturnReplyToCurrentMessage(ClientMessage clientMessage) {
+	private ServerMessage processAndReturnReplyToCurrentMessage(ClientMessage client_message) {
 		ServerMessage.Builder builder = ServerMessage.newBuilder();
-		ClientMessageType messageType = clientMessage.getMessageType();
-		ServerMessage returnMessage = null;
-		if (messageType == ClientMessageType.IMAGES_TO_STORE) {
-			for (int image = 0; image < clientMessage.getImagesToStoreCount(); ++image) {
+		ClientMessageType message_type = client_message.getMessageType();
+		ServerMessage return_message = null;
+		if (message_type == ClientMessageType.IMAGES_TO_STORE) {
+			for (int image = 0; image < client_message.getImagesToStoreCount(); ++image) {
 				// Right now we're just storing the image, assuming that it's relevant and that the
 				// user input is correct.
 				// TODO(alex, andrei): Fix.
-				cassandra_connection.storeImage(clientMessage.getImagesToStore(image));
+				cassandra_connection.storeImage(client_message.getImagesToStore(image));
 			}
-		} else if (messageType == ClientMessageType.IMAGE_TO_PROCESS) {
+		} else if (message_type == ClientMessageType.IMAGE_TO_PROCESS) {
 			// Let's just store the image for now
 			// TODO(alex): Fix.
 			FileOutputStream fout;
 			try {
 				fout = new FileOutputStream("out.jpeg");
 				fout.write(
-						clientMessage
+						client_message
 							.getImageToProcess()
 							.getImage()
 							.getImageContents()
@@ -97,36 +97,36 @@ public class ClientConnection implements Runnable {
 				e.printStackTrace();
 			}
 			builder.setMessageType(ServerMessageType.IMAGE_PROCESSED);
-			returnMessage = builder.build();
+			return_message = builder.build();
 		}
 		
-		return returnMessage;
+		return return_message;
 	}
 	
 	/*
 	 * Creates a server message based on what the message type should be
 	 * @param messageType the message type
 	 */
-	private static ServerMessage createServerMessage(ServerMessageType messageType) {
+	private static ServerMessage createServerMessage(ServerMessageType message_type) {
 		ServerMessage.Builder builder = ServerMessage.newBuilder();
 		
-		if (messageType == ServerMessageType.HELLO_MESSAGE) {
+		if (message_type == ServerMessageType.HELLO_MESSAGE) {
 			
-		} else if (messageType == ServerMessageType.AUTHENTIFICATION_DENIED) {
+		} else if (message_type == ServerMessageType.AUTHENTIFICATION_DENIED) {
 			
-		} else if (messageType == ServerMessageType.AUTHENTIFICATION_NEW_KEY) {
+		} else if (message_type == ServerMessageType.AUTHENTIFICATION_NEW_KEY) {
 			
-		} else if (messageType == ServerMessageType.IMAGE_PROCESSED) {
+		} else if (message_type == ServerMessageType.IMAGE_PROCESSED) {
 			
 		}
-		builder.setMessageType(messageType);
+		builder.setMessageType(message_type);
 		return builder.build();
 	}
 	
 	// Cassandra connection
 	private CassandraDatabaseConnection cassandra_connection;
 	// Socket between this server and the client
-	private Socket clientSocket;
+	private Socket client_socket;
 	// Output stream
 	DataOutputStream out;
 	// Input stream

@@ -1,21 +1,12 @@
 package com.androar;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.net.Socket;
 
 import com.androar.comm.Communication;
-import com.androar.comm.CommunicationProtos.AuthentificationInfo;
-import com.androar.comm.CommunicationProtos.ClientMessage;
 import com.androar.comm.CommunicationProtos.ServerMessage;
-import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
-import com.androar.comm.ImageFeaturesProtos.DetectedObject;
-import com.androar.comm.ImageFeaturesProtos.Image;
-import com.androar.comm.ImageFeaturesProtos.ImageContents;
-import com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox;
-import com.androar.comm.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
-import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
 import com.androar.comm.Mocking;
-import com.google.protobuf.ByteString;
 
 public class MockClient {
 	

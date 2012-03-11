@@ -10,15 +10,15 @@ public class InboundConnectionListener extends Thread {
 	 * Returns a connection listener
 	 */
 	public static synchronized InboundConnectionListener getConnectionListener() {
-		if (connectionListener == null) {
-			connectionListener = new InboundConnectionListener();
+		if (connection_listener == null) {
+			connection_listener = new InboundConnectionListener();
 		}
-		return connectionListener;
+		return connection_listener;
 	}
 	
 	// Ctor
 	private InboundConnectionListener() {
-		connectionsThreadPool = Executors.newFixedThreadPool(numThreads);
+		connections_thread_pool = Executors.newFixedThreadPool(num_threads);
 	}
 	
 	/*
@@ -26,31 +26,31 @@ public class InboundConnectionListener extends Thread {
 	 * <p>
 	 * <b>Should be called before use!</b>
 	 */
-	public static void Init(int port, int numThreads) {
+	public static void Init(int port, int num_threads) {
 		if (!inited) {
-			InboundConnectionListener.listeningPort = port;
-			InboundConnectionListener.numThreads = numThreads;
+			InboundConnectionListener.listening_port = port;
+			InboundConnectionListener.num_threads = num_threads;
 			InboundConnectionListener.inited = true;
 		}
 	}
 
 	public void run() {
 		try {
-			serverSocket = new ServerSocket(listeningPort);
+			server_socket = new ServerSocket(listening_port);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		// Listen for connections_s
-		Logging.LOG(0, "Listening for connections on port " + listeningPort + 
-				", using maximum " + numThreads + " threads.");
+		Logging.LOG(0, "Listening for connections on port " + listening_port + 
+				", using maximum " + num_threads + " threads.");
 		while (true) {
 			try {
 				for (; !stopped ;) {
-					connectionsThreadPool.execute(new ClientConnection(serverSocket.accept()));
+					connections_thread_pool.execute(new ClientConnection(server_socket.accept()));
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-				connectionsThreadPool.shutdown();
+				connections_thread_pool.shutdown();
 			}
 		}
 	}
@@ -63,15 +63,15 @@ public class InboundConnectionListener extends Thread {
 	 * Returns the port that the clients are requesting a connection on.
 	 */
 	public static int getListeningPort() {
-		return listeningPort;
+		return listening_port;
 	}
 	
 	// Internal connection listener object
-	private static InboundConnectionListener connectionListener;
+	private static InboundConnectionListener connection_listener;
 	// Port that the connection listener listens on
-	private static int listeningPort;
+	private static int listening_port;
 	// Number of threads in the threadpool executor (== number of clients)
-	private static int numThreads;
+	private static int num_threads;
 	// True if the user ran the Init function
 	private static Boolean inited = false;
 	// True if the server is stopped (all clients should terminate and we shouldn't accept any more
@@ -79,8 +79,8 @@ public class InboundConnectionListener extends Thread {
 	private static Boolean stopped = false;
 
 	// Thread pool executor
-	private ExecutorService connectionsThreadPool;
+	private ExecutorService connections_thread_pool;
 	// The server-side socket
-	private ServerSocket serverSocket;
+	private ServerSocket server_socket;
 
 }
