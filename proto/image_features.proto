@@ -28,7 +28,13 @@ message ObjectBoundingBox {
 	required int32 right = 4;
 }
 
-// Next id = 4
+// Next id = 3
+message ObjectMetadata {
+	optional string name = 1;
+	optional string description = 2;
+}
+
+// Next id = 7
 message DetectedObject {
 	enum DetectedObjectType {
 		UNKNOWN = 1;
@@ -38,10 +44,10 @@ message DetectedObject {
 	
 	required DetectedObjectType object_type = 1;
 	required ObjectBoundingBox bounding_box = 2;
-	required string name = 3;
-	optional int32 id = 4;
-	required int32 distance_to_viewer = 5;
-	required int32 angle_to_viewer = 6;
+	optional ObjectMetadata metadata = 3;
+	required string id = 4;
+	optional int32 distance_to_viewer = 5;
+	optional int32 angle_to_viewer = 6;
 }
 
 // Next id = 3

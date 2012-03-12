@@ -4,11 +4,14 @@
 package com.androar;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.androar.comm.ImageFeaturesProtos.GPSPosition;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
+import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
 
 /**
  * @author Alexandru Damian (alex.m.damian@gmail.com)
@@ -58,6 +61,33 @@ public class MockDatabase implements IDatabaseConnection {
 			}
 		}
 		return good_images;
+	}
+
+	@Override
+	public ObjectMetadata getObjectMetadata(String object_id) {
+		return ObjectMetadata.newBuilder().
+				setName("NAME").
+				setDescription("DESCRIPTION").
+				build();
+	}
+
+	@Override
+	public List<ImageWithObject> getAllImagesContainingObject(String object_id) {
+		return null;
+	}
+
+	@Override
+	public Map<String, ObjectMetadata> getObjectsMetadata(
+			List<String> object_ids) {
+		Map<String, ObjectMetadata> ret = new HashMap<String, ObjectMetadata>();
+		for (String id : object_ids) {
+			ObjectMetadata metadata = ObjectMetadata.newBuilder().
+					setName("NAME").
+					setDescription("DESCRIPTION").
+					build();
+			ret.put(id, metadata);
+		}
+		return ret;
 	}
 
 }

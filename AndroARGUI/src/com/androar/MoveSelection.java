@@ -28,6 +28,7 @@ import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.ImageContents;
 import com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox;
 import com.androar.comm.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
+import com.androar.comm.Mocking;
 import com.google.protobuf.ByteString;
 
 public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback {
@@ -95,7 +96,7 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
         DataInputStream in;
         
 		try {
-			socket = new Socket("192.168.100.104", 6666);
+			socket = new Socket("192.168.100.112", 6666);
 			out = new DataOutputStream(socket.getOutputStream());
             in = new DataInputStream(socket.getInputStream());
             
@@ -110,37 +111,7 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
             byte file_contents[] = new byte[fin.available()];
             fin.read(file_contents);
             
-            ByteString image_contents = ByteString.copyFrom(file_contents);
-            
-            Image image = Image.newBuilder().
-            	addDetectedObjects(
-            		DetectedObject.newBuilder().
-            		setObjectType(DetectedObjectType.BUILDING).
-            		setName("OBJECT_1").
-            		setBoundingBox(
-            			ObjectBoundingBox.newBuilder().
-            			setTop(0).
-            			setBottom(100).
-            			setLeft(0).
-            			setRight(100).
-            			build()).
-            		build()).
-            	setImage(
-            		ImageContents.newBuilder().
-            		setImageHash("IMAGE_HASH").
-            		setImageContents(image_contents)).
-            	build();
-            
-            ClientMessage client_message = ClientMessage.newBuilder()
-            	.setAuthentificationInfo(
-            		AuthentificationInfo.newBuilder()
-            		.setPhoneId("PHONE_ID")
-            		.setHash("CURRENT_HASH_OF_PHONE_ID")
-            		.build())
-            	.setMessageType(ClientMessageType.IMAGE_TO_PROCESS)
-            	.setImageToProcess(image)
-            	.build();
-            
+            ClientMessage client_message = Mocking.createMockClientMessage(file_contents);
             Log.i("PB", "***\n " + client_message.toString() + "\n***");
             
             Communication.sendMessage(client_message, out);
@@ -165,7 +136,7 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 		mThread = new DrawThread(mSurfaceHolder, this);
 		setFocusable(true);
 		// Just send a mock protocol buffer
-//		sendMockPB();
+		sendMockPB();
 	}
 	
 	@Override

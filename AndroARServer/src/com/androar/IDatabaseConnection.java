@@ -4,9 +4,11 @@
 package com.androar;
 
 import java.util.List;
+import java.util.Map;
 
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
+import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
 
 /**
  * @author Alexandru Damian (alex.m.damian@gmail.com)
@@ -29,5 +31,24 @@ public interface IDatabaseConnection {
 	 * @returns a list of Image objects that are in the current range
 	 */
 	public List<Image> getImagesInRange(LocalizationFeatures position, double range);
+
+	/*
+	 * Fetches the medata for a list of objects
+	 * @param object_ids a list with the objects' ids
+	 * @returns a mapping between object ids and their metadata
+	 */
+	public Map<String, ObjectMetadata> getObjectsMetadata(List<String> object_ids);
+	/*
+	 * Fetches an object's metadata
+	 * @param object_id the object's id
+	 * @returns the object's metadata
+	 */
+	public ObjectMetadata getObjectMetadata(String object_id);
 	
+	/*
+	 * Fetches all images that contain an object_id
+	 * @param object_id the object's id
+	 * @returns a list of images that contain the object.
+	 */
+	public List<ImageWithObject> getAllImagesContainingObject(String object_id);
 }

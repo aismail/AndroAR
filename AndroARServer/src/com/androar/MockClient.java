@@ -1,19 +1,12 @@
 package com.androar;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.net.Socket;
 
 import com.androar.comm.Communication;
-import com.androar.comm.CommunicationProtos.AuthentificationInfo;
-import com.androar.comm.CommunicationProtos.ClientMessage;
 import com.androar.comm.CommunicationProtos.ServerMessage;
-import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
-import com.androar.comm.ImageFeaturesProtos.DetectedObject;
-import com.androar.comm.ImageFeaturesProtos.Image;
-import com.androar.comm.ImageFeaturesProtos.ImageContents;
-import com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox;
-import com.androar.comm.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
-import com.google.protobuf.ByteString;
+import com.androar.comm.Mocking;
 
 public class MockClient {
 	
@@ -34,46 +27,8 @@ public class MockClient {
             // Assume that the message was a HELLO. Let's now send an image to see if this works.
             // We will read an image stored on the Hard Drive for now, it's path is being passed 
             // through params
-            Logging.LOG(2, args[1]);
-            File in_file = new File(args[1]);
-            FileInputStream fin = new FileInputStream(in_file);
-            byte file_contents[] = new byte[(int) in_file.length()];
-            fin.read(file_contents);
             
-            ByteString image_contents = ByteString.copyFrom(file_contents);
-            
-            Image image = Image.newBuilder().
-            	addDetectedObjects(
-            		DetectedObject.newBuilder().
-            		setObjectType(DetectedObjectType.BUILDING).
-            		setName("OBJECT_1").
-            		setBoundingBox(
-            			ObjectBoundingBox.newBuilder().
-            			setTop(0).
-            			setBottom(100).
-            			setLeft(0).
-            			setRight(100).
-            			build()).
-            		setDistanceToViewer(20).
-            		setAngleToViewer(15).
-            		build()).
-            	setImage(
-            		ImageContents.newBuilder().
-            		setImageHash("IMAGE_HASH").
-            		setImageContents(image_contents)).
-            	build();
-            
-            ClientMessage client_message = ClientMessage.newBuilder()
-            	.setAuthentificationInfo(
-            		AuthentificationInfo.newBuilder()
-            		.setPhoneId("PHONE_ID")
-            		.setHash("CURRENT_HASH_OF_PHONE_ID")
-            		.build())
-            	.setMessageType(ClientMessageType.IMAGES_TO_STORE)
-            	.addImagesToStore(image)
-            	.build();
-            
-            Communication.sendMessage(client_message, out);
+            Communication.sendMessage(Mocking.createMockClientMessage(args[1]), out);
             
             socket.close();
 		} catch (Exception e) {
