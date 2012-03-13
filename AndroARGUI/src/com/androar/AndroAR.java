@@ -9,7 +9,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 public class AndroAR extends Activity implements OnClickListener {
-	String classes[] = {"MoveSelectionActivity"};
+	String classes[] = {"MoveSelectionActivity", "NavigationActivity"};
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -20,20 +20,25 @@ public class AndroAR extends Activity implements OnClickListener {
     }
 	
 	public void initialize() {
-		Button b = (Button) findViewById(R.id.bAddData);
-		b.setOnClickListener(this);
+		((Button)findViewById(R.id.bAddData)).setOnClickListener(this);
+		((Button)findViewById(R.id.bNavigateActivity)).setOnClickListener(this);
 	}
 
 	@Override
 	public void onClick(View v) {
+		int cls = -1;
 		if (v.getId() == R.id.bAddData) {
-			try {
-				Class<?> intentClass = Class.forName("com.androar." + classes[0]);
-				Intent i = new Intent(this, intentClass);
-				startActivity(i);
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
+			cls = 0;
+		} else if (v.getId() == R.id.bNavigateActivity) {
+			cls = 1;
+		}
+		if (cls != -1)
+		try {
+			Class<?> intentClass = Class.forName("com.androar." + classes[cls]);
+			Intent i = new Intent(this, intentClass);
+			startActivity(i);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
 	}
 }

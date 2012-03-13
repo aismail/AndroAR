@@ -5,8 +5,9 @@
     android:versionName="1.0" >
 
     <uses-sdk android:minSdkVersion="7" />
-    
+
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:debuggable="true"
@@ -24,6 +25,10 @@
         <activity
             android:label="@string/move_selection"
             android:name="com.androar.MoveSelectionActivity" >
+        </activity>
+        <activity
+            android:label="@string/navigation"
+            android:name="com.androar.NavigationActivity" >
         </activity>
     </application>
 
