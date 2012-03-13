@@ -32,6 +32,7 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 	private float x = 0, y = 0;
 	float saved_dx = 0, saved_dy = 0;
 	private Context context_ = null;
+	private float lastDistance;
 	
 	// selection modes
 	private final int NONE = 0;
@@ -147,17 +148,16 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 	/* Resize a bitmap to the newWidth 
 	 * and newHeight using a Matrix
 	 */
-	public void resizeBitmap(int newWidth, int newHeight) {
+	public void resizeBitmap(float deltaX, float deltaY) {
 		int width = bitmap.getWidth();
 		int height = bitmap.getHeight();
 		
-		float scaleW = ((float) newWidth) / width;
-		float scaleH = ((float) newHeight) / height;
-		
+		float scaleW = (width + deltaX) / width;
+		float scaleH = (height + deltaY) / height;
 		Matrix matrix = new Matrix();
 		matrix.postScale(scaleW, scaleH);
 		// resize the bitmap now
-		bitmap = Bitmap.createBitmap(bitmap, (int) 0, (int) 0, width, height,
+		bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height,
 				matrix, true);
 	}
 
@@ -168,7 +168,6 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 	public boolean onTouchEvent(MotionEvent event) {
 		float current_x = event.getX();
 		float current_y = event.getY();
-		float oldDist;
 		ImageParams image = new ImageParams();
 
 		switch (event.getAction() & MotionEvent.ACTION_MASK) {
@@ -197,16 +196,19 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 				x = current_x - saved_dx;
 				y = current_y - saved_dy;
 			} else if (MODE == PINCH) {
-				float newDist = image.euclidianDist(event.getX(0), event
+				float newDistance = image.euclidianDist(event.getX(0), event
 						.getY(0), event.getX(1), event.getY(1));
-				if (newDist > 10f)
-					resizeBitmap((int) newDist, (int) newDist);
+				if (newDistance > 10f) {
+					float delta = newDistance - lastDistance;
+					resizeBitmap(delta, delta);
+					lastDistance = newDistance;
+				}
 			}
 			break;
 		case MotionEvent.ACTION_POINTER_DOWN:
-			oldDist = image.euclidianDist(event.getX(0), event.getY(0), event
+			lastDistance = image.euclidianDist(event.getX(0), event.getY(0), event
 					.getX(1), event.getY(1));
-			if (oldDist > 10f)
+			if (lastDistance > 10f)
 				MODE = PINCH;
 			break;
 		}
