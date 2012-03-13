@@ -21,6 +21,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:label="@string/move_selection"
+            android:name="com.androar.MoveSelectionActivity" >
+        </activity>
     </application>
 
 </manifest>
