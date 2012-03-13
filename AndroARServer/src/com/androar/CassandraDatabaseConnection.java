@@ -63,6 +63,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		this.port = port;
 
 		// Connect to a cluster
+		// TODO(alex, andrei * 2): check if getorcreatecluster is thread-safe
 		cluster = HFactory.getOrCreateCluster(
 				Constants.CASSANDRA_CLUSTER_NAME, hostname + ":" + Integer.toString(port));
 		if (cluster.describeKeyspace(Constants.CASSANDRA_KEYSPACE) == null) {
@@ -73,7 +74,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 
 	public void closeConnection() {
 		Logging.LOG(3, "Closing Cassandra connection");
-		cluster.getConnectionManager().shutdown();
+		//cluster.getConnectionManager().shutdown();
 	}
 	
 	private static void createSchema(Cluster cluster) {
