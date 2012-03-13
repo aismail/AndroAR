@@ -53,17 +53,12 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	private static IntegerSerializer integer_serializer = IntegerSerializer.get();
 	private static LongSerializer long_serializer = LongSerializer.get();
 	
-	private String hostname;
-	private int port;
 	private Cluster cluster;
 	private Keyspace keyspace_operator;
 	
 	public CassandraDatabaseConnection(String hostname, int port) {
-		this.hostname = hostname;
-		this.port = port;
-
 		// Connect to a cluster
-		// TODO(alex, andrei * 2): check if getorcreatecluster is thread-safe
+		// TODO(alex, andrei * 2): check if getOrCreateCluster is thread-safe
 		cluster = HFactory.getOrCreateCluster(
 				Constants.CASSANDRA_CLUSTER_NAME, hostname + ":" + Integer.toString(port));
 		if (cluster.describeKeyspace(Constants.CASSANDRA_KEYSPACE) == null) {
