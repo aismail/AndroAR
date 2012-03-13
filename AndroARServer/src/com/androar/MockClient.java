@@ -3,6 +3,8 @@ package com.androar;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.androar.comm.Communication;
 import com.androar.comm.CommunicationProtos.ServerMessage;
@@ -27,7 +29,10 @@ public class MockClient {
             // Assume that the message was a HELLO. Let's now send an image to see if this works.
             // We will read an image stored on the Hard Drive for now, it's path is being passed 
             // through params
-            
+            List<String> object_ids = new ArrayList<String>();
+            object_ids.add("BLAH");
+            object_ids.add("ASDF");
+            Mocking.setMetadata("md5", object_ids, 45, 60);
             Communication.sendMessage(Mocking.createMockClientMessage(args[1]), out);
             
             socket.close();

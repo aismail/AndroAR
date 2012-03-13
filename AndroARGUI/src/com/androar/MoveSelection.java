@@ -4,6 +4,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -19,17 +21,9 @@ import android.view.SurfaceView;
 import android.widget.Toast;
 
 import com.androar.comm.Communication;
-import com.androar.comm.CommunicationProtos.AuthentificationInfo;
 import com.androar.comm.CommunicationProtos.ClientMessage;
 import com.androar.comm.CommunicationProtos.ServerMessage;
-import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
-import com.androar.comm.ImageFeaturesProtos.DetectedObject;
-import com.androar.comm.ImageFeaturesProtos.Image;
-import com.androar.comm.ImageFeaturesProtos.ImageContents;
-import com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox;
-import com.androar.comm.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
 import com.androar.comm.Mocking;
-import com.google.protobuf.ByteString;
 
 public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback {
 	private SurfaceHolder mSurfaceHolder;
@@ -110,6 +104,9 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
             byte file_contents[] = new byte[fin.available()];
             fin.read(file_contents);
             
+            List<String> objects = new ArrayList<String>();
+            objects.add("OBJ");
+            Mocking.setMetadata("hash", objects, 44, 61);
             ClientMessage client_message = Mocking.createMockClientMessage(file_contents);
             Log.i("PB", "***\n " + client_message.toString() + "\n***");
             
