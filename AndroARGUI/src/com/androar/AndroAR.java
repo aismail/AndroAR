@@ -9,19 +9,22 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 public class AndroAR extends Activity implements OnClickListener {
-	String classes[] = {"MoveSelectionActivity", "NavigationActivity"};
-	
+	private String classes[] = { "MoveSelectionActivity", "NavigationActivity" };
+	private Button b1, b2;
+
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
-    	super.onCreate(savedInstanceState);
-    	requestWindowFeature(Window.FEATURE_NO_TITLE);
-    	setContentView(R.layout.main);
-    	initialize();
-    }
-	
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		setContentView(R.layout.main);
+		initialize();
+	}
+
 	public void initialize() {
-		((Button)findViewById(R.id.bAddData)).setOnClickListener(this);
-		((Button)findViewById(R.id.bNavigateActivity)).setOnClickListener(this);
+		b1 = (Button) findViewById(R.id.bAddData);
+		b2 = (Button) findViewById(R.id.bNavigateActivity);
+		b1.setOnClickListener(this);
+		b2.setOnClickListener(this);
 	}
 
 	@Override
@@ -33,12 +36,13 @@ public class AndroAR extends Activity implements OnClickListener {
 			cls = 1;
 		}
 		if (cls != -1)
-		try {
-			Class<?> intentClass = Class.forName("com.androar." + classes[cls]);
-			Intent i = new Intent(this, intentClass);
-			startActivity(i);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+			try {
+				Class<?> intentClass = Class.forName("com.androar."
+						+ classes[cls]);
+				Intent i = new Intent(this, intentClass);
+				startActivity(i);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 	}
 }

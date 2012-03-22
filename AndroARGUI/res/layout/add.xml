@@ -6,6 +6,7 @@
     android:weightSum="100" >
 
     <com.androar.MoveSelection
+        android:id="@+id/MoveSelectionView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="10" />

@@ -3,17 +3,20 @@ package com.androar;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.View.OnClickListener;
 
 public class NavigationActivity extends Activity implements
-		SurfaceHolder.Callback {
+		SurfaceHolder.Callback, OnClickListener {
 	SurfaceView mSurfaceView;
 	SurfaceHolder mSurfaceHolder;
 	
@@ -73,8 +76,29 @@ public class NavigationActivity extends Activity implements
 
 		@Override
 		public void onPictureTaken(byte[] data, Camera camera) {
+			System.out.println("onPictureTaken()");
 		}
 	};
 
+	@Override
+	public void onClick(View v) {
+		if (v.getId() == R.id.bNavigationCapturePhoto) {
+			Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+			startActivityForResult(i, CAMERA_DATA);
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (resultCode == RESULT_OK) {
+			switch(requestCode) {
+				case CAMERA_DATA:
+					Bundle extras = data.getExtras();
+			//		mCameraCaptureBmp = (Bitmap) extras.get("data");
+					// TODO: send image to MoveSelection
+			}
+		}
+	}
 
 }

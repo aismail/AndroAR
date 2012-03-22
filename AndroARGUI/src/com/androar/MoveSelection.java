@@ -1,37 +1,19 @@
 package com.androar;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.Toast;
 
-import com.androar.comm.Communication;
-import com.androar.comm.CommunicationProtos.ClientMessage;
-import com.androar.comm.CommunicationProtos.ServerMessage;
-import com.androar.comm.Mocking;
+public class MoveSelection extends SurfaceView {
 
-public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback {
-	private SurfaceHolder mSurfaceHolder;
-	private DrawThread mThread = null;
 	private Bitmap bitmap, background;
 	private float x = 0, y = 0;
 	float saved_dx = 0, saved_dy = 0;
-	private Context context_ = null;
 	private float lastDistance;
 	
 	// selection modes
@@ -40,7 +22,6 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 	private final int PINCH = 2;
 	private int MODE = NONE;
 
-	private final int DEFAULT_SELECTION_SIZE = 200;
 	private final float DEFAULT_EPSILON = (float) 0.5;
 
 	private class ImageParams {
@@ -53,6 +34,19 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 			return (float) Math.sqrt(dx * dx + dy * dy);
 		}
 	}
+	
+	public void setBackground(Bitmap bitmap) {
+		background = bitmap;
+	}
+	
+	public void setSelection(Bitmap bitmap) {
+		this.bitmap = bitmap;
+	}
+	
+	public void setCoords(float x, float y) {
+		this.x = x;
+		this.y = y;
+	}
 
 	/**
 	 * Subclass of SurfaceView. Moves a bitmap on the SurfaceView by
@@ -60,8 +54,6 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 	 */
 	public MoveSelection(Context context) {
 		super(context);
-		context_ = context;
-		initSurface();
 	}
 
 	/**
@@ -70,8 +62,6 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 	 */
 	public MoveSelection(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		context_ = context;
-		initSurface();
 	}
 
 	/**
@@ -80,60 +70,6 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 	 */
 	public MoveSelection(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		context_ = context;
-		initSurface();
-	}
-	
-	private void sendMockPB() {
-		Socket socket;
-		DataOutputStream out;
-        DataInputStream in;
-        
-		try {
-			socket = new Socket("192.168.100.112", 6666);
-			out = new DataOutputStream(socket.getOutputStream());
-            in = new DataInputStream(socket.getInputStream());
-            
-            // Read a message
-            ServerMessage server_message = ServerMessage.parseFrom(Communication.readMessage(in));
-            Log.i("PB", "***\n " + server_message.toString() + "\n***");
-            Toast.makeText(context_, "***\n " + server_message.toString() + "\n***", Toast.LENGTH_LONG);
-            
-            // Assume that the message was a HELLO. Let's now send an image to see if this works.
-            // We will read an image stored on the Hard Drive for now, it's path is being passed through params
-            InputStream fin = context_.getResources().openRawResource(R.drawable.street);
-            byte file_contents[] = new byte[fin.available()];
-            fin.read(file_contents);
-            
-            List<String> objects = new ArrayList<String>();
-            objects.add("OBJ");
-            Mocking.setMetadata("hash", objects, 44, 61);
-            ClientMessage client_message = Mocking.createMockClientMessage(file_contents);
-            Log.i("PB", "***\n " + client_message.toString() + "\n***");
-            
-            Communication.sendMessage(client_message, out);
-            
-            socket.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Log.e("PB", e.getMessage());
-		}
-		return;
-	}
-	
-	public void initSurface() {
-		mSurfaceHolder = getHolder();
-		mSurfaceHolder.addCallback(this);
-	}
-	
-	public void initResources() {
-		bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-		resizeBitmap(DEFAULT_SELECTION_SIZE, DEFAULT_SELECTION_SIZE);
-		background = BitmapFactory.decodeResource(getResources(), R.drawable.street);
-		mThread = new DrawThread(mSurfaceHolder, this);
-		setFocusable(true);
-		// Just send a mock protocol buffer
-		sendMockPB();
 	}
 	
 	@Override
@@ -213,65 +149,5 @@ public class MoveSelection extends SurfaceView implements SurfaceHolder.Callback
 			break;
 		}
 		return true;
-	}
-
-	@Override
-	public void surfaceCreated(SurfaceHolder holder) {
-		initResources();
-		x = holder.getSurfaceFrame().exactCenterX();
-		y = holder.getSurfaceFrame().exactCenterY();
-		mThread.setRunning(true);
-		mThread.start();
-	}
-
-	@Override
-	public void surfaceDestroyed(SurfaceHolder holder) {
-		boolean retry = true;
-		mThread.setRunning(false);
-		while (retry) {
-			try {
-				mThread.join();
-				retry = false;
-			} catch (InterruptedException e) {}
-		}
-	}
-
-	@Override
-	public void surfaceChanged(SurfaceHolder holder, int format, int width,
-			int height) {}
-
-	/**
-	 * Thread for permanently redrawing the SurfaceView.
-	 */
-	class DrawThread extends Thread {
-		private SurfaceHolder surfaceHolder;
-		private MoveSelection panel;
-		private boolean run;
-
-		public DrawThread(SurfaceHolder surfaceHolder, MoveSelection panel) {
-			this.surfaceHolder = surfaceHolder;
-			this.panel = panel;
-		}
-
-		public void setRunning(boolean run) {
-			this.run = run;
-		}
-
-		@Override
-		public void run() {
-			Canvas c;
-			while (run) {
-				c = null;
-				try {
-					c = surfaceHolder.lockCanvas();
-					synchronized (surfaceHolder) {
-						panel.onDraw(c);
-					}
-				} finally {
-					if (c != null)
-						surfaceHolder.unlockCanvasAndPost(c);
-				}
-			}
-		}
 	}
 }
