@@ -56,9 +56,10 @@ message ImageContents {
 	required bytes image_contents = 2;
 }
 
-// Next id = 4
+// Next id = 5
 message Image {
 	required ImageContents image = 1;
 	optional LocalizationFeatures localization_features = 2;
 	repeated DetectedObject detected_objects = 3;
+	repeated string possible_present_objects = 4;
 }
