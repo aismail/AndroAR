@@ -22,84 +22,99 @@ import com.androar.comm.Mocking;
 import com.androar.comm.CommunicationProtos.ClientMessage;
 import com.androar.comm.CommunicationProtos.ServerMessage;
 
-public class MoveSelectionActivity extends Activity implements SurfaceHolder.Callback {
+public class MoveSelectionActivity extends Activity implements
+		SurfaceHolder.Callback {
 	private SurfaceHolder mSurfaceHolder;
 	private MoveSelection mSelectionView;
 	private DrawThread mThread = null;
 	private Context context_ = null;
 	private final int DEFAULT_SELECTION_SIZE = 200;
 	private float x, y;
-	private Bitmap bitmap;
+	private Bitmap bitmap = null;
 
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
-    	super.onCreate(savedInstanceState);
-    	requestWindowFeature(Window.FEATURE_NO_TITLE);
-    	setContentView(R.layout.add);
-    	initialize(savedInstanceState);
-    }
-	
+	public void onCreate(Bundle savedInstanceState) {
+		System.out.println("MoveSelectionActivity() start");
+		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		setContentView(R.layout.add);
+		initialize(savedInstanceState);
+	}
+
 	public void initialize(Bundle savedInstanceState) {
 		mSelectionView = (MoveSelection) findViewById(R.id.MoveSelectionView);
 		mSurfaceHolder = mSelectionView.getHolder();
 		mSurfaceHolder.addCallback(this);
-		
+
 		if (savedInstanceState != null) {
+			System.out.println("SavedInstanceState != null");
 			bitmap = (Bitmap) savedInstanceState.get("data");
 			mSelectionView.setBackground(bitmap);
-		}
+		} else
+			System.out.println("SavedInstanceState == null");
 	}
-	
+
 	public void initResources() {
 		// default selection
-		bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-		mSelectionView.setSelection(bitmap);
-		bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.street);
+		if (bitmap == null) {
+			bitmap = BitmapFactory.decodeResource(getResources(),
+					R.drawable.ic_launcher);
+			mSelectionView.setSelection(bitmap);
+		}
+		bitmap = BitmapFactory
+				.decodeResource(getResources(), R.drawable.street);
 		mSelectionView.setBackground(bitmap);
-		
-		mSelectionView.resizeBitmap(DEFAULT_SELECTION_SIZE, DEFAULT_SELECTION_SIZE);
+
+		mSelectionView.resizeBitmap(DEFAULT_SELECTION_SIZE,
+				DEFAULT_SELECTION_SIZE);
 		mThread = new DrawThread(mSurfaceHolder, mSelectionView);
 		// Just send a mock protocol buffer
-//		sendMockPB();
+		// sendMockPB();
 	}
-	
+
 	private void sendMockPB() {
 		Socket socket;
 		DataOutputStream out;
-        DataInputStream in;
-        
+		DataInputStream in;
+
 		try {
 			socket = new Socket("192.168.100.112", 6666);
 			out = new DataOutputStream(socket.getOutputStream());
-            in = new DataInputStream(socket.getInputStream());
-            
-            // Read a message
-            ServerMessage server_message = ServerMessage.parseFrom(Communication.readMessage(in));
-            Log.i("PB", "***\n " + server_message.toString() + "\n***");
-            Toast.makeText(context_, "***\n " + server_message.toString() + "\n***", Toast.LENGTH_LONG);
-            
-            // Assume that the message was a HELLO. Let's now send an image to see if this works.
-            // We will read an image stored on the Hard Drive for now, it's path is being passed through params
-            InputStream fin = context_.getResources().openRawResource(R.drawable.street);
-            byte file_contents[] = new byte[fin.available()];
-            fin.read(file_contents);
-            
-            List<String> objects = new ArrayList<String>();
-            objects.add("OBJ");
-            Mocking.setMetadata("hash", objects, 44, 61);
-            ClientMessage client_message = Mocking.createMockClientMessage(file_contents);
-            Log.i("PB", "***\n " + client_message.toString() + "\n***");
-            
-            Communication.sendMessage(client_message, out);
-            
-            socket.close();
+			in = new DataInputStream(socket.getInputStream());
+
+			// Read a message
+			ServerMessage server_message = ServerMessage
+					.parseFrom(Communication.readMessage(in));
+			Log.i("PB", "***\n " + server_message.toString() + "\n***");
+			Toast.makeText(context_, "***\n " + server_message.toString()
+					+ "\n***", Toast.LENGTH_LONG);
+
+			// Assume that the message was a HELLO. Let's now send an image to
+			// see if this works.
+			// We will read an image stored on the Hard Drive for now, it's path
+			// is being passed through params
+			InputStream fin = context_.getResources().openRawResource(
+					R.drawable.street);
+			byte file_contents[] = new byte[fin.available()];
+			fin.read(file_contents);
+
+			List<String> objects = new ArrayList<String>();
+			objects.add("OBJ");
+			Mocking.setMetadata("hash", objects, 44, 61);
+			ClientMessage client_message = Mocking
+					.createMockClientMessage(file_contents);
+			Log.i("PB", "***\n " + client_message.toString() + "\n***");
+
+			Communication.sendMessage(client_message, out);
+
+			socket.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.e("PB", e.getMessage());
 		}
 		return;
 	}
-	
+
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		initResources();
@@ -118,12 +133,14 @@ public class MoveSelectionActivity extends Activity implements SurfaceHolder.Cal
 			try {
 				mThread.join();
 				retry = false;
-			} catch (InterruptedException e) {}
+			} catch (InterruptedException e) {
+			}
 		}
 	}
 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
-			int height) {}
-	
+			int height) {
+	}
+
 }
