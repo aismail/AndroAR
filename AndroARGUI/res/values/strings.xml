@@ -9,6 +9,7 @@
     
  <!--Labels -->
  	<string name="AndroAR_Title">Andro-Augmented Reality</string>
+ 	<string name="ButtonCapturePhoto">Capture</string>
     <string name="drag">drag</string>
     <string name="send_button">Send</string>
     <string name="navigation">Navigate</string>

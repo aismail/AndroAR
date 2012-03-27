@@ -4,9 +4,22 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk android:minSdkVersion="7" />
-    
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="11" />
+
+    <supports-screens
+        android:largeScreens="false"
+        android:normalScreens="true"
+        android:smallScreens="false" />
+
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:debuggable="true"
@@ -24,6 +37,11 @@
         <activity
             android:label="@string/move_selection"
             android:name="com.androar.MoveSelectionActivity" >
+        </activity>
+        <activity
+            android:label="@string/navigation"
+            android:name="com.androar.NavigationActivity"
+            android:screenOrientation="landscape" >
         </activity>
     </application>
 
