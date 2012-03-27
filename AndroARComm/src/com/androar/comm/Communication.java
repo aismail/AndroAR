@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.net.Socket;
 import java.net.SocketException;
 
 import com.google.protobuf.Message;
@@ -37,5 +38,26 @@ public class Communication {
 			e.printStackTrace();
 			return;
 		}
+	}
+
+	public static byte[] sendAndProcessRequestToOpenCV(byte[] request, Socket socket) {
+		int size = request.length;
+		byte[] ret = null;
+		try {
+			DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+			DataInputStream in = new DataInputStream(socket.getInputStream());
+			
+			out.writeInt(size);
+			out.write(request);
+			size = in.readInt();
+			ret = new byte[size];
+			in.readFully(ret);
+		} catch (EOFException e) {
+			return null;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return ret;
 	}
 }
