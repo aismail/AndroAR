@@ -5,8 +5,8 @@
     android:orientation="vertical"
     android:weightSum="100" >
 
-    <com.androar.MoveSelection
-        android:id="@+id/MoveSelectionView"
+    <SurfaceView
+        android:id="@+id/surfaceCamera"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="10" />
@@ -18,18 +18,18 @@
         android:orientation="horizontal"
         android:weightSum="100" >
 
-        <EditText
-            android:id="@+id/etCameraPhotoText"
+        <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="20" />
+            android:layout_weight="23"
+            android:text="No metadata to be shown. Click on a box." />
 
         <Button
-            android:id="@+id/bCameraSendDetails"
+            android:id="@+id/bNavigationCapturePhoto"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="80"
-            android:text="@string/send_button" />
+            android:layout_weight="77"
+            android:text="@string/ButtonCapturePhoto" />
     </LinearLayout>
 
 </LinearLayout>
