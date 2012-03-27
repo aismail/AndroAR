@@ -34,7 +34,6 @@ public class MoveSelectionActivity extends Activity implements
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		System.out.println("MoveSelectionActivity() start");
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.add);
@@ -45,13 +44,6 @@ public class MoveSelectionActivity extends Activity implements
 		mSelectionView = (MoveSelection) findViewById(R.id.MoveSelectionView);
 		mSurfaceHolder = mSelectionView.getHolder();
 		mSurfaceHolder.addCallback(this);
-
-		if (savedInstanceState != null) {
-			System.out.println("SavedInstanceState != null");
-			bitmap = (Bitmap) savedInstanceState.get("data");
-			mSelectionView.setBackground(bitmap);
-		} else
-			System.out.println("SavedInstanceState == null");
 	}
 
 	public void initResources() {
@@ -61,9 +53,16 @@ public class MoveSelectionActivity extends Activity implements
 					R.drawable.ic_launcher);
 			mSelectionView.setSelection(bitmap);
 		}
-		bitmap = BitmapFactory
-				.decodeResource(getResources(), R.drawable.street);
-		mSelectionView.setBackground(bitmap);
+
+		try {
+			byte[] b = getIntent().getByteArrayExtra("data");
+			bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
+		} catch (NullPointerException e) {
+			bitmap = BitmapFactory.decodeResource(getResources(),
+					R.drawable.street);
+		} finally {
+			mSelectionView.setBackground(bitmap);
+		}
 
 		mSelectionView.resizeBitmap(DEFAULT_SELECTION_SIZE,
 				DEFAULT_SELECTION_SIZE);

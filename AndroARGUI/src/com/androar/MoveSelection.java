@@ -39,6 +39,10 @@ public class MoveSelection extends SurfaceView {
 		background = bitmap;
 	}
 	
+	public Bitmap getBg() {
+		return background;
+	}
+	
 	public void setSelection(Bitmap bitmap) {
 		this.bitmap = bitmap;
 	}

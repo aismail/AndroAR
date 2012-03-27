@@ -77,13 +77,8 @@ public class NavigationActivity extends Activity implements
 	public void onClick(View v) {
 		if (v.getId() == R.id.bNavigationCapturePhoto)
 			if (mPreviewRunning) {
-				mCamera.takePicture(mShutterCallback, mRawPictureCallback,
-						mPictureCallback);
+				mCamera.takePicture(null, null, mPictureCallback);
 				mPreviewRunning = false;
-				// Intent i = new Intent(
-				// android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-				// System.out.println("onClick()");
-				// startActivityForResult(i, CAMERA_DATA);
 			}
 	}
 
@@ -126,35 +121,6 @@ public class NavigationActivity extends Activity implements
 		return (result);
 	}
 
-	// @Override
-	// protected void onActivityResult(int requestCode, int resultCode, Intent
-	// data) {
-	// super.onActivityResult(requestCode, resultCode, data);
-	// System.out.println("onActivityResult");
-	// if (resultCode == RESULT_OK) {
-	// switch (requestCode) {
-	// case CAMERA_DATA:
-	// System.out.println("onActivityResult: CAMERA_DATA");
-	// Bundle extras = data.getExtras();
-	// mCameraCaptureBmp = (Bitmap) extras.get("data");
-	// Class<?> intentClass = null;
-	// if (mCameraCaptureBmp != null)
-	// try {
-	// intentClass = Class
-	// .forName("com.androar.MoveSelectionActivity");
-	// } catch (ClassNotFoundException e) {
-	// e.printStackTrace();
-	// return;
-	// }
-	// Intent i = new Intent(this, intentClass);
-	// i.putExtra("data", mCameraCaptureBmp);
-	// startActivity(i);
-	// break;
-	// // TODO: send image to MoveSelection
-	// }
-	// }
-	// }
-
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
@@ -192,48 +158,13 @@ public class NavigationActivity extends Activity implements
 		@Override
 		public void onPictureTaken(byte[] data, Camera camera) {
 			new SavePhotoTask().execute(data);
-			System.out.println("test0");
 
-			Bitmap b = BitmapFactory.decodeByteArray(data, 0, data.length);
-			Class<?> intentClass = null;
-			if (b != null)
-				try {
-					System.out.println("test01");
-					intentClass = Class
-							.forName("com.androar.MoveSelectionActivity");
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-					return;
-				}
-			System.out.println("test1");
-			Intent i = new Intent(NavigationActivity.this, intentClass);
-			i.putExtra("data", b);
-			System.out.println("test2");
+			Intent i = new Intent(NavigationActivity.this, MoveSelectionActivity.class);
+			i.putExtra("data", data);
 
 			camera.stopPreview();
 			mPreviewRunning = false;
-			System.out.println("test3");
-
 			startActivity(i);
-			System.out.println("test4");
-
-		}
-	};
-
-	Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback() {
-
-		@Override
-		public void onShutter() {
-			System.out.println("onSuhutter()");
-		}
-	};
-
-	Camera.PictureCallback mRawPictureCallback = new Camera.PictureCallback() {
-
-		@Override
-		public void onPictureTaken(byte[] data, Camera camera) {
-			System.out.println("PictureCallback - raw");
-			// data.
 		}
 	};
 
