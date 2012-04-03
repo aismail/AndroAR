@@ -17,4 +17,8 @@ public final class Constants {
 	
 	public static final String DATABASE_HOST = "emerald";
 	public static final int DATABASE_PORT = 9160;
+	
+	
+	public static final String OPENCV_HOST = "localhost";
+	public static final int OPENCV_PORT = 6667;
 }

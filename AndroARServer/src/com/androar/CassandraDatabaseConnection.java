@@ -53,16 +53,12 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	private static IntegerSerializer integer_serializer = IntegerSerializer.get();
 	private static LongSerializer long_serializer = LongSerializer.get();
 	
-	private String hostname;
-	private int port;
 	private Cluster cluster;
 	private Keyspace keyspace_operator;
 	
 	public CassandraDatabaseConnection(String hostname, int port) {
-		this.hostname = hostname;
-		this.port = port;
-
 		// Connect to a cluster
+		// TODO(alex, andrei * 2): check if getOrCreateCluster is thread-safe
 		cluster = HFactory.getOrCreateCluster(
 				Constants.CASSANDRA_CLUSTER_NAME, hostname + ":" + Integer.toString(port));
 		if (cluster.describeKeyspace(Constants.CASSANDRA_KEYSPACE) == null) {
@@ -73,7 +69,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 
 	public void closeConnection() {
 		Logging.LOG(3, "Closing Cassandra connection");
-		cluster.getConnectionManager().shutdown();
+		//cluster.getConnectionManager().shutdown();
 	}
 	
 	private static void createSchema(Cluster cluster) {

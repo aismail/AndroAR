@@ -3784,6 +3784,11 @@ public final class ImageFeaturesProtos {
         getDetectedObjectsOrBuilderList();
     com.androar.comm.ImageFeaturesProtos.DetectedObjectOrBuilder getDetectedObjectsOrBuilder(
         int index);
+    
+    // repeated string possible_present_objects = 4;
+    java.util.List<String> getPossiblePresentObjectsList();
+    int getPossiblePresentObjectsCount();
+    String getPossiblePresentObjects(int index);
   }
   public static final class Image extends
       com.google.protobuf.GeneratedMessage
@@ -3861,10 +3866,25 @@ public final class ImageFeaturesProtos {
       return detectedObjects_.get(index);
     }
     
+    // repeated string possible_present_objects = 4;
+    public static final int POSSIBLE_PRESENT_OBJECTS_FIELD_NUMBER = 4;
+    private com.google.protobuf.LazyStringList possiblePresentObjects_;
+    public java.util.List<String>
+        getPossiblePresentObjectsList() {
+      return possiblePresentObjects_;
+    }
+    public int getPossiblePresentObjectsCount() {
+      return possiblePresentObjects_.size();
+    }
+    public String getPossiblePresentObjects(int index) {
+      return possiblePresentObjects_.get(index);
+    }
+    
     private void initFields() {
       image_ = com.androar.comm.ImageFeaturesProtos.ImageContents.getDefaultInstance();
       localizationFeatures_ = com.androar.comm.ImageFeaturesProtos.LocalizationFeatures.getDefaultInstance();
       detectedObjects_ = java.util.Collections.emptyList();
+      possiblePresentObjects_ = com.google.protobuf.LazyStringArrayList.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -3907,6 +3927,9 @@ public final class ImageFeaturesProtos {
       for (int i = 0; i < detectedObjects_.size(); i++) {
         output.writeMessage(3, detectedObjects_.get(i));
       }
+      for (int i = 0; i < possiblePresentObjects_.size(); i++) {
+        output.writeBytes(4, possiblePresentObjects_.getByteString(i));
+      }
       getUnknownFields().writeTo(output);
     }
     
@@ -3927,6 +3950,15 @@ public final class ImageFeaturesProtos {
       for (int i = 0; i < detectedObjects_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(3, detectedObjects_.get(i));
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < possiblePresentObjects_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeBytesSizeNoTag(possiblePresentObjects_.getByteString(i));
+        }
+        size += dataSize;
+        size += 1 * getPossiblePresentObjectsList().size();
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -4073,6 +4105,8 @@ public final class ImageFeaturesProtos {
         } else {
           detectedObjectsBuilder_.clear();
         }
+        possiblePresentObjects_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
       
@@ -4136,6 +4170,12 @@ public final class ImageFeaturesProtos {
         } else {
           result.detectedObjects_ = detectedObjectsBuilder_.build();
         }
+        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          possiblePresentObjects_ = new com.google.protobuf.UnmodifiableLazyStringList(
+              possiblePresentObjects_);
+          bitField0_ = (bitField0_ & ~0x00000008);
+        }
+        result.possiblePresentObjects_ = possiblePresentObjects_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -4183,6 +4223,16 @@ public final class ImageFeaturesProtos {
               detectedObjectsBuilder_.addAllMessages(other.detectedObjects_);
             }
           }
+        }
+        if (!other.possiblePresentObjects_.isEmpty()) {
+          if (possiblePresentObjects_.isEmpty()) {
+            possiblePresentObjects_ = other.possiblePresentObjects_;
+            bitField0_ = (bitField0_ & ~0x00000008);
+          } else {
+            ensurePossiblePresentObjectsIsMutable();
+            possiblePresentObjects_.addAll(other.possiblePresentObjects_);
+          }
+          onChanged();
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -4257,6 +4307,11 @@ public final class ImageFeaturesProtos {
               com.androar.comm.ImageFeaturesProtos.DetectedObject.Builder subBuilder = com.androar.comm.ImageFeaturesProtos.DetectedObject.newBuilder();
               input.readMessage(subBuilder, extensionRegistry);
               addDetectedObjects(subBuilder.buildPartial());
+              break;
+            }
+            case 34: {
+              ensurePossiblePresentObjectsIsMutable();
+              possiblePresentObjects_.add(input.readBytes());
               break;
             }
           }
@@ -4631,6 +4686,62 @@ public final class ImageFeaturesProtos {
         return detectedObjectsBuilder_;
       }
       
+      // repeated string possible_present_objects = 4;
+      private com.google.protobuf.LazyStringList possiblePresentObjects_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensurePossiblePresentObjectsIsMutable() {
+        if (!((bitField0_ & 0x00000008) == 0x00000008)) {
+          possiblePresentObjects_ = new com.google.protobuf.LazyStringArrayList(possiblePresentObjects_);
+          bitField0_ |= 0x00000008;
+         }
+      }
+      public java.util.List<String>
+          getPossiblePresentObjectsList() {
+        return java.util.Collections.unmodifiableList(possiblePresentObjects_);
+      }
+      public int getPossiblePresentObjectsCount() {
+        return possiblePresentObjects_.size();
+      }
+      public String getPossiblePresentObjects(int index) {
+        return possiblePresentObjects_.get(index);
+      }
+      public Builder setPossiblePresentObjects(
+          int index, String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensurePossiblePresentObjectsIsMutable();
+        possiblePresentObjects_.set(index, value);
+        onChanged();
+        return this;
+      }
+      public Builder addPossiblePresentObjects(String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensurePossiblePresentObjectsIsMutable();
+        possiblePresentObjects_.add(value);
+        onChanged();
+        return this;
+      }
+      public Builder addAllPossiblePresentObjects(
+          java.lang.Iterable<String> values) {
+        ensurePossiblePresentObjectsIsMutable();
+        super.addAll(values, possiblePresentObjects_);
+        onChanged();
+        return this;
+      }
+      public Builder clearPossiblePresentObjects() {
+        possiblePresentObjects_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000008);
+        onChanged();
+        return this;
+      }
+      void addPossiblePresentObjects(com.google.protobuf.ByteString value) {
+        ensurePossiblePresentObjectsIsMutable();
+        possiblePresentObjects_.add(value);
+        onChanged();
+      }
+      
       // @@protoc_insertion_point(builder_scope:androar.Image)
     }
     
@@ -4709,12 +4820,13 @@ public final class ImageFeaturesProtos {
       "iewer\030\006 \001(\005\"A\n\022DetectedObjectType\022\013\n\007UNK" +
       "NOWN\020\001\022\014\n\010BUILDING\020\002\022\020\n\014LAST_ELEMENT\020\003\";" +
       "\n\rImageContents\022\022\n\nimage_hash\030\001 \002(\t\022\026\n\016i" +
-      "mage_contents\030\002 \002(\014\"\237\001\n\005Image\022%\n\005image\030\001" +
+      "mage_contents\030\002 \002(\014\"\301\001\n\005Image\022%\n\005image\030\001" +
       " \002(\0132\026.androar.ImageContents\022<\n\025localiza",
       "tion_features\030\002 \001(\0132\035.androar.Localizati" +
       "onFeatures\0221\n\020detected_objects\030\003 \003(\0132\027.a" +
-      "ndroar.DetectedObjectB\'\n\020com.androar.com" +
-      "mB\023ImageFeaturesProtos"
+      "ndroar.DetectedObject\022 \n\030possible_presen" +
+      "t_objects\030\004 \003(\tB\'\n\020com.androar.commB\023Ima" +
+      "geFeaturesProtos"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -4782,7 +4894,7 @@ public final class ImageFeaturesProtos {
           internal_static_androar_Image_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_androar_Image_descriptor,
-              new java.lang.String[] { "Image", "LocalizationFeatures", "DetectedObjects", },
+              new java.lang.String[] { "Image", "LocalizationFeatures", "DetectedObjects", "PossiblePresentObjects", },
               com.androar.comm.ImageFeaturesProtos.Image.class,
               com.androar.comm.ImageFeaturesProtos.Image.Builder.class);
           return null;
