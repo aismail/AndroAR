@@ -3,13 +3,18 @@
  *
  * Author: alex.m.damian@gmail.com
  */
+#include "Socket.h"
 
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
+#include <sys/types.h>
+#include <sys/socket.h>
 
-#include "Socket.h"
+#include "comm.pb.h"
+#include "Communication.h"
 
-namespace comm_androar_cv {
+using namespace androar;
 
 #define PORT 6667
 // TODO(alex): fix this hard coding
@@ -19,26 +24,11 @@ int main(int argc, char** argv) {
 	server_socket.initSocket();
 	Socket java_client = server_socket.acceptConnections();
 
-  /*
-  printf("Hi there, from  %s#\n",inet_ntoa(pin.sin_addr));
-  printf("Coming from port %d\n",ntohs(pin.sin_port));
-  */
-/*
-  if (recv(sd_current, dir, sizeof(dir), 0) == -1) {
-	  perror("recv");
-	  exit(1);
-  }
-
-
-  if (send(sd_current, dir, strlen(dir), 0) == -1) {
-	  perror("send");
-	  exit(1);
-  }
-*/
-	java_client.closeSocket();
-	server_socket.closeSocket();
+	// Just read messages from the java server
+	while (true) {
+		Image image_to_parse = Communication::getImageMessage(java_client);
+		std::cerr << image_to_parse.DebugString();
+	}
   
   return 0;
 }
-
-} // namespace comm_androar_cv

@@ -14,7 +14,7 @@
 #include <string.h>
 #include <unistd.h>
 
-namespace comm_androar_cv {
+namespace androar {
 
 Socket::Socket(int port) : port(port), socket_descriptor(-1) {
 }
