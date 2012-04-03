@@ -29,8 +29,6 @@ public class ClientConnection implements Runnable {
 		// Initialize a connection to the Cassandra Cluster.
 		cassandra_connection = 
 				new CassandraDatabaseConnection(Constants.DATABASE_HOST, Constants.DATABASE_PORT);
-		
-		this.run();
 	}
 	
 	@Override
