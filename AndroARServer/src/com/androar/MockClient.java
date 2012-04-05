@@ -35,6 +35,9 @@ public class MockClient {
             Mocking.setMetadata("md5", object_ids, 45, 60);
             Communication.sendMessage(Mocking.createMockClientMessage(args[1]), out);
             
+            // Sleep for a while to allow opencv to process stuff and send us data
+            Thread.sleep(10 * 1000);
+            
             socket.close();
 		} catch (Exception e) {
 			e.printStackTrace();
