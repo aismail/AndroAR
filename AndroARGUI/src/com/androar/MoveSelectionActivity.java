@@ -18,6 +18,7 @@ import android.view.Window;
 import android.widget.Toast;
 
 import com.androar.comm.Communication;
+import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
 import com.androar.comm.Mocking;
 import com.androar.comm.CommunicationProtos.ClientMessage;
 import com.androar.comm.CommunicationProtos.ServerMessage;
@@ -101,7 +102,7 @@ public class MoveSelectionActivity extends Activity implements
 			objects.add("OBJ");
 			Mocking.setMetadata("hash", objects, 44, 61);
 			ClientMessage client_message = Mocking
-					.createMockClientMessage(file_contents);
+					.createMockClientMessage(file_contents, ClientMessageType.IMAGES_TO_STORE);
 			Log.i("PB", "***\n " + client_message.toString() + "\n***");
 
 			Communication.sendMessage(client_message, out);
