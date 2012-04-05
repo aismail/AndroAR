@@ -10,6 +10,7 @@ import java.util.Scanner;
 import com.androar.comm.Communication;
 import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
 import com.androar.comm.CommunicationProtos.ServerMessage;
+import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.Mocking;
 
 public class MockClient {
@@ -36,8 +37,11 @@ public class MockClient {
             object_ids.add("ASDF");
             Mocking.setMetadata("md5", object_ids, 45, 60);
             Communication.sendMessage(
-            		Mocking.createMockClientMessage(args[1], ClientMessageType.IMAGES_TO_STORE),
+            		Mocking.createMockClientMessage(args[1], ClientMessageType.IMAGE_TO_PROCESS),
             		out);
+            
+            Image returned_image = Image.parseFrom(Communication.readMessage(in));
+            Logging.LOG(0, returned_image.toString());
             
             // Sleep for a while to allow opencv to process stuff and send us data
             // Until the user presses enter
