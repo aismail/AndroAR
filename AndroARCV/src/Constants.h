@@ -14,7 +14,7 @@ private:
 	virtual ~Constants() {}
 
 public:
-	static int PORT = 6667;
+	static const int PORT = 6667;
 };
 
 #endif /* CONSTANTS_H_ */
