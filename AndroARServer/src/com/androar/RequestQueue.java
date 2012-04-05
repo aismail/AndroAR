@@ -38,7 +38,7 @@ public class RequestQueue {
 						continue;
 					}
 					// Transmit message, get reply and execute callback
-					Object response = Communication.sendAndProcessRequestToOpenCV(
+					byte[] response = Communication.sendAndProcessRequestToOpenCV(
 							request.getRequestToByteArray(), opencv_socket);
 					// Execute callback
 					request.callCallback(response);

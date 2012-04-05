@@ -53,11 +53,7 @@ public class ClientConnection implements Runnable {
 				}
 				ClientMessage current_client_message = 
 						ClientMessage.parseFrom(serialized_input_message);
-				ServerMessage reply_message = 
-						processAndReturnReplyToCurrentMessage(current_client_message);
-				if (reply_message != null) {
-					Communication.sendMessage(reply_message, out);
-				}
+				processCurrentMessage(current_client_message);
 			} catch (InvalidProtocolBufferException e) {
 				e.printStackTrace();
 			}
@@ -70,10 +66,8 @@ public class ClientConnection implements Runnable {
 	 * be sent back.
 	 * @param clientMessage message received from client
 	 */
-	private ServerMessage processAndReturnReplyToCurrentMessage(ClientMessage client_message) {
-		ServerMessage.Builder builder = ServerMessage.newBuilder();
+	private void processCurrentMessage(ClientMessage client_message) {
 		ClientMessageType message_type = client_message.getMessageType();
-		ServerMessage return_message = null;
 		if (message_type == ClientMessageType.IMAGES_TO_STORE) {
 			for (int image = 0; image < client_message.getImagesToStoreCount(); ++image) {
 				// Right now we're just storing the image, assuming that it's relevant and that the
@@ -81,30 +75,18 @@ public class ClientConnection implements Runnable {
 				// TODO(alex, andrei): Fix.
 				cassandra_connection.storeImage(client_message.getImagesToStore(image));
 				Request request = new Request(RequestType.STORE,
-						client_message.getImagesToStore(image));
+						client_message.getImagesToStore(image), out);
 				opencv_queue.newRequest(request);
 			}
 		} else if (message_type == ClientMessageType.IMAGE_TO_PROCESS) {
-			// Let's just store the image for now
-			// TODO(alex): Fix.
-			FileOutputStream fout;
-			try {
-				fout = new FileOutputStream("out.jpeg");
-				fout.write(
-						client_message
-							.getImageToProcess()
-							.getImage()
-							.getImageContents()
-							.toByteArray());
-				fout.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+			if (client_message.hasImageToProcess()) {
+				Request request = 
+						new Request(RequestType.QUERY, client_message.getImageToProcess(), out);
+				opencv_queue.newRequest(request);
 			}
-			builder.setMessageType(ServerMessageType.IMAGE_PROCESSED);
-			return_message = builder.build();
 		}
 		
-		return return_message;
+		return;
 	}
 	
 	/*

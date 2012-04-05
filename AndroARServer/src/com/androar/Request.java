@@ -1,17 +1,22 @@
 package com.androar;
 
+import java.io.DataOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.androar.comm.Communication;
 import com.androar.comm.CommunicationProtos.OpenCVRequest;
 import com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType;
 import com.androar.comm.ImageFeaturesProtos.Image;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 public class Request {
 	
 	private OpenCVRequest content;
+	private DataOutputStream out;
 	
-	public Request(RequestType type, Image image_content) {
+	public Request(RequestType type, Image image_content, DataOutputStream out) {
+		this.out = out;
 		this.content = OpenCVRequest.newBuilder().
 				setRequestType(type).setImageContents(image_content).build();
 	}
@@ -25,19 +30,17 @@ public class Request {
 		return content.toByteArray();
 	}
 
-	public List<String> callCallback(Object object) {
+	public void callCallback(byte[] reply) {
 		RequestType request_type = content.getRequestType(); 
 		if (request_type == RequestType.STORE) {
 			// In case this is a store request, we will receive null and we won't do anything
-			return null;
+			return;
 		} else if (request_type == RequestType.QUERY) {
-			// In case this is a query request, we will have to pick the most probable objects that
-			// appear in this image
-			byte[] probabilities = (byte[]) object;
-			List<String> ret = new ArrayList<String>();
-			return ret;
+			// In case this is a query request, we will get the detected objects
+			Communication.sendByteArrayMessage(reply, out);
+			return;
 		}
-		return null;
+		return;
 	}
 
 }

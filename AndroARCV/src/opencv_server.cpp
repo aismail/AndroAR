@@ -25,20 +25,22 @@ int main(int argc, char** argv) {
 	// Just read messages from the java server
 	while (true) {
 		OpenCVRequest request = Communication::getImageMessage(*java_client);
-		// Let's do something with this image :)
-		std::cerr << request.DebugString();
 		if (request.request_type() == OpenCVRequest::STORE) {
 			// Store it and send an empty message
+			Communication::sendEmptyMessage(*java_client);
 		} else if (request.request_type() == OpenCVRequest::QUERY) {
 			// Process the possible_present_objects repeated field and return a new image with
 			// the newly set detected objects, if any.
 
+			Image* image = request.mutable_image_contents();
+			image->add_possible_present_objects("JUST_A_TEST");
 			// For now, we'll just send the same message back
+			int serialized_size = image->ByteSize();
+			char *serialized_pb = new char[serialized_size];
+			image->SerializeToArray(serialized_pb, serialized_size);
+			Communication::sendReplyMessage(*java_client, serialized_pb, serialized_size);
+			delete[] serialized_pb;
 		}
-//		int serialized_size = image_to_parse.ByteSize();
-//		void *serialized_pb = new char[serialized_size];
-//		image_to_parse.SerializeToArray(serialized_pb, serialized_size);
-//		Communication::sendReplyMessage(*java_client, serialized_pb, serialized_size);
 	}
 
 	delete java_client;
