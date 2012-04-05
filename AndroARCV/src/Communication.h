@@ -8,14 +8,14 @@
 #ifndef COMMUNICATION_H_
 #define COMMUNICATION_H_
 
-#include "image_features.pb.h"
+#include "comm.pb.h"
 #include "Socket.h"
 
 using namespace androar;
 
 class Communication {
 public:
-	static Image getImageMessage(Socket& socket);
+	static OpenCVRequest getImageMessage(Socket& socket);
 
 private:
 	Communication();

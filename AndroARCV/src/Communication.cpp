@@ -7,7 +7,7 @@
 
 #include "Communication.h"
 
-#include "image_features.pb.h"
+#include "comm.pb.h"
 #include "Socket.h"
 
 #include <iostream>
@@ -34,7 +34,7 @@ void Communication::sendSocketMessage(Socket& socket, void* buffer, int length) 
 	} while (total_size_sent < length);
 }
 
-Image Communication::getImageMessage(Socket& socket) {
+OpenCVRequest Communication::getImageMessage(Socket& socket) {
 	int message_size;
 
 	// Read the length of the message
@@ -44,8 +44,8 @@ Image Communication::getImageMessage(Socket& socket) {
 	void* message_byte_array = malloc(message_size * sizeof(char));
 	getSocketMessage(socket, message_byte_array, message_size);
 	// Parse it into a valid Image protocol buffer
-	Image image;
-	image.ParseFromArray(message_byte_array, message_size);
+	OpenCVRequest request;
+	request.ParseFromArray(message_byte_array, message_size);
 	free(message_byte_array);
-	return image;
+	return request;
 }

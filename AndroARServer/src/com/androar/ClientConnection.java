@@ -6,10 +6,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-import com.androar.Request.RequestType;
 import com.androar.comm.Communication;
 import com.androar.comm.CommunicationProtos.ClientMessage;
 import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
+import com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType;
 import com.androar.comm.CommunicationProtos.ServerMessage;
 import com.androar.comm.CommunicationProtos.ServerMessage.ServerMessageType;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -80,7 +80,7 @@ public class ClientConnection implements Runnable {
 				// user input is correct.
 				// TODO(alex, andrei): Fix.
 				cassandra_connection.storeImage(client_message.getImagesToStore(image));
-				Request request = new Request(RequestType.STORE_REQUEST,
+				Request request = new Request(RequestType.STORE,
 						client_message.getImagesToStore(image));
 				opencv_queue.newRequest(request);
 			}
