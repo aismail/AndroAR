@@ -27,6 +27,19 @@ public class Communication {
 		return message;
 	}
 	
+	public static void sendByteArrayMessage(byte[] message, DataOutputStream out) {
+		int size = message.length;
+		try {
+			out.writeInt(size);
+			out.write(message);
+		} catch (SocketException e) {
+			return;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+	
 	public static void sendMessage(Message message, DataOutputStream out) {
 		int size = message.getSerializedSize();
 		try {
