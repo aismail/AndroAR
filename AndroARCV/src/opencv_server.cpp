@@ -13,14 +13,12 @@
 
 #include "comm.pb.h"
 #include "Communication.h"
+#include "Constants.h"
 
 using namespace androar;
 
-#define PORT 6667
-// TODO(alex): fix this hard coding
-
 int main(int argc, char** argv) {
-	Socket server_socket(PORT);
+	Socket server_socket(Constants::PORT);
 	server_socket.initSocket();
 	Socket* java_client = server_socket.acceptConnections();
 
