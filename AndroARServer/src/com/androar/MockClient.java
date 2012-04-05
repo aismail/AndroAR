@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import com.androar.comm.Communication;
 import com.androar.comm.CommunicationProtos.ServerMessage;
@@ -36,7 +37,8 @@ public class MockClient {
             Communication.sendMessage(Mocking.createMockClientMessage(args[1]), out);
             
             // Sleep for a while to allow opencv to process stuff and send us data
-            Thread.sleep(10 * 1000);
+            // Until the user presses enter
+            new Scanner(System.in).nextLine();
             
             socket.close();
 		} catch (Exception e) {
