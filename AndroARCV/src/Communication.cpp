@@ -30,6 +30,7 @@ Image Communication::getImageMessage(Socket& socket) {
 
 	// Read the length of the message
 	getSocketMessage(socket, &message_size, sizeof(message_size));
+	message_size = ntohl(message_size);
 	// Read entire message, as byte array
 	void* message_byte_array = malloc(message_size * sizeof(char));
 	getSocketMessage(socket, message_byte_array, message_size);
