@@ -2651,6 +2651,589 @@ public final class CommunicationProtos {
     // @@protoc_insertion_point(class_scope:androar.ServerMessage)
   }
   
+  public interface OpenCVRequestOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+    
+    // required .androar.OpenCVRequest.RequestType request_type = 1;
+    boolean hasRequestType();
+    com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType getRequestType();
+    
+    // required .androar.Image image_contents = 2;
+    boolean hasImageContents();
+    com.androar.comm.ImageFeaturesProtos.Image getImageContents();
+    com.androar.comm.ImageFeaturesProtos.ImageOrBuilder getImageContentsOrBuilder();
+  }
+  public static final class OpenCVRequest extends
+      com.google.protobuf.GeneratedMessage
+      implements OpenCVRequestOrBuilder {
+    // Use OpenCVRequest.newBuilder() to construct.
+    private OpenCVRequest(Builder builder) {
+      super(builder);
+    }
+    private OpenCVRequest(boolean noInit) {}
+    
+    private static final OpenCVRequest defaultInstance;
+    public static OpenCVRequest getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public OpenCVRequest getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.androar.comm.CommunicationProtos.internal_static_androar_OpenCVRequest_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.androar.comm.CommunicationProtos.internal_static_androar_OpenCVRequest_fieldAccessorTable;
+    }
+    
+    public enum RequestType
+        implements com.google.protobuf.ProtocolMessageEnum {
+      STORE(0, 1),
+      QUERY(1, 2),
+      ;
+      
+      public static final int STORE_VALUE = 1;
+      public static final int QUERY_VALUE = 2;
+      
+      
+      public final int getNumber() { return value; }
+      
+      public static RequestType valueOf(int value) {
+        switch (value) {
+          case 1: return STORE;
+          case 2: return QUERY;
+          default: return null;
+        }
+      }
+      
+      public static com.google.protobuf.Internal.EnumLiteMap<RequestType>
+          internalGetValueMap() {
+        return internalValueMap;
+      }
+      private static com.google.protobuf.Internal.EnumLiteMap<RequestType>
+          internalValueMap =
+            new com.google.protobuf.Internal.EnumLiteMap<RequestType>() {
+              public RequestType findValueByNumber(int number) {
+                return RequestType.valueOf(number);
+              }
+            };
+      
+      public final com.google.protobuf.Descriptors.EnumValueDescriptor
+          getValueDescriptor() {
+        return getDescriptor().getValues().get(index);
+      }
+      public final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptorForType() {
+        return getDescriptor();
+      }
+      public static final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptor() {
+        return com.androar.comm.CommunicationProtos.OpenCVRequest.getDescriptor().getEnumTypes().get(0);
+      }
+      
+      private static final RequestType[] VALUES = {
+        STORE, QUERY, 
+      };
+      
+      public static RequestType valueOf(
+          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+        if (desc.getType() != getDescriptor()) {
+          throw new java.lang.IllegalArgumentException(
+            "EnumValueDescriptor is not for this type.");
+        }
+        return VALUES[desc.getIndex()];
+      }
+      
+      private final int index;
+      private final int value;
+      
+      private RequestType(int index, int value) {
+        this.index = index;
+        this.value = value;
+      }
+      
+      // @@protoc_insertion_point(enum_scope:androar.OpenCVRequest.RequestType)
+    }
+    
+    private int bitField0_;
+    // required .androar.OpenCVRequest.RequestType request_type = 1;
+    public static final int REQUEST_TYPE_FIELD_NUMBER = 1;
+    private com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType requestType_;
+    public boolean hasRequestType() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    public com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType getRequestType() {
+      return requestType_;
+    }
+    
+    // required .androar.Image image_contents = 2;
+    public static final int IMAGE_CONTENTS_FIELD_NUMBER = 2;
+    private com.androar.comm.ImageFeaturesProtos.Image imageContents_;
+    public boolean hasImageContents() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    public com.androar.comm.ImageFeaturesProtos.Image getImageContents() {
+      return imageContents_;
+    }
+    public com.androar.comm.ImageFeaturesProtos.ImageOrBuilder getImageContentsOrBuilder() {
+      return imageContents_;
+    }
+    
+    private void initFields() {
+      requestType_ = com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType.STORE;
+      imageContents_ = com.androar.comm.ImageFeaturesProtos.Image.getDefaultInstance();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+      
+      if (!hasRequestType()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasImageContents()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!getImageContents().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeEnum(1, requestType_.getNumber());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeMessage(2, imageContents_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(1, requestType_.getNumber());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, imageContents_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+    
+    public static com.androar.comm.CommunicationProtos.OpenCVRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.androar.comm.CommunicationProtos.OpenCVRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.androar.comm.CommunicationProtos.OpenCVRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.androar.comm.CommunicationProtos.OpenCVRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.androar.comm.CommunicationProtos.OpenCVRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.androar.comm.CommunicationProtos.OpenCVRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.androar.comm.CommunicationProtos.OpenCVRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.androar.comm.CommunicationProtos.OpenCVRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.androar.comm.CommunicationProtos.OpenCVRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.androar.comm.CommunicationProtos.OpenCVRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(com.androar.comm.CommunicationProtos.OpenCVRequest prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements com.androar.comm.CommunicationProtos.OpenCVRequestOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.androar.comm.CommunicationProtos.internal_static_androar_OpenCVRequest_descriptor;
+      }
+      
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.androar.comm.CommunicationProtos.internal_static_androar_OpenCVRequest_fieldAccessorTable;
+      }
+      
+      // Construct using com.androar.comm.CommunicationProtos.OpenCVRequest.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+      
+      private Builder(BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getImageContentsFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+      
+      public Builder clear() {
+        super.clear();
+        requestType_ = com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType.STORE;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        if (imageContentsBuilder_ == null) {
+          imageContents_ = com.androar.comm.ImageFeaturesProtos.Image.getDefaultInstance();
+        } else {
+          imageContentsBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.androar.comm.CommunicationProtos.OpenCVRequest.getDescriptor();
+      }
+      
+      public com.androar.comm.CommunicationProtos.OpenCVRequest getDefaultInstanceForType() {
+        return com.androar.comm.CommunicationProtos.OpenCVRequest.getDefaultInstance();
+      }
+      
+      public com.androar.comm.CommunicationProtos.OpenCVRequest build() {
+        com.androar.comm.CommunicationProtos.OpenCVRequest result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+      
+      private com.androar.comm.CommunicationProtos.OpenCVRequest buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        com.androar.comm.CommunicationProtos.OpenCVRequest result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return result;
+      }
+      
+      public com.androar.comm.CommunicationProtos.OpenCVRequest buildPartial() {
+        com.androar.comm.CommunicationProtos.OpenCVRequest result = new com.androar.comm.CommunicationProtos.OpenCVRequest(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.requestType_ = requestType_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        if (imageContentsBuilder_ == null) {
+          result.imageContents_ = imageContents_;
+        } else {
+          result.imageContents_ = imageContentsBuilder_.build();
+        }
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.androar.comm.CommunicationProtos.OpenCVRequest) {
+          return mergeFrom((com.androar.comm.CommunicationProtos.OpenCVRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(com.androar.comm.CommunicationProtos.OpenCVRequest other) {
+        if (other == com.androar.comm.CommunicationProtos.OpenCVRequest.getDefaultInstance()) return this;
+        if (other.hasRequestType()) {
+          setRequestType(other.getRequestType());
+        }
+        if (other.hasImageContents()) {
+          mergeImageContents(other.getImageContents());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public final boolean isInitialized() {
+        if (!hasRequestType()) {
+          
+          return false;
+        }
+        if (!hasImageContents()) {
+          
+          return false;
+        }
+        if (!getImageContents().isInitialized()) {
+          
+          return false;
+        }
+        return true;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              onChanged();
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                onChanged();
+                return this;
+              }
+              break;
+            }
+            case 8: {
+              int rawValue = input.readEnum();
+              com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType value = com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType.valueOf(rawValue);
+              if (value == null) {
+                unknownFields.mergeVarintField(1, rawValue);
+              } else {
+                bitField0_ |= 0x00000001;
+                requestType_ = value;
+              }
+              break;
+            }
+            case 18: {
+              com.androar.comm.ImageFeaturesProtos.Image.Builder subBuilder = com.androar.comm.ImageFeaturesProtos.Image.newBuilder();
+              if (hasImageContents()) {
+                subBuilder.mergeFrom(getImageContents());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setImageContents(subBuilder.buildPartial());
+              break;
+            }
+          }
+        }
+      }
+      
+      private int bitField0_;
+      
+      // required .androar.OpenCVRequest.RequestType request_type = 1;
+      private com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType requestType_ = com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType.STORE;
+      public boolean hasRequestType() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      public com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType getRequestType() {
+        return requestType_;
+      }
+      public Builder setRequestType(com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00000001;
+        requestType_ = value;
+        onChanged();
+        return this;
+      }
+      public Builder clearRequestType() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        requestType_ = com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType.STORE;
+        onChanged();
+        return this;
+      }
+      
+      // required .androar.Image image_contents = 2;
+      private com.androar.comm.ImageFeaturesProtos.Image imageContents_ = com.androar.comm.ImageFeaturesProtos.Image.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          com.androar.comm.ImageFeaturesProtos.Image, com.androar.comm.ImageFeaturesProtos.Image.Builder, com.androar.comm.ImageFeaturesProtos.ImageOrBuilder> imageContentsBuilder_;
+      public boolean hasImageContents() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      public com.androar.comm.ImageFeaturesProtos.Image getImageContents() {
+        if (imageContentsBuilder_ == null) {
+          return imageContents_;
+        } else {
+          return imageContentsBuilder_.getMessage();
+        }
+      }
+      public Builder setImageContents(com.androar.comm.ImageFeaturesProtos.Image value) {
+        if (imageContentsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          imageContents_ = value;
+          onChanged();
+        } else {
+          imageContentsBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      public Builder setImageContents(
+          com.androar.comm.ImageFeaturesProtos.Image.Builder builderForValue) {
+        if (imageContentsBuilder_ == null) {
+          imageContents_ = builderForValue.build();
+          onChanged();
+        } else {
+          imageContentsBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      public Builder mergeImageContents(com.androar.comm.ImageFeaturesProtos.Image value) {
+        if (imageContentsBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002) &&
+              imageContents_ != com.androar.comm.ImageFeaturesProtos.Image.getDefaultInstance()) {
+            imageContents_ =
+              com.androar.comm.ImageFeaturesProtos.Image.newBuilder(imageContents_).mergeFrom(value).buildPartial();
+          } else {
+            imageContents_ = value;
+          }
+          onChanged();
+        } else {
+          imageContentsBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      public Builder clearImageContents() {
+        if (imageContentsBuilder_ == null) {
+          imageContents_ = com.androar.comm.ImageFeaturesProtos.Image.getDefaultInstance();
+          onChanged();
+        } else {
+          imageContentsBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      public com.androar.comm.ImageFeaturesProtos.Image.Builder getImageContentsBuilder() {
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return getImageContentsFieldBuilder().getBuilder();
+      }
+      public com.androar.comm.ImageFeaturesProtos.ImageOrBuilder getImageContentsOrBuilder() {
+        if (imageContentsBuilder_ != null) {
+          return imageContentsBuilder_.getMessageOrBuilder();
+        } else {
+          return imageContents_;
+        }
+      }
+      private com.google.protobuf.SingleFieldBuilder<
+          com.androar.comm.ImageFeaturesProtos.Image, com.androar.comm.ImageFeaturesProtos.Image.Builder, com.androar.comm.ImageFeaturesProtos.ImageOrBuilder> 
+          getImageContentsFieldBuilder() {
+        if (imageContentsBuilder_ == null) {
+          imageContentsBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              com.androar.comm.ImageFeaturesProtos.Image, com.androar.comm.ImageFeaturesProtos.Image.Builder, com.androar.comm.ImageFeaturesProtos.ImageOrBuilder>(
+                  imageContents_,
+                  getParentForChildren(),
+                  isClean());
+          imageContents_ = null;
+        }
+        return imageContentsBuilder_;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:androar.OpenCVRequest)
+    }
+    
+    static {
+      defaultInstance = new OpenCVRequest(true);
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:androar.OpenCVRequest)
+  }
+  
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_androar_AuthentificationInfo_descriptor;
   private static
@@ -2671,6 +3254,11 @@ public final class CommunicationProtos {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_androar_ServerMessage_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_androar_OpenCVRequest_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_androar_OpenCVRequest_fieldAccessorTable;
   
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -2700,8 +3288,12 @@ public final class CommunicationProtos {
       "\r\n\tUNDEFINED\020\001\022\021\n\rHELLO_MESSAGE\020\002\022\033\n\027AUT" +
       "HENTIFICATION_DENIED\020\003\022\034\n\030AUTHENTIFICATI" +
       "ON_NEW_KEY\020\004\022\023\n\017IMAGE_PROCESSED\020\005\022\020\n\014LAS",
-      "T_MESSAGE\020\006B\'\n\020com.androar.commB\023Communi" +
-      "cationProtos"
+      "T_MESSAGE\020\006\"\226\001\n\rOpenCVRequest\0228\n\014request" +
+      "_type\030\001 \002(\0162\".androar.OpenCVRequest.Requ" +
+      "estType\022&\n\016image_contents\030\002 \002(\0132\016.androa" +
+      "r.Image\"#\n\013RequestType\022\t\n\005STORE\020\001\022\t\n\005QUE" +
+      "RY\020\002B\'\n\020com.androar.commB\023CommunicationP" +
+      "rotos"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -2740,6 +3332,14 @@ public final class CommunicationProtos {
               new java.lang.String[] { "MessageType", "AuthentificationNewKey", "ProcessedImage", },
               com.androar.comm.CommunicationProtos.ServerMessage.class,
               com.androar.comm.CommunicationProtos.ServerMessage.Builder.class);
+          internal_static_androar_OpenCVRequest_descriptor =
+            getDescriptor().getMessageTypes().get(4);
+          internal_static_androar_OpenCVRequest_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_androar_OpenCVRequest_descriptor,
+              new java.lang.String[] { "RequestType", "ImageContents", },
+              com.androar.comm.CommunicationProtos.OpenCVRequest.class,
+              com.androar.comm.CommunicationProtos.OpenCVRequest.Builder.class);
           return null;
         }
       };

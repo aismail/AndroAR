@@ -37,6 +37,7 @@ class AuthentificationInfo;
 class ClientMessage;
 class AuthentificationNewKey;
 class ServerMessage;
+class OpenCVRequest;
 
 enum ClientMessage_ClientMessageType {
   ClientMessage_ClientMessageType_UNDEFINED = 1,
@@ -81,6 +82,25 @@ inline bool ServerMessage_ServerMessageType_Parse(
     const ::std::string& name, ServerMessage_ServerMessageType* value) {
   return ::google::protobuf::internal::ParseNamedEnum<ServerMessage_ServerMessageType>(
     ServerMessage_ServerMessageType_descriptor(), name, value);
+}
+enum OpenCVRequest_RequestType {
+  OpenCVRequest_RequestType_STORE = 1,
+  OpenCVRequest_RequestType_QUERY = 2
+};
+bool OpenCVRequest_RequestType_IsValid(int value);
+const OpenCVRequest_RequestType OpenCVRequest_RequestType_RequestType_MIN = OpenCVRequest_RequestType_STORE;
+const OpenCVRequest_RequestType OpenCVRequest_RequestType_RequestType_MAX = OpenCVRequest_RequestType_QUERY;
+const int OpenCVRequest_RequestType_RequestType_ARRAYSIZE = OpenCVRequest_RequestType_RequestType_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* OpenCVRequest_RequestType_descriptor();
+inline const ::std::string& OpenCVRequest_RequestType_Name(OpenCVRequest_RequestType value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    OpenCVRequest_RequestType_descriptor(), value);
+}
+inline bool OpenCVRequest_RequestType_Parse(
+    const ::std::string& name, OpenCVRequest_RequestType* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<OpenCVRequest_RequestType>(
+    OpenCVRequest_RequestType_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -543,6 +563,123 @@ class ServerMessage : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static ServerMessage* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class OpenCVRequest : public ::google::protobuf::Message {
+ public:
+  OpenCVRequest();
+  virtual ~OpenCVRequest();
+  
+  OpenCVRequest(const OpenCVRequest& from);
+  
+  inline OpenCVRequest& operator=(const OpenCVRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+  
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+  
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const OpenCVRequest& default_instance();
+  
+  void Swap(OpenCVRequest* other);
+  
+  // implements Message ----------------------------------------------
+  
+  OpenCVRequest* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const OpenCVRequest& from);
+  void MergeFrom(const OpenCVRequest& from);
+  void Clear();
+  bool IsInitialized() const;
+  
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  
+  ::google::protobuf::Metadata GetMetadata() const;
+  
+  // nested types ----------------------------------------------------
+  
+  typedef OpenCVRequest_RequestType RequestType;
+  static const RequestType STORE = OpenCVRequest_RequestType_STORE;
+  static const RequestType QUERY = OpenCVRequest_RequestType_QUERY;
+  static inline bool RequestType_IsValid(int value) {
+    return OpenCVRequest_RequestType_IsValid(value);
+  }
+  static const RequestType RequestType_MIN =
+    OpenCVRequest_RequestType_RequestType_MIN;
+  static const RequestType RequestType_MAX =
+    OpenCVRequest_RequestType_RequestType_MAX;
+  static const int RequestType_ARRAYSIZE =
+    OpenCVRequest_RequestType_RequestType_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor*
+  RequestType_descriptor() {
+    return OpenCVRequest_RequestType_descriptor();
+  }
+  static inline const ::std::string& RequestType_Name(RequestType value) {
+    return OpenCVRequest_RequestType_Name(value);
+  }
+  static inline bool RequestType_Parse(const ::std::string& name,
+      RequestType* value) {
+    return OpenCVRequest_RequestType_Parse(name, value);
+  }
+  
+  // accessors -------------------------------------------------------
+  
+  // required .androar.OpenCVRequest.RequestType request_type = 1;
+  inline bool has_request_type() const;
+  inline void clear_request_type();
+  static const int kRequestTypeFieldNumber = 1;
+  inline ::androar::OpenCVRequest_RequestType request_type() const;
+  inline void set_request_type(::androar::OpenCVRequest_RequestType value);
+  
+  // required .androar.Image image_contents = 2;
+  inline bool has_image_contents() const;
+  inline void clear_image_contents();
+  static const int kImageContentsFieldNumber = 2;
+  inline const ::androar::Image& image_contents() const;
+  inline ::androar::Image* mutable_image_contents();
+  inline ::androar::Image* release_image_contents();
+  
+  // @@protoc_insertion_point(class_scope:androar.OpenCVRequest)
+ private:
+  inline void set_has_request_type();
+  inline void clear_has_request_type();
+  inline void set_has_image_contents();
+  inline void clear_has_image_contents();
+  
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+  
+  ::androar::Image* image_contents_;
+  int request_type_;
+  
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  
+  friend void  protobuf_AddDesc_comm_2eproto();
+  friend void protobuf_AssignDesc_comm_2eproto();
+  friend void protobuf_ShutdownFile_comm_2eproto();
+  
+  void InitAsDefaultInstance();
+  static OpenCVRequest* default_instance_;
+};
 // ===================================================================
 
 
@@ -923,6 +1060,62 @@ inline ::androar::Image* ServerMessage::release_processed_image() {
   return temp;
 }
 
+// -------------------------------------------------------------------
+
+// OpenCVRequest
+
+// required .androar.OpenCVRequest.RequestType request_type = 1;
+inline bool OpenCVRequest::has_request_type() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void OpenCVRequest::set_has_request_type() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void OpenCVRequest::clear_has_request_type() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void OpenCVRequest::clear_request_type() {
+  request_type_ = 1;
+  clear_has_request_type();
+}
+inline ::androar::OpenCVRequest_RequestType OpenCVRequest::request_type() const {
+  return static_cast< ::androar::OpenCVRequest_RequestType >(request_type_);
+}
+inline void OpenCVRequest::set_request_type(::androar::OpenCVRequest_RequestType value) {
+  GOOGLE_DCHECK(::androar::OpenCVRequest_RequestType_IsValid(value));
+  set_has_request_type();
+  request_type_ = value;
+}
+
+// required .androar.Image image_contents = 2;
+inline bool OpenCVRequest::has_image_contents() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void OpenCVRequest::set_has_image_contents() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void OpenCVRequest::clear_has_image_contents() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void OpenCVRequest::clear_image_contents() {
+  if (image_contents_ != NULL) image_contents_->::androar::Image::Clear();
+  clear_has_image_contents();
+}
+inline const ::androar::Image& OpenCVRequest::image_contents() const {
+  return image_contents_ != NULL ? *image_contents_ : *default_instance_->image_contents_;
+}
+inline ::androar::Image* OpenCVRequest::mutable_image_contents() {
+  set_has_image_contents();
+  if (image_contents_ == NULL) image_contents_ = new ::androar::Image;
+  return image_contents_;
+}
+inline ::androar::Image* OpenCVRequest::release_image_contents() {
+  clear_has_image_contents();
+  ::androar::Image* temp = image_contents_;
+  image_contents_ = NULL;
+  return temp;
+}
+
 
 // @@protoc_insertion_point(namespace_scope)
 
@@ -939,6 +1132,10 @@ inline const EnumDescriptor* GetEnumDescriptor< ::androar::ClientMessage_ClientM
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::androar::ServerMessage_ServerMessageType>() {
   return ::androar::ServerMessage_ServerMessageType_descriptor();
+}
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::androar::OpenCVRequest_RequestType>() {
+  return ::androar::OpenCVRequest_RequestType_descriptor();
 }
 
 }  // namespace google

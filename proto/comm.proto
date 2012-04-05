@@ -61,3 +61,12 @@ message ServerMessage {
 	optional Image processed_image = 15;
 }
 
+message OpenCVRequest {
+	enum RequestType {
+		STORE = 1;
+		QUERY = 2;
+	}
+
+	required RequestType request_type = 1;
+	required Image image_contents = 2;
+}

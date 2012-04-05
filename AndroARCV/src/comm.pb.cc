@@ -31,6 +31,10 @@ const ::google::protobuf::Descriptor* ServerMessage_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ServerMessage_reflection_ = NULL;
 const ::google::protobuf::EnumDescriptor* ServerMessage_ServerMessageType_descriptor_ = NULL;
+const ::google::protobuf::Descriptor* OpenCVRequest_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  OpenCVRequest_reflection_ = NULL;
+const ::google::protobuf::EnumDescriptor* OpenCVRequest_RequestType_descriptor_ = NULL;
 
 }  // namespace
 
@@ -109,6 +113,23 @@ void protobuf_AssignDesc_comm_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ServerMessage));
   ServerMessage_ServerMessageType_descriptor_ = ServerMessage_descriptor_->enum_type(0);
+  OpenCVRequest_descriptor_ = file->message_type(4);
+  static const int OpenCVRequest_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(OpenCVRequest, request_type_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(OpenCVRequest, image_contents_),
+  };
+  OpenCVRequest_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      OpenCVRequest_descriptor_,
+      OpenCVRequest::default_instance_,
+      OpenCVRequest_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(OpenCVRequest, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(OpenCVRequest, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(OpenCVRequest));
+  OpenCVRequest_RequestType_descriptor_ = OpenCVRequest_descriptor_->enum_type(0);
 }
 
 namespace {
@@ -129,6 +150,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
     AuthentificationNewKey_descriptor_, &AuthentificationNewKey::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ServerMessage_descriptor_, &ServerMessage::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    OpenCVRequest_descriptor_, &OpenCVRequest::default_instance());
 }
 
 }  // namespace
@@ -142,6 +165,8 @@ void protobuf_ShutdownFile_comm_2eproto() {
   delete AuthentificationNewKey_reflection_;
   delete ServerMessage::default_instance_;
   delete ServerMessage_reflection_;
+  delete OpenCVRequest::default_instance_;
+  delete OpenCVRequest_reflection_;
 }
 
 void protobuf_AddDesc_comm_2eproto() {
@@ -172,18 +197,24 @@ void protobuf_AddDesc_comm_2eproto() {
     "\r\n\tUNDEFINED\020\001\022\021\n\rHELLO_MESSAGE\020\002\022\033\n\027AUT"
     "HENTIFICATION_DENIED\020\003\022\034\n\030AUTHENTIFICATI"
     "ON_NEW_KEY\020\004\022\023\n\017IMAGE_PROCESSED\020\005\022\020\n\014LAS"
-    "T_MESSAGE\020\006B\'\n\020com.androar.commB\023Communi"
-    "cationProtos", 852);
+    "T_MESSAGE\020\006\"\226\001\n\rOpenCVRequest\0228\n\014request"
+    "_type\030\001 \002(\0162\".androar.OpenCVRequest.Requ"
+    "estType\022&\n\016image_contents\030\002 \002(\0132\016.androa"
+    "r.Image\"#\n\013RequestType\022\t\n\005STORE\020\001\022\t\n\005QUE"
+    "RY\020\002B\'\n\020com.androar.commB\023CommunicationP"
+    "rotos", 1005);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "comm.proto", &protobuf_RegisterTypes);
   AuthentificationInfo::default_instance_ = new AuthentificationInfo();
   ClientMessage::default_instance_ = new ClientMessage();
   AuthentificationNewKey::default_instance_ = new AuthentificationNewKey();
   ServerMessage::default_instance_ = new ServerMessage();
+  OpenCVRequest::default_instance_ = new OpenCVRequest();
   AuthentificationInfo::default_instance_->InitAsDefaultInstance();
   ClientMessage::default_instance_->InitAsDefaultInstance();
   AuthentificationNewKey::default_instance_->InitAsDefaultInstance();
   ServerMessage::default_instance_->InitAsDefaultInstance();
+  OpenCVRequest::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_comm_2eproto);
 }
 
@@ -1415,6 +1446,289 @@ void ServerMessage::Swap(ServerMessage* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = ServerMessage_descriptor_;
   metadata.reflection = ServerMessage_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+const ::google::protobuf::EnumDescriptor* OpenCVRequest_RequestType_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return OpenCVRequest_RequestType_descriptor_;
+}
+bool OpenCVRequest_RequestType_IsValid(int value) {
+  switch(value) {
+    case 1:
+    case 2:
+      return true;
+    default:
+      return false;
+  }
+}
+
+#ifndef _MSC_VER
+const OpenCVRequest_RequestType OpenCVRequest::STORE;
+const OpenCVRequest_RequestType OpenCVRequest::QUERY;
+const OpenCVRequest_RequestType OpenCVRequest::RequestType_MIN;
+const OpenCVRequest_RequestType OpenCVRequest::RequestType_MAX;
+const int OpenCVRequest::RequestType_ARRAYSIZE;
+#endif  // _MSC_VER
+#ifndef _MSC_VER
+const int OpenCVRequest::kRequestTypeFieldNumber;
+const int OpenCVRequest::kImageContentsFieldNumber;
+#endif  // !_MSC_VER
+
+OpenCVRequest::OpenCVRequest()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void OpenCVRequest::InitAsDefaultInstance() {
+  image_contents_ = const_cast< ::androar::Image*>(&::androar::Image::default_instance());
+}
+
+OpenCVRequest::OpenCVRequest(const OpenCVRequest& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void OpenCVRequest::SharedCtor() {
+  _cached_size_ = 0;
+  request_type_ = 1;
+  image_contents_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+OpenCVRequest::~OpenCVRequest() {
+  SharedDtor();
+}
+
+void OpenCVRequest::SharedDtor() {
+  if (this != default_instance_) {
+    delete image_contents_;
+  }
+}
+
+void OpenCVRequest::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* OpenCVRequest::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return OpenCVRequest_descriptor_;
+}
+
+const OpenCVRequest& OpenCVRequest::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_comm_2eproto();  return *default_instance_;
+}
+
+OpenCVRequest* OpenCVRequest::default_instance_ = NULL;
+
+OpenCVRequest* OpenCVRequest::New() const {
+  return new OpenCVRequest;
+}
+
+void OpenCVRequest::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    request_type_ = 1;
+    if (has_image_contents()) {
+      if (image_contents_ != NULL) image_contents_->::androar::Image::Clear();
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool OpenCVRequest::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required .androar.OpenCVRequest.RequestType request_type = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          int value;
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
+                 input, &value)));
+          if (::androar::OpenCVRequest_RequestType_IsValid(value)) {
+            set_request_type(static_cast< ::androar::OpenCVRequest_RequestType >(value));
+          } else {
+            mutable_unknown_fields()->AddVarint(1, value);
+          }
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_image_contents;
+        break;
+      }
+      
+      // required .androar.Image image_contents = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_image_contents:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_image_contents()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+      
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void OpenCVRequest::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // required .androar.OpenCVRequest.RequestType request_type = 1;
+  if (has_request_type()) {
+    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+      1, this->request_type(), output);
+  }
+  
+  // required .androar.Image image_contents = 2;
+  if (has_image_contents()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, this->image_contents(), output);
+  }
+  
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* OpenCVRequest::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required .androar.OpenCVRequest.RequestType request_type = 1;
+  if (has_request_type()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+      1, this->request_type(), target);
+  }
+  
+  // required .androar.Image image_contents = 2;
+  if (has_image_contents()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, this->image_contents(), target);
+  }
+  
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int OpenCVRequest::ByteSize() const {
+  int total_size = 0;
+  
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required .androar.OpenCVRequest.RequestType request_type = 1;
+    if (has_request_type()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::EnumSize(this->request_type());
+    }
+    
+    // required .androar.Image image_contents = 2;
+    if (has_image_contents()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->image_contents());
+    }
+    
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void OpenCVRequest::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const OpenCVRequest* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const OpenCVRequest*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void OpenCVRequest::MergeFrom(const OpenCVRequest& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_request_type()) {
+      set_request_type(from.request_type());
+    }
+    if (from.has_image_contents()) {
+      mutable_image_contents()->::androar::Image::MergeFrom(from.image_contents());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void OpenCVRequest::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void OpenCVRequest::CopyFrom(const OpenCVRequest& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool OpenCVRequest::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+  
+  if (has_image_contents()) {
+    if (!this->image_contents().IsInitialized()) return false;
+  }
+  return true;
+}
+
+void OpenCVRequest::Swap(OpenCVRequest* other) {
+  if (other != this) {
+    std::swap(request_type_, other->request_type_);
+    std::swap(image_contents_, other->image_contents_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata OpenCVRequest::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = OpenCVRequest_descriptor_;
+  metadata.reflection = OpenCVRequest_reflection_;
   return metadata;
 }
 
