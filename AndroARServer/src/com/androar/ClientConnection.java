@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+import com.androar.Request.RequestType;
 import com.androar.comm.Communication;
 import com.androar.comm.CommunicationProtos.ClientMessage;
 import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
@@ -29,6 +30,8 @@ public class ClientConnection implements Runnable {
 		// Initialize a connection to the Cassandra Cluster.
 		cassandra_connection = 
 				new CassandraDatabaseConnection(Constants.DATABASE_HOST, Constants.DATABASE_PORT);
+		// Get the request queue for opencv requests
+		opencv_queue = RequestQueue.getRequestQueue();
 	}
 	
 	@Override
@@ -77,6 +80,9 @@ public class ClientConnection implements Runnable {
 				// user input is correct.
 				// TODO(alex, andrei): Fix.
 				cassandra_connection.storeImage(client_message.getImagesToStore(image));
+				Request request = new Request(RequestType.STORE_REQUEST,
+						client_message.getImagesToStore(image));
+				opencv_queue.newRequest(request);
 			}
 		} else if (message_type == ClientMessageType.IMAGE_TO_PROCESS) {
 			// Let's just store the image for now
@@ -120,13 +126,14 @@ public class ClientConnection implements Runnable {
 		builder.setMessageType(message_type);
 		return builder.build();
 	}
-	
+	// OpenCV requests queue
+	RequestQueue opencv_queue;
 	// Cassandra connection
 	private CassandraDatabaseConnection cassandra_connection;
 	// Socket between this server and the client
 	private Socket client_socket;
 	// Output stream
-	DataOutputStream out;
+	private DataOutputStream out;
 	// Input stream
-	DataInputStream in;
+	private DataInputStream in;
 }
