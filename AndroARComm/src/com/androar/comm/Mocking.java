@@ -79,12 +79,20 @@ public class Mocking {
         		.build();
         
         // Client message
-        ClientMessage client_message = ClientMessage.newBuilder()
-        	.setAuthentificationInfo(auth_info)
-        	.setMessageType(type)
-        	.addImagesToStore(image)
-        	.build();
-
+        ClientMessage client_message;
+        if (type == ClientMessageType.IMAGE_TO_PROCESS) {
+        	client_message = ClientMessage.newBuilder()
+                	.setAuthentificationInfo(auth_info)
+                	.setMessageType(type)
+                	.setImageToProcess(image)
+                	.build();
+        } else {
+        	client_message = ClientMessage.newBuilder()
+                	.setAuthentificationInfo(auth_info)
+                	.setMessageType(type)
+                	.addImagesToStore(image)
+                	.build();
+        }
         return client_message;
 	}
 	
