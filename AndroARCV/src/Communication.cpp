@@ -49,3 +49,17 @@ OpenCVRequest Communication::getImageMessage(Socket& socket) {
 	free(message_byte_array);
 	return request;
 }
+
+void Communication::sendReplyMessage(Socket& socket, void* message, int length) {
+	// Send the length of the message
+	length = htonl(length);
+	sendSocketMessage(socket, &length, sizeof(length));
+	// Send entire message, as byte array
+	sendSocketMessage(socket, message, length);
+	return;
+}
+
+void Communication::sendEmptyMessage(Socket& socket) {
+	int zero = htonl(0);
+	sendSocketMessage(socket, &zero, sizeof(zero));
+}

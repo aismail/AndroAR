@@ -16,6 +16,8 @@ using namespace androar;
 class Communication {
 public:
 	static OpenCVRequest getImageMessage(Socket& socket);
+	static void sendEmptyMessage(Socket& socket);
+	static void sendReplyMessage(Socket& socket, void* message, int length);
 
 private:
 	Communication();
