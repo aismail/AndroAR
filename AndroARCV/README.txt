@@ -1,1 +1,1 @@
-To compile add `pkg-config --cflags --libs protobuf` to your link command.
+To compile add `pkg-config --cflags --libs opencv protobuf` to your link command.
