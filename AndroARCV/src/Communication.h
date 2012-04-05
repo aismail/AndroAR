@@ -21,6 +21,7 @@ private:
 	Communication();
 	virtual ~Communication();
 	static void getSocketMessage(Socket& socket, void* buffer, int length);
+	static void sendSocketMessage(Socket& socket, void* buffer, int length);
 };
 
 #endif /* COMMUNICATION_H_ */

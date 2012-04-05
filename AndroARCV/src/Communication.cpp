@@ -25,6 +25,15 @@ void Communication::getSocketMessage(Socket& socket, void* buffer, int length) {
 	} while (total_size_read < length);
 }
 
+void Communication::sendSocketMessage(Socket& socket, void* buffer, int length) {
+	int total_size_sent = 0;
+	do {
+		int size_sent = send(socket.getSocketDescriptor(),
+				(char*) buffer + total_size_sent, length, 0);
+		total_size_sent += size_sent;
+	} while (total_size_sent < length);
+}
+
 Image Communication::getImageMessage(Socket& socket) {
 	int message_size;
 
