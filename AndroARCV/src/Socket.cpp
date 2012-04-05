@@ -14,8 +14,6 @@
 #include <string.h>
 #include <unistd.h>
 
-namespace androar {
-
 Socket::Socket(int port) : port(port), socket_descriptor(-1) {
 }
 
@@ -46,7 +44,7 @@ bool Socket::initSocket() {
 	return true;
 }
 
-Socket Socket::acceptConnections() {
+Socket* Socket::acceptConnections() {
 	if (listen(socket_descriptor, 5) == -1) {
 		perror("Cannot listen on the socket");
 		return false;
@@ -58,12 +56,10 @@ Socket Socket::acceptConnections() {
 		perror("Cannot accept client socket");
 		return NULL;
 	}
-	return Socket(pin.sin_port, sd_current);
+	return new Socket(pin.sin_port, sd_current);
 }
 
 void Socket::closeSocket() {
 	close(socket_descriptor);
 	return;
 }
-
-} /* namespace comm_androar_cv */

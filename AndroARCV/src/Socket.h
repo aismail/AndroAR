@@ -11,8 +11,6 @@
 #ifndef SOCKET_H_
 #define SOCKET_H_
 
-namespace androar {
-
 class Socket {
 public:
 	Socket(int port);
@@ -20,7 +18,7 @@ public:
 	virtual ~Socket();
 
 	bool initSocket();
-	Socket acceptConnections();
+	Socket* acceptConnections();
 	void closeSocket();
 
 	int getSocketDescriptor() {
@@ -36,5 +34,4 @@ private:
 	struct sockaddr_in pin;
 };
 
-} /* namespace comm_androar_cv */
 #endif /* SOCKET_H_ */

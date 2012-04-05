@@ -11,19 +11,16 @@
 #include "image_features.pb.h"
 #include "Socket.h"
 
-using androar::Image;
-
-namespace androar {
+using namespace androar;
 
 class Communication {
 public:
-	static Image getImageMessage(Socket socket);
+	static Image getImageMessage(Socket& socket);
 
 private:
 	Communication();
 	virtual ~Communication();
-	static void getSocketMessage(Socket socket, void* buffer, int length);
+	static void getSocketMessage(Socket& socket, void* buffer, int length);
 };
 
-} /* namespace androar */
 #endif /* COMMUNICATION_H_ */

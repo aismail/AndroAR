@@ -22,13 +22,15 @@ using namespace androar;
 int main(int argc, char** argv) {
 	Socket server_socket(PORT);
 	server_socket.initSocket();
-	Socket java_client = server_socket.acceptConnections();
+	Socket* java_client = server_socket.acceptConnections();
 
 	// Just read messages from the java server
 	while (true) {
-		Image image_to_parse = Communication::getImageMessage(java_client);
+		Image image_to_parse = Communication::getImageMessage(*java_client);
 		std::cerr << image_to_parse.DebugString();
 	}
+
+	delete java_client;
   
   return 0;
 }

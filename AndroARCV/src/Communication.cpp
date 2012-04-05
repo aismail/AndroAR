@@ -2,7 +2,7 @@
  * Communication.cpp
  *
  *  Created on: Mar 27, 2012
- *      Author: alex
+ *      Author: alex.m.damian@gmail.com
  */
 
 #include "Communication.h"
@@ -12,13 +12,11 @@
 
 #include <iostream>
 
-namespace androar {
-
 Communication::Communication() {}
 
 Communication::~Communication() {}
 
-void Communication::getSocketMessage(Socket socket, void* buffer, int length) {
+void Communication::getSocketMessage(Socket& socket, void* buffer, int length) {
 	int total_size_read = 0;
 	do {
 		int size_read = recv(socket.getSocketDescriptor(),
@@ -27,7 +25,7 @@ void Communication::getSocketMessage(Socket socket, void* buffer, int length) {
 	} while (total_size_read < length);
 }
 
-Image Communication::getImageMessage(Socket socket) {
+Image Communication::getImageMessage(Socket& socket) {
 	int message_size;
 
 	// Read the length of the message
@@ -41,5 +39,3 @@ Image Communication::getImageMessage(Socket socket) {
 	free(message_byte_array);
 	return image;
 }
-
-} /* namespace androar */
