@@ -9,21 +9,36 @@
         android:id="@+id/surfaceCamera"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="10" />
+        android:layout_weight="15" />
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="90"
+        android:layout_weight="85"
         android:orientation="horizontal"
         android:weightSum="100" >
 
-        <TextView
-            android:id="@+id/tvMetadataNavigation"
+        <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="fill_parent"
+            android:orientation="vertical"
             android:layout_weight="23"
-            android:text="No metadata to be shown. Click on a box." />
+            android:weightSum="100" >
+
+            <TextView
+                android:id="@+id/tvMetadataPosition"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:text="No metadata to be shown. Click on a box." />
+
+            <TextView
+                android:id="@+id/tvMetadataOrientation"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="50"
+                android:text="No metadata to be shown. Click on a box." />
+        </LinearLayout>
 
         <Button
             android:id="@+id/bNavigationCapturePhoto"

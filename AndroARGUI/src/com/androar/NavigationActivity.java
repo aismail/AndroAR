@@ -9,6 +9,10 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -33,9 +37,12 @@ public class NavigationActivity extends Activity implements
 	Camera mCamera;
 	Button mCameraCapture;
 	boolean mPreviewRunning = false;
-	TextView MetadataText;
-	LocationListener locationListener;
-	LocationManager locationManager;
+	TextView metadataPosition, metadataOrientation;
+
+	private LocationListener locationListener;
+	private LocationManager locationManager;
+	private SensorManager sensorManager;
+	private SensorEventListener sensorListener;
 
 	final int CAMERA_DATA = 0;
 
@@ -56,7 +63,8 @@ public class NavigationActivity extends Activity implements
 		mCameraCapture = (Button) findViewById(R.id.bNavigationCapturePhoto);
 		mCameraCapture.setOnClickListener(this);
 
-		MetadataText = (TextView) findViewById(R.id.tvMetadataNavigation);
+		metadataPosition = (TextView) findViewById(R.id.tvMetadataPosition);
+		metadataOrientation = (TextView) findViewById(R.id.tvMetadataOrientation);
 		// get orientation details
 		getOrientation();
 	}
@@ -161,7 +169,9 @@ public class NavigationActivity extends Activity implements
 		// Remove the location listener, conserve battery
 		try {
 			locationManager.removeUpdates(locationListener);
-		} catch(IllegalArgumentException e) {}
+			sensorManager.unregisterListener(sensorListener);
+		} catch (IllegalArgumentException e) {
+		}
 	}
 
 	Camera.PictureCallback mPictureCallback = new Camera.PictureCallback() {
@@ -173,7 +183,9 @@ public class NavigationActivity extends Activity implements
 			// Remove the location listener, conserve battery
 			try {
 				locationManager.removeUpdates(locationListener);
-			} catch(IllegalArgumentException e) {}
+				sensorManager.unregisterListener(sensorListener);
+			} catch (IllegalArgumentException e) {
+			}
 
 			Intent i = new Intent(NavigationActivity.this,
 					MoveSelectionActivity.class);
@@ -206,6 +218,8 @@ public class NavigationActivity extends Activity implements
 	}
 
 	void getOrientation() {
+		String position, orientation;
+		
 		// Acquire a reference to the system Location Manager
 		locationManager = (LocationManager) this
 				.getSystemService(Context.LOCATION_SERVICE);
@@ -236,14 +250,30 @@ public class NavigationActivity extends Activity implements
 				LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
 				0, locationListener);
+
+		System.out.println("sensorListener = ...");
+
+		sensorListener = new SensorEventListener() {
+
+			@Override
+			public void onSensorChanged(SensorEvent event) {
+				String or = " " + "azimute:" + event.values[0];
+				metadataOrientation.setText(or);
+			}
+
+			@Override
+			public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+		};
+		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+		sensorManager.registerListener(sensorListener, sensorManager
+				.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+				SensorManager.SENSOR_DELAY_GAME);
 	}
 
 	void makeUseOfNewLocation(Location location) {
-		String orientation = "latitude: " + location.getLatitude()
+		String pos = "latitude: " + location.getLatitude()
 				+ ", longitude: " + location.getLongitude() + ", height: "
 				+ location.getAltitude();
-		System.out.println(orientation);
-		Toast.makeText(this, orientation, Toast.LENGTH_LONG);
-		MetadataText.setText(orientation);
+		metadataPosition.setText(pos);
 	}
 }
