@@ -4,10 +4,12 @@
  * Author: alex.m.damian@gmail.com
  */
 
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
 #ifndef SOCKET_H_
 #define SOCKET_H_
-
-namespace comm_androar_cv {
 
 class Socket {
 public:
@@ -16,8 +18,12 @@ public:
 	virtual ~Socket();
 
 	bool initSocket();
-	Socket acceptConnections();
+	Socket* acceptConnections();
 	void closeSocket();
+
+	int getSocketDescriptor() {
+		return socket_descriptor;
+	}
 
 private:
 	int port;
@@ -28,5 +34,4 @@ private:
 	struct sockaddr_in pin;
 };
 
-} /* namespace comm_androar_cv */
 #endif /* SOCKET_H_ */

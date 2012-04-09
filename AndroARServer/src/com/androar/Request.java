@@ -1,47 +1,46 @@
 package com.androar;
 
+import java.io.DataOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.androar.comm.Communication;
+import com.androar.comm.CommunicationProtos.OpenCVRequest;
+import com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType;
 import com.androar.comm.ImageFeaturesProtos.Image;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 public class Request {
 	
-	public static enum RequestType {
-		STORE_REQUEST,
-		QUERY_REQUEST
-	}
-
-	private Image image;
-	private RequestType type;
+	private OpenCVRequest content;
+	private DataOutputStream out;
 	
-	public Request(RequestType type, Image request_contents) {
-		this.type = type;
-		this.image = request_contents;
+	public Request(RequestType type, Image image_content, DataOutputStream out) {
+		this.out = out;
+		this.content = OpenCVRequest.newBuilder().
+				setRequestType(type).setImageContents(image_content).build();
 	}
 	
 	public Image getImage() {
-		return image;
+		return content.getImageContents();
 	}
 
 	public byte[] getRequestToByteArray() {
-		// We will send the image, assuming it contains the detected objects
-		return image.toByteArray();
+		// We will send the request content
+		return content.toByteArray();
 	}
 
-	public List<String> callCallback(Object object) {
-		
-		if (this.type == RequestType.STORE_REQUEST) {
+	public void callCallback(byte[] reply) {
+		RequestType request_type = content.getRequestType(); 
+		if (request_type == RequestType.STORE) {
 			// In case this is a store request, we will receive null and we won't do anything
-			return null;
-		} else if (this.type == RequestType.QUERY_REQUEST) {
-			// In case this is a query request, we will have to pick the most probable objects that
-			// appear in this image
-			byte[] probabilities = (byte[]) object;
-			List<String> ret = new ArrayList<String>();
-			return ret;
+			return;
+		} else if (request_type == RequestType.QUERY) {
+			// In case this is a query request, we will get the detected objects
+			Communication.sendByteArrayMessage(reply, out);
+			return;
 		}
-		return null;
+		return;
 	}
 
 }

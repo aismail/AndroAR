@@ -9,6 +9,7 @@ import java.net.Socket;
 import com.androar.comm.Communication;
 import com.androar.comm.CommunicationProtos.ClientMessage;
 import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
+import com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType;
 import com.androar.comm.CommunicationProtos.ServerMessage;
 import com.androar.comm.CommunicationProtos.ServerMessage.ServerMessageType;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -29,8 +30,8 @@ public class ClientConnection implements Runnable {
 		// Initialize a connection to the Cassandra Cluster.
 		cassandra_connection = 
 				new CassandraDatabaseConnection(Constants.DATABASE_HOST, Constants.DATABASE_PORT);
-		
-		this.run();
+		// Get the request queue for opencv requests
+		opencv_queue = RequestQueue.getRequestQueue();
 	}
 	
 	@Override
@@ -52,11 +53,7 @@ public class ClientConnection implements Runnable {
 				}
 				ClientMessage current_client_message = 
 						ClientMessage.parseFrom(serialized_input_message);
-				ServerMessage reply_message = 
-						processAndReturnReplyToCurrentMessage(current_client_message);
-				if (reply_message != null) {
-					Communication.sendMessage(reply_message, out);
-				}
+				processCurrentMessage(current_client_message);
 			} catch (InvalidProtocolBufferException e) {
 				e.printStackTrace();
 			}
@@ -69,38 +66,27 @@ public class ClientConnection implements Runnable {
 	 * be sent back.
 	 * @param clientMessage message received from client
 	 */
-	private ServerMessage processAndReturnReplyToCurrentMessage(ClientMessage client_message) {
-		ServerMessage.Builder builder = ServerMessage.newBuilder();
+	private void processCurrentMessage(ClientMessage client_message) {
 		ClientMessageType message_type = client_message.getMessageType();
-		ServerMessage return_message = null;
 		if (message_type == ClientMessageType.IMAGES_TO_STORE) {
 			for (int image = 0; image < client_message.getImagesToStoreCount(); ++image) {
 				// Right now we're just storing the image, assuming that it's relevant and that the
 				// user input is correct.
 				// TODO(alex, andrei): Fix.
 				cassandra_connection.storeImage(client_message.getImagesToStore(image));
+				Request request = new Request(RequestType.STORE,
+						client_message.getImagesToStore(image), out);
+				opencv_queue.newRequest(request);
 			}
 		} else if (message_type == ClientMessageType.IMAGE_TO_PROCESS) {
-			// Let's just store the image for now
-			// TODO(alex): Fix.
-			FileOutputStream fout;
-			try {
-				fout = new FileOutputStream("out.jpeg");
-				fout.write(
-						client_message
-							.getImageToProcess()
-							.getImage()
-							.getImageContents()
-							.toByteArray());
-				fout.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+			if (client_message.hasImageToProcess()) {
+				Request request = 
+						new Request(RequestType.QUERY, client_message.getImageToProcess(), out);
+				opencv_queue.newRequest(request);
 			}
-			builder.setMessageType(ServerMessageType.IMAGE_PROCESSED);
-			return_message = builder.build();
 		}
 		
-		return return_message;
+		return;
 	}
 	
 	/*
@@ -122,13 +108,14 @@ public class ClientConnection implements Runnable {
 		builder.setMessageType(message_type);
 		return builder.build();
 	}
-	
+	// OpenCV requests queue
+	RequestQueue opencv_queue;
 	// Cassandra connection
 	private CassandraDatabaseConnection cassandra_connection;
 	// Socket between this server and the client
 	private Socket client_socket;
 	// Output stream
-	DataOutputStream out;
+	private DataOutputStream out;
 	// Input stream
-	DataInputStream in;
+	private DataInputStream in;
 }

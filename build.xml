@@ -1,0 +1,64 @@
+<project basedir="." default="build" name="AndroAR">
+
+	<property name="target" value="1.6"/>
+	<property name="source" value="1.6"/>
+	<property name="debuglevel" value="source,lines,vars"/>
+
+	<path id="libs">
+		<fileset dir="lib">
+			<include name="**/*.jar"/>
+			<include name="**/*.zip"/>
+		</fileset>
+	</path>
+
+	<target name="clean">
+		<delete dir="AndroARComm/classes"/>
+		<delete dir="AndroARServer/classes"/>
+		<delete dir="dist"/>
+	</target>
+
+	<target name="init" depends="clean">
+		<mkdir dir="dist"/>
+		<mkdir dir="AndroARComm/classes"/>
+		<mkdir dir="AndroARServer/classes"/>
+	</target>
+
+	<target name="build" depends="init">
+		<javac
+			srcdir="AndroARComm/src"
+			destdir="AndroARComm/classes"
+			source="${source}"
+			target="${target}"
+			debuglevel="${debuglevel}">
+			<classpath refid="libs"/>
+		</javac>
+		<jar basedir="AndroARComm/classes" file="dist/androar-comm.jar"/>
+		<javac
+			srcdir="AndroARServer/src"
+			destdir="AndroARServer/classes"
+			source="${source}"
+			target="${target}"
+			debuglevel="${debuglevel}">
+			<classpath refid="libs"/>
+			<classpath>
+				<pathelement location="AndroARComm/classes"/>
+			</classpath>
+		</javac>
+		<jar basedir="AndroARServer/classes" file="dist/androar-server.jar">
+			<manifest>
+				<attribute name="Main-Class" value="com.androar.AndroARServer" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="run-server">
+		<java classname="com.androar.AndroARServer" fork="true">
+			<arg value="-v"/>
+			<classpath>
+				<pathelement location="dist/androar-server.jar"/>
+				<pathelement location="dist/androar-comm.jar"/>
+			</classpath>
+		</java>
+	</target>
+
+</project>

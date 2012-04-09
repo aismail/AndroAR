@@ -2,7 +2,7 @@ package com.androar;
 
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import com.androar.comm.Communication;
 
@@ -13,7 +13,7 @@ public class RequestQueue {
 	
 	private static RequestQueue request_queue_internal = null;
 	
-	public static RequestQueue getRequestQueue() {
+	public static synchronized RequestQueue getRequestQueue() {
 		if (request_queue_internal == null) {
 			request_queue_internal = new RequestQueue();
 		}
@@ -21,7 +21,7 @@ public class RequestQueue {
 	}
 	
 	private RequestQueue() {
-		queue = new SynchronousQueue<Request>();
+		queue = new LinkedBlockingQueue<Request>();
 		try {
 			opencv_socket = new Socket(Constants.OPENCV_HOST, Constants.OPENCV_PORT);
 		} catch (Exception e) {
@@ -31,19 +31,24 @@ public class RequestQueue {
 			
 			@Override
 			public void run() {
-				// Get request from queue
-				Request request = queue.poll();
-				// Transmit message, get reply and execute callback
-				Object response = Communication.sendAndProcessRequestToOpenCV(
-						request.getRequestToByteArray(), opencv_socket);
-				// Execute callback
-				request.callCallback(response);
+				while (true) {
+					// Get request from queue
+					Request request = queue.poll();
+					if (request == null) {
+						continue;
+					}
+					// Transmit message, get reply and execute callback
+					byte[] response = Communication.sendAndProcessRequestToOpenCV(
+							request.getRequestToByteArray(), opencv_socket);
+					// Execute callback
+					request.callCallback(response);
+				}
 			}
 		});
-		thread.run();
+		thread.start();
 	}
 	
-	public void newRequest(Request request) {
+	public synchronized void newRequest(Request request) {
 		// Put request in queue
 		queue.add(request);
 	}
