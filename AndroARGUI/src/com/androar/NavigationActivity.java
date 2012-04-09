@@ -4,21 +4,25 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore.Images.Media;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class NavigationActivity extends Activity implements
 		SurfaceHolder.Callback, OnClickListener {
@@ -29,6 +33,9 @@ public class NavigationActivity extends Activity implements
 	Camera mCamera;
 	Button mCameraCapture;
 	boolean mPreviewRunning = false;
+	TextView MetadataText;
+	LocationListener locationListener;
+	LocationManager locationManager;
 
 	final int CAMERA_DATA = 0;
 
@@ -36,9 +43,6 @@ public class NavigationActivity extends Activity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		// getWindow().setFormat(PixelFormat.TRANSLUCENT);
-		// getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-		// WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.navigate);
 		initialize();
 	}
@@ -51,6 +55,10 @@ public class NavigationActivity extends Activity implements
 
 		mCameraCapture = (Button) findViewById(R.id.bNavigationCapturePhoto);
 		mCameraCapture.setOnClickListener(this);
+
+		MetadataText = (TextView) findViewById(R.id.tvMetadataNavigation);
+		// get orientation details
+		getOrientation();
 	}
 
 	@Override
@@ -150,7 +158,10 @@ public class NavigationActivity extends Activity implements
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		// nothing
+		// Remove the location listener, conserve battery
+		try {
+			locationManager.removeUpdates(locationListener);
+		} catch(IllegalArgumentException e) {}
 	}
 
 	Camera.PictureCallback mPictureCallback = new Camera.PictureCallback() {
@@ -159,7 +170,13 @@ public class NavigationActivity extends Activity implements
 		public void onPictureTaken(byte[] data, Camera camera) {
 			new SavePhotoTask().execute(data);
 
-			Intent i = new Intent(NavigationActivity.this, MoveSelectionActivity.class);
+			// Remove the location listener, conserve battery
+			try {
+				locationManager.removeUpdates(locationListener);
+			} catch(IllegalArgumentException e) {}
+
+			Intent i = new Intent(NavigationActivity.this,
+					MoveSelectionActivity.class);
 			i.putExtra("data", data);
 
 			camera.stopPreview();
@@ -186,5 +203,47 @@ public class NavigationActivity extends Activity implements
 			}
 			return (null);
 		}
+	}
+
+	void getOrientation() {
+		// Acquire a reference to the system Location Manager
+		locationManager = (LocationManager) this
+				.getSystemService(Context.LOCATION_SERVICE);
+
+		// Define a listener that responds to location updates
+		locationListener = new LocationListener() {
+			public void onLocationChanged(Location location) {
+				// Called when a new location is found by the network location
+				// provider.
+				makeUseOfNewLocation(location);
+			}
+
+			public void onStatusChanged(String provider, int status,
+					Bundle extras) {
+			}
+
+			public void onProviderEnabled(String provider) {
+			}
+
+			public void onProviderDisabled(String provider) {
+			}
+		};
+
+		// Register the listener with the Location Manager to receive location
+		// updates
+
+		locationManager.requestLocationUpdates(
+				LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
+				0, locationListener);
+	}
+
+	void makeUseOfNewLocation(Location location) {
+		String orientation = "latitude: " + location.getLatitude()
+				+ ", longitude: " + location.getLongitude() + ", height: "
+				+ location.getAltitude();
+		System.out.println(orientation);
+		Toast.makeText(this, orientation, Toast.LENGTH_LONG);
+		MetadataText.setText(orientation);
 	}
 }
