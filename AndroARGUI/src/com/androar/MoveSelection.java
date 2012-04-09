@@ -23,6 +23,7 @@ public class MoveSelection extends SurfaceView {
 	private int MODE = NONE;
 
 	private final float DEFAULT_EPSILON = (float) 0.5;
+	private final float DEFAULT_MIN_SIZE = 70f;
 
 	private class ImageParams {
 		// TODO: encapsulation stuff here
@@ -91,6 +92,10 @@ public class MoveSelection extends SurfaceView {
 	public void resizeBitmap(float deltaX, float deltaY) {
 		int width = bitmap.getWidth();
 		int height = bitmap.getHeight();
+		
+		if (width + deltaX < DEFAULT_MIN_SIZE ||
+			height +deltaY < DEFAULT_MIN_SIZE)
+			return;
 		
 		float scaleW = (width + deltaX) / width;
 		float scaleH = (height + deltaY) / height;
