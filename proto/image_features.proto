@@ -51,6 +51,12 @@ message DetectedObject {
 }
 
 // Next id = 3
+message PossibleObject {
+	required string id = 1;
+	repeated bytes features = 2;
+}
+
+// Next id = 3
 message ImageContents {
 	required string image_hash = 1;
 	required bytes image_contents = 2;
@@ -61,5 +67,5 @@ message Image {
 	required ImageContents image = 1;
 	optional LocalizationFeatures localization_features = 2;
 	repeated DetectedObject detected_objects = 3;
-	repeated string possible_present_objects = 4;
+	repeated PossibleObject possible_present_objects = 4;
 }
