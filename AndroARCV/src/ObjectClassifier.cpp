@@ -7,6 +7,8 @@
 
 #include "ObjectClassifier.h"
 
+#include <cstdlib>
+#include <cstdio>
 #include <map>
 #include <vector>
 
@@ -44,7 +46,36 @@ Features ObjectClassifier::computeFeatureDescriptor(const Image& image) {
 }
 
 void parseToFeatures(const OpenCVFeatures& from, Features* to) {
-	// TODO(alex): implement this
+	// TODO(alex): See if we can parse keypoints and descriptors directly from string rather than
+	// from cv::FileStorage
+
+	to->key_points.clear();
+
+	// Create temp file
+	char filename[] = "featuresXXXXXX";
+	int fd = mkstemp(filename);
+	close(fd);
+	// Keypoints
+	// Write the cassandra string to disk
+	FILE* f = fopen(filename, "wt");
+	fprintf(f, "%s", from.keypoints().c_str());
+	fclose(f);
+	// Read it with a FileStorage
+	FileStorage fs1(filename, FileStorage::READ);
+	cv::read(fs1.getFirstTopLevelNode(), to->key_points);
+	fs1.release();
+	// Descriptor
+	// Write the cassandra string to disk
+	f = fopen(filename, "wt");
+	fprintf(f, "%s", from.feature_descriptor().c_str());
+	fclose(f);
+	// Read it with a FileStorage
+	FileStorage fs2(filename, FileStorage::READ);
+	cv::read(fs2.getFirstTopLevelNode(), to->descriptor, to->descriptor);
+	fs2.release();
+	// Unlink the file
+	// unlink(filename);
+	return;
 }
 
 // This method will classify objects against features and feature vectors that were already
