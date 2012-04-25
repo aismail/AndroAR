@@ -11,6 +11,8 @@
 #include <vector>
 
 #include "Constants.h"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/features2d/features2d.hpp"
 
 using std::map;
 using std::vector;
@@ -22,63 +24,85 @@ ObjectClassifier::ObjectClassifier() {
 ObjectClassifier::~ObjectClassifier() {
 }
 
-// This method will classify objects against features and feature vectors that were already
-// extracted beforehand
-double ObjectClassifier::matchObject(
-		const Mat& image, string object_id, ObjectBoundingBox& bounding_box) {
-	Features features;
-	if (features_map->find(object_id) == features_map->end()) {
-		return 0;
-	} else {
-		features = features_map->find(object_id)->second;
-	}
+Features ObjectClassifier::computeFeatureDescriptor(const Image& image) {
+	// Create a Mat from the image we got and compute the features for that.
+	const char* image_contents = image.image().image_contents().data();
+	int image_contents_size = image.image().image_contents().size();
+	Mat image_mat = imdecode(vector<char>(image_contents, image_contents + image_contents_size), 0);
 
-	FeatureDetector* detector;
-	DescriptorExtractor* extractor;
+	FeatureDetector* detector = NULL;
+	DescriptorExtractor* extractor = NULL;
 	getDetectorAndExtractor(detector, extractor);
 
 	Features current_features;
 	// Detect key points
-	detector->detect(image, current_features.key_points);
+	detector->detect(image_mat, current_features.key_points);
 	// Extract feature vectors
-	extractor->compute(image, current_features.key_points, current_features.descriptor);
-	// Match feature vectors against what we have
+	extractor->compute(image_mat, current_features.key_points, current_features.descriptor);
+
+	return current_features;
+}
+
+void parseToFeatures(const OpenCVFeatures& from, Features* to) {
+	// TODO(alex): implement this
+}
+
+// This method will classify objects against features and feature vectors that were already
+// extracted beforehand
+double ObjectClassifier::matchObject(const Features& current_features, const PossibleObject& object,
+		ObjectBoundingBox& bounding_box) {
+	// Match the current features against what we got from storage
 	FlannBasedMatcher matcher;
 	vector<DMatch> matches;
-	matcher.match(current_features.descriptor, features.descriptor, matches);
+	double certainty = 0;
+	vector<DMatch> best_matches;
+	for (int i = 0; i < object.features_size(); ++i) {
+		Features features;
+		parseToFeatures(object.features(i), &features);
 
-	// Compute the min and max distances between key points
-	int min_dist = 10000, max_dist = 0, mean_dist = 0;
-	for (int i = 0; i < current_features.descriptor.rows; ++i) {
-		double dist = matches[i].distance;
-		if (dist < min_dist) {
-			min_dist = dist;
+		// Match feature vectors against what we have
+		matcher.match(current_features.descriptor, features.descriptor, matches);
+		// Compute the min and max distances between key points
+		int min_dist = 10000, max_dist = 0, mean_dist = 0;
+		for (int i = 0; i < current_features.descriptor.rows; ++i) {
+			double dist = matches[i].distance;
+			if (dist < min_dist) {
+				min_dist = dist;
+			}
+			if (dist > max_dist) {
+				max_dist = dist;
+			}
+			mean_dist += dist;
 		}
-		if (dist > max_dist) {
-			max_dist = dist;
+		mean_dist /= current_features.descriptor.rows;
+
+		// Find the number of good matches
+		unsigned int num_good_matches = 0;
+		for (int i = 0; i < current_features.descriptor.rows; ++i) {
+			if (matches[i].distance < min_dist +
+					Constants::FEATURE_VECTORS_THRESHOLD_DISTANCE * (mean_dist - min_dist)) {
+				//good_matches.push_back(matches[i]);
+				++num_good_matches;
+			}
 		}
-		mean_dist += dist;
-	}
-	mean_dist /= current_features.descriptor.rows;
-
-	// Find the number of good matches
-	vector<DMatch> good_matches;
-	for (int i = 0; i < current_features.descriptor.rows; ++i) {
-		if (matches[i].distance <
-				min_dist + Constants::FEATURE_VECTORS_THRESHOLD_DISTANCE * (mean_dist - min_dist)) {
-			good_matches.push_back(matches[i]);
+		if (num_good_matches > best_matches.size()) {
+			for (int i = 0; i < current_features.descriptor.rows; ++i) {
+				if (matches[i].distance < min_dist +
+						Constants::FEATURE_VECTORS_THRESHOLD_DISTANCE * (mean_dist - min_dist)) {
+					best_matches.push_back(matches[i]);
+				}
+			}
 		}
+		certainty += 1. * num_good_matches / current_features.descriptor.rows;
 	}
 
-	if (good_matches.empty()) {
-		return 0;
-	}
+	certainty /= object.features_size();
 
-	// Find the bounding box
+	// Find the bounding box by associating this image to the best match
 	int minx = 10000, miny = 10000, maxx = 0, maxy = 0;
-	for (int i = 0; i < good_matches.size(); ++i) {
+	for (unsigned int i = 0; i < best_matches.size(); ++i) {
 		// Get the keypoints from the good matches
-		Point2f point = current_features.key_points[good_matches[i].queryIdx].pt;
+		Point2f point = current_features.key_points[best_matches[i].queryIdx].pt;
 		if (minx > point.x) {
 			minx = point.x;
 		}
@@ -98,9 +122,8 @@ double ObjectClassifier::matchObject(
 	bounding_box.set_top(maxx);
 	bounding_box.set_left(miny);
 	bounding_box.set_right(maxy);
-	double certainty = 1. * good_matches.size() / current_features.descriptor.rows;
+
 	return certainty;
-	// Mat H = findHomography(obj, scene, CV_RANSAC);
 }
 
 void ObjectClassifier::getDetectorAndExtractor(
@@ -110,7 +133,3 @@ void ObjectClassifier::getDetectorAndExtractor(
 	return;
 }
 
-void ObjectClassifier::train() {
-	// We'll have to read all the images and train our classifiers
-	return;
-}

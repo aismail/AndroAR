@@ -30,10 +30,11 @@ public:
 	ObjectClassifier();
 	virtual ~ObjectClassifier();
 
-	void train();
-	double matchObject(const Mat& image, string object_id, ObjectBoundingBox& bounding_box);
+	double matchObject(const Features& current_features, const PossibleObject& object,
+			ObjectBoundingBox& bounding_box);
+	static Features computeFeatureDescriptor(const Image& image);
 
-	void getDetectorAndExtractor(FeatureDetector* detector, DescriptorExtractor* extractor);
+	static void getDetectorAndExtractor(FeatureDetector* detector, DescriptorExtractor* extractor);
 
 private:
 	map<string, Features>* features_map;

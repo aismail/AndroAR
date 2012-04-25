@@ -24,21 +24,19 @@ using namespace std;
 
 void processImage(Image* image, ObjectClassifier& classifier) {
 	image->clear_detected_objects();
-	const char* image_contents = image->image().image_contents().data();
-	int image_contents_size = image->image().image_contents().size();
-	Mat image_mat = imdecode(vector<char>(image_contents, image_contents + image_contents_size), 0);
+	Features current_features = ObjectClassifier::computeFeatureDescriptor(*image);
 	for (int i = 0; i < image->possible_present_objects_size(); ++i) {
-		string possible_object_id = image->possible_present_objects(i);
+		const PossibleObject& possible_object = image->possible_present_objects(i);
 		ObjectBoundingBox box;
-		double confidence = classifier.matchObject(image_mat, possible_object_id, box);
+		double confidence = classifier.matchObject(current_features, possible_object, box);
 		if (confidence >= Constants::CONFIDENCE_THRESHOLD) {
 			DetectedObject detected_object;
 			detected_object.set_object_type(DetectedObject::BUILDING);
 			detected_object.mutable_bounding_box()->CopyFrom(box);
-			detected_object.set_id(possible_object_id);
+			detected_object.set_id(possible_object.id());
 			ObjectMetadata metadata;
 			metadata.set_description("Found by OPENCV");
-			metadata.set_name(possible_object_id);
+			metadata.set_name(possible_object.id());
 			detected_object.mutable_metadata()->CopyFrom(metadata);
 			image->add_detected_objects()->CopyFrom(detected_object);
 		}
@@ -50,7 +48,6 @@ void processImage(Image* image, ObjectClassifier& classifier) {
 int main(int argc, char** argv) {
 
 	ObjectClassifier classifier;
-	classifier.train();
 
 	Socket server_socket(Constants::PORT);
 	server_socket.initSocket();
@@ -60,7 +57,7 @@ int main(int argc, char** argv) {
 	while (true) {
 		OpenCVRequest request = Communication::getImageMessage(*java_client);
 		if (request.request_type() == OpenCVRequest::STORE) {
-			// Store it and send an empty message
+			// Compute the features for this image and send them back
 			Communication::sendEmptyMessage(*java_client);
 		} else if (request.request_type() == OpenCVRequest::QUERY) {
 			// Process the possible_present_objects repeated field and return a new image with
