@@ -1,14 +1,11 @@
 package com.androar;
 
 import java.io.DataOutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.androar.comm.Communication;
 import com.androar.comm.CommunicationProtos.OpenCVRequest;
 import com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType;
 import com.androar.comm.ImageFeaturesProtos.Image;
-import com.google.protobuf.InvalidProtocolBufferException;
 
 public class Request {
 	
