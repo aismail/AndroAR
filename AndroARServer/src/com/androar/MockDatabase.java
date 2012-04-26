@@ -12,6 +12,7 @@ import com.androar.comm.ImageFeaturesProtos.GPSPosition;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
 import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
+import com.androar.comm.ImageFeaturesProtos.OpenCVFeatures;
 
 /**
  * @author Alexandru Damian (alex.m.damian@gmail.com)
@@ -88,6 +89,17 @@ public class MockDatabase implements IDatabaseConnection {
 			ret.put(id, metadata);
 		}
 		return ret;
+	}
+
+	@Override
+	public boolean storeFeatures(String image_hash,
+			OpenCVFeatures opencv_features) {
+		return false;
+	}
+
+	@Override
+	public List<OpenCVFeatures> getFeaturesForObject(String object_id) {
+		return null;
 	}
 
 }

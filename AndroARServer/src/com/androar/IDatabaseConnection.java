@@ -9,6 +9,7 @@ import java.util.Map;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
 import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
+import com.androar.comm.ImageFeaturesProtos.OpenCVFeatures;
 
 /**
  * @author Alexandru Damian (alex.m.damian@gmail.com)
@@ -51,4 +52,22 @@ public interface IDatabaseConnection {
 	 * @returns a list of images that contain the object.
 	 */
 	public List<ImageWithObject> getAllImagesContainingObject(String object_id);
+	
+	/*
+	 * Stores the opencv features of the image to cassandra. Features are:
+	 *  o vector of keypoints
+	 *  o descriptor map
+	 * @param image_hash the row key (image hash)
+	 * @param opencv_features the features that should be stored
+	 * @returns true if the operation succeeded, false otherwise 
+	 */
+	public boolean storeFeatures(String image_hash, OpenCVFeatures opencv_features);
+	
+	/*
+	 * Fetches the features for all the images that contain the specified object.
+	 * @param object_id the objects' id
+	 * @returns a list of OpenCVFeatures protocol buffers.
+	 */
+	public List<OpenCVFeatures> getFeaturesForObject(String object_id);
+	
 }

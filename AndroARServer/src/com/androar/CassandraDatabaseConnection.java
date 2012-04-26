@@ -44,6 +44,7 @@ import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.ImageContents;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
 import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
+import com.androar.comm.ImageFeaturesProtos.OpenCVFeatures;
 import com.google.protobuf.ByteString;
 
 public class CassandraDatabaseConnection implements IDatabaseConnection {
@@ -476,5 +477,16 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 				.setColumn("first_available_image_id");
         QueryResult<HColumn<String, Integer>> result = sub_column_query.execute();
         return (result.get() != null);
+	}
+
+	@Override
+	public boolean storeFeatures(String image_hash,
+			OpenCVFeatures opencv_features) {
+		return false;
+	}
+
+	@Override
+	public List<OpenCVFeatures> getFeaturesForObject(String object_id) {
+		return null;
 	}
 }
