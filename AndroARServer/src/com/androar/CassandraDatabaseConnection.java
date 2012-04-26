@@ -46,6 +46,7 @@ import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
 import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
 import com.androar.comm.ImageFeaturesProtos.OpenCVFeatures;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 public class CassandraDatabaseConnection implements IDatabaseConnection {
 
@@ -124,6 +125,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	 * (non-Javadoc)
 	 * @see com.androar.IDatabaseConnection#storeImage(com.androar.comm.ImageFeaturesProtos.Image)
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public boolean storeImage(Image image) {
 		Mutator<String> mutator = HFactory.createMutator(keyspace_operator, string_serializer);
@@ -480,13 +482,59 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	}
 
 	@Override
-	public boolean storeFeatures(String image_hash,
-			OpenCVFeatures opencv_features) {
-		return false;
+	public boolean storeFeatures(String image_hash, OpenCVFeatures opencv_features) {
+		Mutator<String> mutator = HFactory.createMutator(keyspace_operator, string_serializer);
+		Logging.LOG(10, "Image Hash is: " + image_hash);
+		// OpenCVFeatures
+		mutator.insert(image_hash,
+				Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY, 
+				HFactory.createStringColumn("opencv_features", opencv_features.toString()));
+		return true;
 	}
 
 	@Override
 	public List<OpenCVFeatures> getFeaturesForObject(String object_id) {
-		return null;
+		// Get all the image hashes associated with this object
+		List<String> row_keys = new ArrayList<String>();
+		SuperSliceQuery<String, String, String, byte[]> query = HFactory.createSuperSliceQuery(
+				keyspace_operator, string_serializer, string_serializer, string_serializer,
+				bytearray_serializer);
+		query.setColumnFamily(Constants.CASSANDRA_OBJECT_TO_IMAGE_ASSOCIATIONS_COLUMN_FAMILY)
+				.setKey(object_id)
+				.setRange("image0", "imageX", false, 1000);
+		SuperSlice<String, String, byte[]> result_columns = query.execute().get();
+		List<HSuperColumn<String, String, byte[]>> all_super_columns =
+				result_columns.getSuperColumns();
+		for (HSuperColumn<String, String, byte[]> super_column : all_super_columns) {
+			if (super_column.getName().contains("image")) {
+				String image_hash = 
+						new String(super_column.getSubColumnByName("image_hash").getValue());
+				row_keys.add(image_hash);
+			}
+		}
+		// Get all the "opencv_features" columns for these images
+		// Multiget ALL the keys!
+		MultigetSliceQuery<String, String, byte[]> multiget_query =
+				HFactory.createMultigetSliceQuery(keyspace_operator, string_serializer,
+						string_serializer, bytearray_serializer);
+		multiget_query.setColumnFamily(Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY);
+		multiget_query.setKeys(row_keys);
+		multiget_query.setRange(null, null, false, 10000);
+		QueryResult<Rows<String, String, byte[]>> multiget_result = multiget_query.execute();
+		Rows<String, String, byte[]> ordered_rows = multiget_result.get();
+		// Get OpenCVFeatures
+		List<OpenCVFeatures> ret = new ArrayList<OpenCVFeatures>();
+		for (Row<String, String, byte[]> row : ordered_rows) {
+			OpenCVFeatures features;
+			try {
+				features = OpenCVFeatures.parseFrom(
+						row.getColumnSlice().getColumnByName("opencv_features").getValue());
+				ret.add(features);
+			} catch (InvalidProtocolBufferException e) {
+				e.printStackTrace();
+				continue;
+			}
+		}
+		return ret;
 	}
 }
