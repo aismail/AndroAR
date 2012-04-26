@@ -74,13 +74,13 @@ public class ClientConnection implements Runnable {
 				// TODO(alex, andrei): Fix.
 				cassandra_connection.storeImage(client_message.getImagesToStore(image));
 				Request request = new Request(RequestType.STORE,
-						client_message.getImagesToStore(image), out);
+						client_message.getImagesToStore(image), out, cassandra_connection);
 				opencv_queue.newRequest(request);
 			}
 		} else if (message_type == ClientMessageType.IMAGE_TO_PROCESS) {
 			if (client_message.hasImageToProcess()) {
-				Request request = 
-						new Request(RequestType.QUERY, client_message.getImageToProcess(), out);
+				Request request = new Request(RequestType.QUERY,
+						client_message.getImageToProcess(), out, cassandra_connection);
 				opencv_queue.newRequest(request);
 			}
 		}
