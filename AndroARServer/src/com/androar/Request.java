@@ -39,6 +39,8 @@ public class Request {
 			// to store them
 			try {
 				OpenCVFeatures features = OpenCVFeatures.parseFrom(reply);
+				String image_hash = ImageUtils.computeImageHash(content.getImageContents());
+				database_connection.storeFeatures(image_hash, features);
 			} catch (InvalidProtocolBufferException e) {
 				e.printStackTrace();
 			}
@@ -46,6 +48,7 @@ public class Request {
 		} else if (request_type == RequestType.QUERY) {
 			// In case this is a query request, we will get the detected objects
 			Communication.sendByteArrayMessage(reply, out);
+			//TODO(alex, andrei): Let's see if we should also store it.
 			return;
 		}
 		return;
