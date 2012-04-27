@@ -396,18 +396,13 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		return all_image_contents;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see com.androar.IDatabaseConnection#getImagesInRange(com.androar.comm.ImageFeaturesProtos.LocalizationFeatures, double)
-	 */
-	@Override
-	public List<Image> getImagesInRange(LocalizationFeatures position, double range) {
-		List<Image> ret = new ArrayList<Image>();
+	private List<String> getRowKeysForImagesInRange(LocalizationFeatures position, double range) {
+		List<String> row_keys = new ArrayList<String>();
 		long big_range = (long) (range * Constants.CASSANDRA_GPS_POSITION_TOLERANCE);
 		long latitude = 0;
 		long longitude = 0;
 		if (!position.hasGpsPosition()) {
-			return ret;
+			return row_keys;
 		}
 		latitude = (long) (position.getGpsPosition().getLatitude() * 
 				Constants.CASSANDRA_GPS_POSITION_TOLERANCE);
@@ -429,10 +424,20 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		
 		QueryResult<OrderedRows<String, String, Long>> indexed_result = indexed_query.execute();
 		List<Row<String, String, Long>> all_rows = indexed_result.get().getList();
-		List<String> row_keys = new ArrayList<String>();
 		for (Row<String, String, Long> row : all_rows) {
 			row_keys.add(row.getKey());
 		}
+		return row_keys;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see com.androar.IDatabaseConnection#getImagesInRange(com.androar.comm.ImageFeaturesProtos.LocalizationFeatures, double)
+	 */
+	@Override
+	public List<Image> getImagesInRange(LocalizationFeatures position, double range) {
+		List<Image> ret = new ArrayList<Image>();
+		List<String> row_keys = getRowKeysForImagesInRange(position, range);
 		// Multiget ALL the keys!
 		MultigetSliceQuery<String, String, byte[]> multiget_query =
 				HFactory.createMultigetSliceQuery(keyspace_operator, string_serializer,
