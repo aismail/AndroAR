@@ -58,7 +58,15 @@ int main(int argc, char** argv) {
 		OpenCVRequest request = Communication::getImageMessage(*java_client);
 		if (request.request_type() == OpenCVRequest::STORE) {
 			// Compute the features for this image and send them back
-			Communication::sendEmptyMessage(*java_client);
+			OpenCVFeatures opencv_features;
+			Features features = classifier.computeFeatureDescriptor(request.image_contents());
+			ObjectClassifier::parseToOpenCVFeatures(features, &opencv_features);
+			// Send them back
+			int serialized_size = opencv_features.ByteSize();
+			char *serialized_pb = new char[serialized_size];
+			opencv_features.SerializeToArray(serialized_pb, serialized_size);
+			Communication::sendReplyMessage(*java_client, serialized_pb, serialized_size);
+			delete[] serialized_pb;
 		} else if (request.request_type() == OpenCVRequest::QUERY) {
 			// Process the possible_present_objects repeated field and return a new image with
 			// the newly set detected objects, if any.
