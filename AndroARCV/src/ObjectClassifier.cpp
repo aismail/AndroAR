@@ -7,17 +7,21 @@
 
 #include "ObjectClassifier.h"
 
+#include <cmath>
 #include <cstdlib>
 #include <cstdio>
+#include <fstream>
 #include <map>
+#include <streambuf>
 #include <vector>
+
+#include <iostream>
 
 #include "Constants.h"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/features2d/features2d.hpp"
 
-using std::map;
-using std::vector;
+using namespace std;
 
 ObjectClassifier::ObjectClassifier() {
 	features_map = new map<string, Features >();
@@ -32,9 +36,9 @@ Features ObjectClassifier::computeFeatureDescriptor(const Image& image) {
 	int image_contents_size = image.image().image_contents().size();
 	Mat image_mat = imdecode(vector<char>(image_contents, image_contents + image_contents_size), 0);
 
-	FeatureDetector* detector = NULL;
-	DescriptorExtractor* extractor = NULL;
-	getDetectorAndExtractor(detector, extractor);
+	FeatureDetector* detector;
+	DescriptorExtractor* extractor;
+	getDetectorAndExtractor(&detector, &extractor);
 
 	Features current_features;
 	// Detect key points
@@ -45,10 +49,9 @@ Features ObjectClassifier::computeFeatureDescriptor(const Image& image) {
 	return current_features;
 }
 
-void parseToFeatures(const OpenCVFeatures& from, Features* to) {
+void ObjectClassifier::parseToFeatures(const OpenCVFeatures& from, Features* to) {
 	// TODO(alex): See if we can parse keypoints and descriptors directly from string rather than
 	// from cv::FileStorage
-
 	to->key_points.clear();
 
 	// Create temp file
@@ -64,6 +67,7 @@ void parseToFeatures(const OpenCVFeatures& from, Features* to) {
 	FileStorage fs1(filename, FileStorage::READ);
 	cv::read(fs1.getFirstTopLevelNode(), to->key_points);
 	fs1.release();
+
 	// Descriptor
 	// Write the cassandra string to disk
 	f = fopen(filename, "wt");
@@ -74,16 +78,56 @@ void parseToFeatures(const OpenCVFeatures& from, Features* to) {
 	cv::read(fs2.getFirstTopLevelNode(), to->descriptor, to->descriptor);
 	fs2.release();
 	// Unlink the file
-	// unlink(filename);
+	unlink(filename);
 	return;
 }
+
+void ObjectClassifier::parseToOpenCVFeatures(const Features& from, OpenCVFeatures* to) {
+	// TODO(alex): See if we can parse keypoints and descriptors directly from string rather than
+	// from cv::FileStorage
+
+	// Create temp file
+	char filename[] = "featuresXXXXXX";
+	int fd = mkstemp(filename);
+	close(fd);
+	// Keypoints
+	// Write the keypoints to disk
+	FileStorage fs1(filename, FileStorage::WRITE);
+	cv::write(fs1, "", from.key_points);
+	fs1.release();
+	// Read it into cassandra format
+	ifstream f1(filename);
+	string str((std::istreambuf_iterator<char>(f1)),
+	                 std::istreambuf_iterator<char>());
+	f1.close();
+	to->set_keypoints(str);
+	// Descriptor
+	// Truncate the file
+	FILE *ff = fopen(filename, "wt");
+	fclose(ff);
+	// Write the descriptor to disk
+	FileStorage fs2(filename, FileStorage::WRITE);
+	cv::write(fs2, "", from.descriptor);
+	fs2.release();
+	// Read it into cassandra format
+	ifstream f2(filename);
+	string str2((std::istreambuf_iterator<char>(f2)),
+			std::istreambuf_iterator<char>());
+	f2.close();
+	to->set_feature_descriptor(str2);
+	// Unlink the file
+	unlink(filename);
+	return;
+}
+
 
 // This method will classify objects against features and feature vectors that were already
 // extracted beforehand
 double ObjectClassifier::matchObject(const Features& current_features, const PossibleObject& object,
 		ObjectBoundingBox& bounding_box) {
 	// Match the current features against what we got from storage
-	FlannBasedMatcher matcher;
+	//FlannBasedMatcher matcher;
+	BruteForceMatcher<L2<float> > matcher;
 	vector<DMatch> matches;
 	double certainty = 0;
 	vector<DMatch> best_matches;
@@ -94,9 +138,14 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 		// Match feature vectors against what we have
 		matcher.match(current_features.descriptor, features.descriptor, matches);
 		// Compute the min and max distances between key points
-		int min_dist = 10000, max_dist = 0, mean_dist = 0;
-		for (int i = 0; i < current_features.descriptor.rows; ++i) {
-			double dist = matches[i].distance;
+		double min_dist = 10000., max_dist = 0., mean_dist = 0., dist;
+		int total_features = 0;
+		for (unsigned int i = 0; i < matches.size(); ++i) {
+			dist = matches[i].distance;
+			if (isnan(dist) || isnan(-dist)) {
+				--total_features;
+				continue;
+			}
 			if (dist < min_dist) {
 				min_dist = dist;
 			}
@@ -104,27 +153,33 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 				max_dist = dist;
 			}
 			mean_dist += dist;
+			++total_features;
 		}
-		mean_dist /= current_features.descriptor.rows;
+		if (total_features != 0) {
+			mean_dist /= (total_features);
+		} else {
+			mean_dist = 0;
+		}
 
 		// Find the number of good matches
 		unsigned int num_good_matches = 0;
-		for (int i = 0; i < current_features.descriptor.rows; ++i) {
-			if (matches[i].distance < min_dist +
+		for (unsigned int i = 0; i < matches.size(); ++i) {
+			if (matches[i].distance <= 1 + min_dist +
 					Constants::FEATURE_VECTORS_THRESHOLD_DISTANCE * (mean_dist - min_dist)) {
-				//good_matches.push_back(matches[i]);
 				++num_good_matches;
 			}
 		}
 		if (num_good_matches > best_matches.size()) {
-			for (int i = 0; i < current_features.descriptor.rows; ++i) {
-				if (matches[i].distance < min_dist +
+			for (unsigned int i = 0; i < matches.size(); ++i) {
+				if (matches[i].distance <= 1 + min_dist +
 						Constants::FEATURE_VECTORS_THRESHOLD_DISTANCE * (mean_dist - min_dist)) {
 					best_matches.push_back(matches[i]);
 				}
 			}
 		}
-		certainty += 1. * num_good_matches / current_features.descriptor.rows;
+		if (matches.size() != 0) {
+			certainty += 1. * num_good_matches / current_features.descriptor.rows;
+		}
 	}
 
 	certainty /= object.features_size();
@@ -158,9 +213,10 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 }
 
 void ObjectClassifier::getDetectorAndExtractor(
-		FeatureDetector* detector, DescriptorExtractor* extractor) {
-	detector = new SurfFeatureDetector(400);
-	extractor = new SurfDescriptorExtractor();
+		FeatureDetector** detector, DescriptorExtractor** extractor) {
+	//TODO(alex): this has memory leaks. Fix it
+	*detector = new SurfFeatureDetector();
+	*extractor = new SurfDescriptorExtractor();
 	return;
 }
 
