@@ -184,6 +184,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 				Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY,
 				HFactory.createStringColumn("localization",
 						image.getLocalizationFeatures().toString()));
+		// TODO(alex): we can't parse from string, only from byte array
 		mutator.insert(image_hash,
 				Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY,
 				HFactory.createColumn("dumb", 0L, string_serializer, long_serializer));
@@ -493,7 +494,8 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		// OpenCVFeatures
 		mutator.insert(image_hash,
 				Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY, 
-				HFactory.createStringColumn("opencv_features", opencv_features.toString()));
+				HFactory.createColumn("opencv_features", opencv_features.toByteArray(),
+						string_serializer, bytearray_serializer));
 		return true;
 	}
 
@@ -538,6 +540,47 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 			} catch (InvalidProtocolBufferException e) {
 				e.printStackTrace();
 				continue;
+			}
+		}
+		return ret;
+	}
+
+	@Override
+	public Map<String, List<OpenCVFeatures>> getFeaturesForAllObjectsInRange(
+			LocalizationFeatures position, double range) {
+		Map<String, List<OpenCVFeatures>> ret = new HashMap<String, List<OpenCVFeatures>>();
+		List<String> row_keys = getRowKeysForImagesInRange(position, range);
+		// Multiget ALL the keys!
+		MultigetSliceQuery<String, String, byte[]> multiget_query =
+				HFactory.createMultigetSliceQuery(keyspace_operator, string_serializer,
+						string_serializer, bytearray_serializer);
+		multiget_query.setColumnFamily(Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY);
+		multiget_query.setKeys(row_keys);
+		multiget_query.setRange(null, null, false, 10000);
+		QueryResult<Rows<String, String, byte[]>> multiget_result = multiget_query.execute();
+		Rows<String, String, byte[]> ordered_rows = multiget_result.get();
+		// Put opencv features for each image in the keys associated with objects inside the image
+		for (Row<String, String, byte[]> row : ordered_rows) {
+			OpenCVFeatures features = null;
+			try {
+				features = OpenCVFeatures.
+						parseFrom(row.getColumnSlice().getColumnByName("opencv_features").getValue());
+			} catch (InvalidProtocolBufferException e) {
+				continue;
+			}
+			List<HColumn<String, byte[]>> columns = row.getColumnSlice().getColumns();
+			for (HColumn<String, byte[]> column : columns) {
+				if (column.getName().startsWith("object")) {
+					String object_id = string_serializer.fromBytes(column.getValue());
+					List<OpenCVFeatures> value;
+					if (ret.containsKey(object_id)) {
+						value = ret.get(object_id);
+					} else {
+						value = new ArrayList<OpenCVFeatures>();
+					}
+					value.add(features);
+					ret.put(object_id, value);
+				}
 			}
 		}
 		return ret;

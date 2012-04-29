@@ -102,4 +102,11 @@ public class MockDatabase implements IDatabaseConnection {
 		return null;
 	}
 
+	@Override
+	public Map<String, List<OpenCVFeatures>> getFeaturesForAllObjectsInRange(
+			LocalizationFeatures position, double range) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
