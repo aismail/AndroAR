@@ -4,6 +4,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import com.androar.comm.Communication;
 import com.androar.comm.CommunicationProtos.ClientMessage;
@@ -11,6 +15,9 @@ import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
 import com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType;
 import com.androar.comm.CommunicationProtos.ServerMessage;
 import com.androar.comm.CommunicationProtos.ServerMessage.ServerMessageType;
+import com.androar.comm.ImageFeaturesProtos.Image;
+import com.androar.comm.ImageFeaturesProtos.OpenCVFeatures;
+import com.androar.comm.ImageFeaturesProtos.PossibleObject;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 public class ClientConnection implements Runnable {
@@ -79,8 +86,31 @@ public class ClientConnection implements Runnable {
 			}
 		} else if (message_type == ClientMessageType.IMAGE_TO_PROCESS) {
 			if (client_message.hasImageToProcess()) {
+				// We should add all the possible objects to the image
+				// These objects are located in a range around the current position
+				Image image_to_process = client_message.getImageToProcess();
+				Image.Builder image_builder = Image.newBuilder();
+				try {
+					image_builder.mergeFrom(image_to_process.toByteArray());
+				} catch (InvalidProtocolBufferException e) {
+					e.printStackTrace();
+				}
+				image_builder.clearPossiblePresentObjects();
+				Map<String, List<OpenCVFeatures>> objects_in_range =
+						cassandra_connection.getFeaturesForAllObjectsInRange(
+								image_to_process.getLocalizationFeatures(),
+								Constants.DEFAULT_RANGE);
+				Set<Entry<String, List<OpenCVFeatures>>> entry_set = objects_in_range.entrySet();
+				for (Entry<String, List<OpenCVFeatures>> entry : entry_set) {
+					String object_id = entry.getKey();
+					List<OpenCVFeatures> features = entry.getValue();
+					image_builder.addPossiblePresentObjects(
+							PossibleObject.newBuilder()
+								.setId(object_id)
+								.addAllFeatures(features));
+				}
 				Request request = new Request(RequestType.QUERY,
-						client_message.getImageToProcess(), out, cassandra_connection);
+						image_builder.build(), out, cassandra_connection);
 				opencv_queue.newRequest(request);
 			}
 		}
