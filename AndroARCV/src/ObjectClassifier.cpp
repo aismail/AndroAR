@@ -23,6 +23,9 @@
 
 using namespace std;
 
+FeatureDetector* ObjectClassifier::detector_ = NULL;
+DescriptorExtractor* ObjectClassifier::extractor_ = NULL;
+
 ObjectClassifier::ObjectClassifier() {
 	features_map = new map<string, Features >();
 }
@@ -214,9 +217,14 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 
 void ObjectClassifier::getDetectorAndExtractor(
 		FeatureDetector** detector, DescriptorExtractor** extractor) {
-	//TODO(alex): this has memory leaks. Fix it
-	*detector = new SurfFeatureDetector();
-	*extractor = new SurfDescriptorExtractor();
+	if (ObjectClassifier::detector_ == NULL) {
+		detector_ = new SurfFeatureDetector();
+	}
+	if (ObjectClassifier::extractor_ == NULL) {
+		extractor_ = new SurfDescriptorExtractor();
+	}
+	*detector = detector_;
+	*extractor = extractor_;
 	return;
 }
 
