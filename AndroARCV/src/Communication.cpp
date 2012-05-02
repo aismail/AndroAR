@@ -12,6 +12,8 @@
 
 #include <iostream>
 
+using google::protobuf::Message;
+
 Communication::Communication() {}
 
 Communication::~Communication() {}
@@ -62,4 +64,12 @@ void Communication::sendReplyMessage(Socket& socket, void* message, int length) 
 void Communication::sendEmptyMessage(Socket& socket) {
 	int zero = htonl(0);
 	sendSocketMessage(socket, &zero, sizeof(zero));
+}
+
+void Communication::sendMessage(Socket& socket, const Message& message) {
+	int serialized_size = message.ByteSize();
+	char *serialized_pb = new char[serialized_size];
+	message.SerializeToArray(serialized_pb, serialized_size);
+	sendReplyMessage(socket, serialized_pb, serialized_size);
+	delete[] serialized_pb;
 }

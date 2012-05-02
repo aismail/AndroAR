@@ -62,22 +62,14 @@ int main(int argc, char** argv) {
 			Features features = classifier.computeFeatureDescriptor(request.image_contents());
 			ObjectClassifier::parseToOpenCVFeatures(features, &opencv_features);
 			// Send them back
-			int serialized_size = opencv_features.ByteSize();
-			char *serialized_pb = new char[serialized_size];
-			opencv_features.SerializeToArray(serialized_pb, serialized_size);
-			Communication::sendReplyMessage(*java_client, serialized_pb, serialized_size);
-			delete[] serialized_pb;
+			Communication::sendMessage(*java_client, opencv_features);
 		} else if (request.request_type() == OpenCVRequest::QUERY) {
 			// Process the possible_present_objects repeated field and return a new image with
 			// the newly set detected objects, if any.
 			Image* image = request.mutable_image_contents();
 			processImage(image, classifier);
 			// Send the new image back to the client
-			int serialized_size = image->ByteSize();
-			char *serialized_pb = new char[serialized_size];
-			image->SerializeToArray(serialized_pb, serialized_size);
-			Communication::sendReplyMessage(*java_client, serialized_pb, serialized_size);
-			delete[] serialized_pb;
+			Communication::sendMessage(*java_client, *image);
 		}
 	}
 

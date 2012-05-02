@@ -12,12 +12,14 @@
 #include "Socket.h"
 
 using namespace androar;
+using google::protobuf::Message;
 
 class Communication {
 public:
 	static OpenCVRequest getImageMessage(Socket& socket);
 	static void sendEmptyMessage(Socket& socket);
 	static void sendReplyMessage(Socket& socket, void* message, int length);
+	static void sendMessage(Socket& socket, const Message& message);
 
 private:
 	Communication();
