@@ -48,6 +48,7 @@ message DetectedObject {
 	required string id = 4;
 	optional int32 distance_to_viewer = 5;
 	optional int32 angle_to_viewer = 6;
+	optional bytes cropped_image = 7;
 }
 
 // Next id = 4
