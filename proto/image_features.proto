@@ -57,6 +57,11 @@ message OpenCVFeatures {
 	optional string object_id = 3;
 }
 
+// Next id = 2
+message MultipleOpenCVFeatures {
+	repeated OpenCVFeatures features = 1;
+}
+
 // Next id = 3
 message PossibleObject {
 	required string id = 1;
