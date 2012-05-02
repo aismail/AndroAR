@@ -617,17 +617,30 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		Rows<String, String, byte[]> ordered_rows = multiget_result.get();
 		// Put opencv features for each image in the keys associated with objects inside the image
 		for (Row<String, String, byte[]> row : ordered_rows) {
-			OpenCVFeatures features = null;
-			try {
-				features = OpenCVFeatures.
-						parseFrom(row.getColumnSlice().getColumnByName("opencv_features").getValue());
-			} catch (InvalidProtocolBufferException e) {
-				continue;
+			Map<Integer, String> object_ids_map = new HashMap<Integer, String>();
+			// object_ids_map[K] = V where there exists column "objectK" = "V"
+			List<HColumn<String, byte[]>> all_columns = row.getColumnSlice().getColumns();
+			for (HColumn<String, byte[]> column : all_columns) {
+				String column_name = column.getName();
+				if (column_name.startsWith("object")) {
+					int object_num = Integer.parseInt(column_name.substring(6));
+					object_ids_map.put(object_num, string_serializer.fromBytes(column.getValue()));
+				}
 			}
-			List<HColumn<String, byte[]>> columns = row.getColumnSlice().getColumns();
-			for (HColumn<String, byte[]> column : columns) {
-				if (column.getName().startsWith("object")) {
-					String object_id = string_serializer.fromBytes(column.getValue());
+			
+			for (HColumn<String, byte[]> column : all_columns) {
+				if (column.getName().startsWith("cv")) {
+					int object_num = Integer.parseInt(column.getName().substring(2));
+					if (!object_ids_map.containsKey(object_num)) {
+						continue;
+					}
+					String object_id = object_ids_map.get(object_num);
+					OpenCVFeatures features;
+					try {
+						features = OpenCVFeatures.parseFrom(column.getValue());
+					} catch (InvalidProtocolBufferException e) {
+						continue;
+					}
 					List<OpenCVFeatures> value;
 					if (ret.containsKey(object_id)) {
 						value = ret.get(object_id);
