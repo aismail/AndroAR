@@ -35,6 +35,7 @@ public:
 	double matchObject(const Features& current_features, const PossibleObject& object,
 			ObjectBoundingBox& bounding_box);
 	static Features computeFeatureDescriptor(const Image& image);
+	static Features computeFeatureDescriptor(const string& image_content);
 	static void getDetectorAndExtractor(FeatureDetector** detector,
 			DescriptorExtractor** extractor);
 	static void parseToOpenCVFeatures(const Features& from, OpenCVFeatures* to);

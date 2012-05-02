@@ -33,10 +33,10 @@ ObjectClassifier::ObjectClassifier() {
 ObjectClassifier::~ObjectClassifier() {
 }
 
-Features ObjectClassifier::computeFeatureDescriptor(const Image& image) {
+Features ObjectClassifier::computeFeatureDescriptor(const string& image_content) {
 	// Create a Mat from the image we got and compute the features for that.
-	const char* image_contents = image.image().image_contents().data();
-	int image_contents_size = image.image().image_contents().size();
+	const char* image_contents = image_content.data();
+	int image_contents_size = image_content.size();
 	Mat image_mat = imdecode(vector<char>(image_contents, image_contents + image_contents_size), 0);
 
 	FeatureDetector* detector;
@@ -50,6 +50,10 @@ Features ObjectClassifier::computeFeatureDescriptor(const Image& image) {
 	extractor->compute(image_mat, current_features.key_points, current_features.descriptor);
 
 	return current_features;
+}
+
+Features ObjectClassifier::computeFeatureDescriptor(const Image& image) {
+	return computeFeatureDescriptor(image.image().image_contents());
 }
 
 void ObjectClassifier::parseToFeatures(const OpenCVFeatures& from, Features* to) {
