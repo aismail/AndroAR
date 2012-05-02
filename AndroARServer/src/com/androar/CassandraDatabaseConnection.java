@@ -247,10 +247,20 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 					image.getImage().getImageContents().toByteArray(), string_serializer,
 					bytearray_serializer));
 			// Add cropped_image_contents = ByteArray;
+			ByteString cropped_image = null;
+			if (detected_object.hasCroppedImage()) {
+				cropped_image = detected_object.getCroppedImage();
+			} else {
+				cropped_image = 
+						ImageUtils.getCroppedImageContents(image.getImage(), detected_object);
+				DetectedObject new_detected_object = 
+						DetectedObject.newBuilder().mergeFrom(detected_object)
+								.setCroppedImage(cropped_image).build();
+				image = Image.newBuilder().mergeFrom(image)
+						.setDetectedObjects(object, new_detected_object).build();
+			}
 			image_values.add(HFactory.createColumn("cropped_image_contents",
-					ImageUtils.getCroppedImageContents(image.getImage(),
-							detected_object).toByteArray(),
-					string_serializer, bytearray_serializer));
+					cropped_image.toByteArray(), string_serializer, bytearray_serializer));
 			// Add distance_to_viewer = Integer;
 			// TODO(alex) see if we need this and if not, remove it
 			if (detected_object.hasDistanceToViewer()) {
