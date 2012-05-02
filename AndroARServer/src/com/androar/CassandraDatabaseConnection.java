@@ -519,7 +519,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 				string_serializer, string_serializer, string_serializer);
 		query.setColumnFamily(Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY);
 		query.setKey(image_hash);
-		query.setRange("", "", false, 1000);
+		query.setRange(null, null, false, 1000);
 		QueryResult<ColumnSlice<String, String>> result = query.execute();
 		List<HColumn<String, String>> all_columns = result.get().getColumns();
 		for (HColumn<String, String> column : all_columns) {
