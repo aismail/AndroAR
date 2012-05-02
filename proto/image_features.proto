@@ -50,10 +50,11 @@ message DetectedObject {
 	optional int32 angle_to_viewer = 6;
 }
 
-// Next id = 3
+// Next id = 4
 message OpenCVFeatures {
 	required string keypoints = 1;
 	required string feature_descriptor = 2;
+	optional string object_id = 3;
 }
 
 // Next id = 3
