@@ -16,6 +16,7 @@ import me.prettyprint.cassandra.serializers.TypeInferringSerializer;
 import me.prettyprint.cassandra.service.ThriftKsDef;
 import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
+import me.prettyprint.hector.api.beans.ColumnSlice;
 import me.prettyprint.hector.api.beans.HColumn;
 import me.prettyprint.hector.api.beans.HSuperColumn;
 import me.prettyprint.hector.api.beans.OrderedRows;
@@ -34,6 +35,7 @@ import me.prettyprint.hector.api.mutation.Mutator;
 import me.prettyprint.hector.api.query.MultigetSliceQuery;
 import me.prettyprint.hector.api.query.MultigetSuperSliceQuery;
 import me.prettyprint.hector.api.query.QueryResult;
+import me.prettyprint.hector.api.query.SliceQuery;
 import me.prettyprint.hector.api.query.SubColumnQuery;
 import me.prettyprint.hector.api.query.SuperColumnQuery;
 import me.prettyprint.hector.api.query.SuperSliceQuery;
@@ -43,6 +45,7 @@ import com.androar.comm.ImageFeaturesProtos.GPSPosition;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.ImageContents;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
+import com.androar.comm.ImageFeaturesProtos.MultipleOpenCVFeatures;
 import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
 import com.androar.comm.ImageFeaturesProtos.OpenCVFeatures;
 import com.google.protobuf.ByteString;
@@ -495,7 +498,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	@Override
 	public boolean storeFeatures(String image_hash, OpenCVFeatures opencv_features) {
 		Mutator<String> mutator = HFactory.createMutator(keyspace_operator, string_serializer);
-		Logging.LOG(10, "Image Hash is: " + image_hash + ", storing features.");
+		Logging.LOG(10, "Image Hash is: " + image_hash + ", storing features for original image.");
 		// OpenCVFeatures
 		mutator.insert(image_hash,
 				Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY, 
@@ -504,6 +507,54 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		return true;
 	}
 
+	@Override
+	public boolean storeFeatures(String image_hash, MultipleOpenCVFeatures opencv_features) {
+		Mutator<String> mutator = HFactory.createMutator(keyspace_operator, string_serializer);
+		Logging.LOG(10, "Image Hash is: " + image_hash + ", storing features for original image " +
+				"and for cropped images.");
+		Map<String, Integer> object_ids_map = new HashMap<String, Integer>();
+		// object_ids_map[K] = V where there exists column "objectV" = "K"
+		
+		SliceQuery<String, String, String> query = HFactory.createSliceQuery(keyspace_operator,
+				string_serializer, string_serializer, string_serializer);
+		query.setColumnFamily(Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY);
+		query.setKey(image_hash);
+		query.setRange("", "", false, 1000);
+		QueryResult<ColumnSlice<String, String>> result = query.execute();
+		List<HColumn<String, String>> all_columns = result.get().getColumns();
+		for (HColumn<String, String> column : all_columns) {
+			String column_name = column.getName();
+			if (column_name.startsWith("object")) {
+				int object_num = Integer.parseInt(column_name.substring(6));
+				object_ids_map.put(column.getValue(), object_num);
+			}
+		}
+		
+		for (int i = 0; i < opencv_features.getFeaturesCount(); ++i) {
+			OpenCVFeatures features = opencv_features.getFeatures(i);
+			if (features.hasObjectId()) {
+				// If the features have the object_id field set, then these are features for a
+				// cropped image.
+				String object_id = features.getObjectId();
+				if (!object_ids_map.containsKey(object_id)) {
+					continue;
+				}
+				Logging.LOG(10, "Storing features for object " + object_id);
+				mutator.insert(image_hash,
+						Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY, 
+						HFactory.createColumn("cv" + object_ids_map.get(object_id),
+								features.toByteArray(),	string_serializer, bytearray_serializer));
+			} else {
+				// Otherwise, they are the features for the big image
+				if (storeFeatures(image_hash, features) == false) {
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
+	
 	@Override
 	public List<OpenCVFeatures> getFeaturesForObject(String object_id) {
 		// Get all the image hashes associated with this object

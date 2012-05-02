@@ -11,6 +11,7 @@ import java.util.Map;
 import com.androar.comm.ImageFeaturesProtos.GPSPosition;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
+import com.androar.comm.ImageFeaturesProtos.MultipleOpenCVFeatures;
 import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
 import com.androar.comm.ImageFeaturesProtos.OpenCVFeatures;
 
@@ -107,6 +108,13 @@ public class MockDatabase implements IDatabaseConnection {
 			LocalizationFeatures position, double range) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public boolean storeFeatures(String image_hash,
+			MultipleOpenCVFeatures opencv_features) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
+import com.androar.comm.ImageFeaturesProtos.MultipleOpenCVFeatures;
 import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
 import com.androar.comm.ImageFeaturesProtos.OpenCVFeatures;
 
@@ -62,6 +63,7 @@ public interface IDatabaseConnection {
 	 * @returns true if the operation succeeded, false otherwise 
 	 */
 	public boolean storeFeatures(String image_hash, OpenCVFeatures opencv_features);
+	public boolean storeFeatures(String image_hash, MultipleOpenCVFeatures opencv_features);
 	
 	/*
 	 * Fetches the features for all the images that contain the specified object.
