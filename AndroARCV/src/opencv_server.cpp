@@ -44,6 +44,25 @@ void processImage(Image* image, ObjectClassifier& classifier) {
 	image->clear_possible_present_objects();
 }
 
+MultipleOpenCVFeatures getAllOpenCVFeatures(ObjectClassifier& classifier, const Image& image) {
+	MultipleOpenCVFeatures ret;
+	OpenCVFeatures* opencv_features;
+	// Compute the features for the image. For the big image, we won't set the object_id field
+	opencv_features = ret.add_features();
+	Features features = classifier.computeFeatureDescriptor(image);
+	ObjectClassifier::parseToOpenCVFeatures(features, opencv_features);
+	// Compute the features for all the cropped images (objects) in this image
+	for (int i = 0; i < image.detected_objects_size(); ++i) {
+		const DetectedObject& detected_object = image.detected_objects(i);
+		String cropped_image = detected_object.cropped_image();
+		// We should also set the object_id field to the id of the detected object
+		opencv_features = ret.add_features();
+		features = classifier.computeFeatureDescriptor(cropped_image);
+		ObjectClassifier::parseToOpenCVFeatures(features, opencv_features);
+		opencv_features->set_object_id(detected_object.id());
+	}
+	return ret;
+}
 
 int main(int argc, char** argv) {
 
@@ -57,12 +76,11 @@ int main(int argc, char** argv) {
 	while (true) {
 		OpenCVRequest request = Communication::getImageMessage(*java_client);
 		if (request.request_type() == OpenCVRequest::STORE) {
-			// Compute the features for this image and send them back
-			OpenCVFeatures opencv_features;
-			Features features = classifier.computeFeatureDescriptor(request.image_contents());
-			ObjectClassifier::parseToOpenCVFeatures(features, &opencv_features);
+			// Compute the features for this image and its objects and send it back
+			MultipleOpenCVFeatures all_opencv_features =
+					getAllOpenCVFeatures(classifier, request.image_contents());
 			// Send them back
-			Communication::sendMessage(*java_client, opencv_features);
+			Communication::sendMessage(*java_client, all_opencv_features);
 		} else if (request.request_type() == OpenCVRequest::QUERY) {
 			// Process the possible_present_objects repeated field and return a new image with
 			// the newly set detected objects, if any.

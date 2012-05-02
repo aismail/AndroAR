@@ -6,7 +6,7 @@ import com.androar.comm.Communication;
 import com.androar.comm.CommunicationProtos.OpenCVRequest;
 import com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType;
 import com.androar.comm.ImageFeaturesProtos.Image;
-import com.androar.comm.ImageFeaturesProtos.OpenCVFeatures;
+import com.androar.comm.ImageFeaturesProtos.MultipleOpenCVFeatures;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 public class Request {
@@ -38,7 +38,7 @@ public class Request {
 			// In case this is a store request, we will receive the image features and we will have
 			// to store them
 			try {
-				OpenCVFeatures features = OpenCVFeatures.parseFrom(reply);
+				MultipleOpenCVFeatures features = MultipleOpenCVFeatures.parseFrom(reply);
 				String image_hash = ImageUtils.computeImageHash(content.getImageContents());
 				database_connection.storeFeatures(image_hash, features);
 			} catch (InvalidProtocolBufferException e) {
