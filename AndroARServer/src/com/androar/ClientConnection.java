@@ -15,9 +15,11 @@ import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
 import com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType;
 import com.androar.comm.CommunicationProtos.ServerMessage;
 import com.androar.comm.CommunicationProtos.ServerMessage.ServerMessageType;
+import com.androar.comm.ImageFeaturesProtos.DetectedObject;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.OpenCVFeatures;
 import com.androar.comm.ImageFeaturesProtos.PossibleObject;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 public class ClientConnection implements Runnable {
@@ -79,9 +81,23 @@ public class ClientConnection implements Runnable {
 				// Right now we're just storing the image, assuming that it's relevant and that the
 				// user input is correct.
 				// TODO(alex, andrei): Fix.
-				cassandra_connection.storeImage(client_message.getImagesToStore(image));
-				Request request = new Request(RequestType.STORE,
-						client_message.getImagesToStore(image), out, cassandra_connection);
+				Image current_image = client_message.getImagesToStore(image);
+				cassandra_connection.storeImage(current_image);
+				// We should also update the cropped images
+				for (int object = 0; object < current_image.getDetectedObjectsCount(); ++object) {
+					DetectedObject detected_object = current_image.getDetectedObjects(object);
+					if (!detected_object.hasCroppedImage()) {
+						ByteString cropped_image = ImageUtils.getCroppedImageContents(
+								current_image.getImage(), detected_object);
+						DetectedObject new_detected_object = 
+								DetectedObject.newBuilder().mergeFrom(detected_object)
+										.setCroppedImage(cropped_image).build();
+						current_image = Image.newBuilder().mergeFrom(current_image)
+								.setDetectedObjects(object, new_detected_object).build();
+					}
+				}
+				Request request = new Request(RequestType.STORE, current_image, out,
+						cassandra_connection);
 				opencv_queue.newRequest(request);
 			}
 		} else if (message_type == ClientMessageType.IMAGE_TO_PROCESS) {

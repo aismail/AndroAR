@@ -253,11 +253,6 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 			} else {
 				cropped_image = 
 						ImageUtils.getCroppedImageContents(image.getImage(), detected_object);
-				DetectedObject new_detected_object = 
-						DetectedObject.newBuilder().mergeFrom(detected_object)
-								.setCroppedImage(cropped_image).build();
-				image = Image.newBuilder().mergeFrom(image)
-						.setDetectedObjects(object, new_detected_object).build();
 			}
 			image_values.add(HFactory.createColumn("cropped_image_contents",
 					cropped_image.toByteArray(), string_serializer, bytearray_serializer));
