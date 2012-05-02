@@ -490,7 +490,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	@Override
 	public boolean storeFeatures(String image_hash, OpenCVFeatures opencv_features) {
 		Mutator<String> mutator = HFactory.createMutator(keyspace_operator, string_serializer);
-		Logging.LOG(10, "Image Hash is: " + image_hash);
+		Logging.LOG(10, "Image Hash is: " + image_hash + ", storing features.");
 		// OpenCVFeatures
 		mutator.insert(image_hash,
 				Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY, 
