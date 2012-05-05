@@ -16,8 +16,10 @@ import com.androar.comm.ImageFeaturesProtos.GPSPosition;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.ImageContents;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
+import com.androar.comm.ImageFeaturesProtos.MultipleOpenCVFeatures;
 import com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox;
 import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
+import com.androar.comm.ImageFeaturesProtos.OpenCVFeatures;
 import com.google.protobuf.ByteString;
 
 public class Mocking {
@@ -35,10 +37,29 @@ public class Mocking {
 		Mocking.longitude = longitude;
 	}
 	
+	public static MultipleOpenCVFeatures createMockFeatures() {
+		MultipleOpenCVFeatures.Builder builder = MultipleOpenCVFeatures.newBuilder();
+		for (String object : object_ids) {
+			OpenCVFeatures features = OpenCVFeatures.newBuilder()
+				.setObjectId(object)
+				.setKeypoints("KEYPOINTS_" + image_hash + "_" + object)
+				.setFeatureDescriptor("FEATURE_DESCRIPTOR_" + image_hash + "_" + object)
+				.build();
+			builder.addFeatures(features);
+		}
+		OpenCVFeatures big_image_features = OpenCVFeatures.newBuilder()
+				.setKeypoints("KEYPOINTS_" + image_hash)
+				.setFeatureDescriptor("FEATURE_DESCRIPTOR_" + image_hash) 
+				.build();
+		builder.addFeatures(big_image_features);
+		return builder.build();
+	}
+	
+	
 	public static Image createMockImage(byte[] content, ClientMessageType type) {
 		ByteString image_contents_byte_string;
 		if (content == null) {
-			byte[] mock_contents = { 1, 2, 3 };
+			byte[] mock_contents = image_hash.getBytes();
 			image_contents_byte_string = ByteString.copyFrom(mock_contents);
 		} else {
 			image_contents_byte_string = ByteString.copyFrom(content);
