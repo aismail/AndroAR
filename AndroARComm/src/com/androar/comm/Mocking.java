@@ -35,17 +35,23 @@ public class Mocking {
 		Mocking.longitude = longitude;
 	}
 	
-	public static ClientMessage createMockClientMessage(byte[] content, ClientMessageType type) {
+	public static Image createMockImage(byte[] content, ClientMessageType type) {
+		ByteString image_contents_byte_string;
+		if (content == null) {
+			byte[] mock_contents = { 1, 2, 3 };
+			image_contents_byte_string = ByteString.copyFrom(mock_contents);
+		} else {
+			image_contents_byte_string = ByteString.copyFrom(content);
+		}
 		// Image contents
-		ByteString image_contents_byte_string = ByteString.copyFrom(content);
 		ImageContents image_contents = ImageContents.newBuilder()
 				.setImageHash(image_hash)
 				.setImageContents(image_contents_byte_string)
 				.build();
-		
+
 		Image.Builder image_builder = Image.newBuilder();
 		image_builder.setImage(image_contents);
-		
+
 		if (type == ClientMessageType.IMAGES_TO_STORE) {
 			// Detected objects
 			for (String object_id : object_ids) {
@@ -53,12 +59,12 @@ public class Mocking {
 						.setObjectType(DetectedObjectType.BUILDING)
 						.setId(object_id)
 						.setBoundingBox(
-								ObjectBoundingBox.newBuilder().setTop(0).setBottom(100).setLeft(0)
-								.setRight(100).build())
+								ObjectBoundingBox.newBuilder().setTop(10).setBottom(100).setLeft(20)
+								.setRight(50).build())
 								.setAngleToViewer(15)
 								.setMetadata(
-										ObjectMetadata.newBuilder().setName("OBJECT_1")
-										.setDescription("OBJECT_1_DESCRIPTION_LONG"))
+										ObjectMetadata.newBuilder().setName("NAME_" + object_id)
+										.setDescription("DESCRIPTION_" + object_id))
 										.build();
 				image_builder.addDetectedObjects(obj);
 			}
@@ -69,8 +75,11 @@ public class Mocking {
 		image_builder.setLocalizationFeatures(
 				LocalizationFeatures.newBuilder().setGpsPosition(gps_position).build());
 
-		// Image
-        Image image = image_builder.build();
+		return image_builder.build();
+	}
+	
+	public static ClientMessage createMockClientMessage(byte[] content, ClientMessageType type) {
+		Image image = createMockImage(content, type);
         
         // Mock authentication info
         AuthentificationInfo auth_info = AuthentificationInfo.newBuilder()
