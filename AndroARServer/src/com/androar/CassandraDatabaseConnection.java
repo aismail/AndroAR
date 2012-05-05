@@ -62,14 +62,18 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	private Keyspace keyspace_operator;
 	
 	public CassandraDatabaseConnection(String hostname, int port) {
+		this(hostname, port, Constants.CASSANDRA_KEYSPACE);
+	}
+	
+	public CassandraDatabaseConnection(String hostname, int port, String keyspace_name) {
 		// Connect to a cluster
 		// TODO(alex, andrei * 2): check if getOrCreateCluster is thread-safe
 		cluster = HFactory.getOrCreateCluster(
 				Constants.CASSANDRA_CLUSTER_NAME, hostname + ":" + Integer.toString(port));
-		if (cluster.describeKeyspace(Constants.CASSANDRA_KEYSPACE) == null) {
-			createSchema(cluster);
+		if (cluster.describeKeyspace(keyspace_name) == null) {
+			createSchema(cluster, keyspace_name);
 		}
-		keyspace_operator = HFactory.createKeyspace(Constants.CASSANDRA_KEYSPACE, cluster);
+		keyspace_operator = HFactory.createKeyspace(keyspace_name, cluster);
 	}
 
 	public void closeConnection() {
@@ -77,13 +81,13 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		//cluster.getConnectionManager().shutdown();
 	}
 	
-	private static void createSchema(Cluster cluster) {
+	private static void createSchema(Cluster cluster, String keyspace_name) {
 		ColumnFamilyDefinition image_features_column_family_definition =
-				HFactory.createColumnFamilyDefinition(Constants.CASSANDRA_KEYSPACE,
+				HFactory.createColumnFamilyDefinition(keyspace_name,
 						Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY);
 		image_features_column_family_definition.setColumnType(ColumnType.STANDARD);
 		ColumnFamilyDefinition object_associations_column_family_definition =
-				HFactory.createColumnFamilyDefinition(Constants.CASSANDRA_KEYSPACE,
+				HFactory.createColumnFamilyDefinition(keyspace_name,
 						Constants.CASSANDRA_OBJECT_TO_IMAGE_ASSOCIATIONS_COLUMN_FAMILY);
 		object_associations_column_family_definition.setColumnType(ColumnType.SUPER);
 		List<ColumnFamilyDefinition> all_column_families = new ArrayList<ColumnFamilyDefinition>();
@@ -91,15 +95,15 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		all_column_families.add(object_associations_column_family_definition);
 		
 		KeyspaceDefinition new_keyspace = HFactory.createKeyspaceDefinition(
-				Constants.CASSANDRA_KEYSPACE,
+				keyspace_name,
 				ThriftKsDef.DEF_STRATEGY_CLASS,
 				Constants.CASSANDRA_REPLICATION_FACTOR,
 				all_column_families);
 		// Add the schema to the cluster.
-		Logging.LOG(3, "Creating Cassandra keyspace " + Constants.CASSANDRA_KEYSPACE);
+		Logging.LOG(3, "Creating Cassandra keyspace " + keyspace_name);
 		cluster.addKeyspace(new_keyspace, true);
 		// Edit the column family to add secondary indexes
-		KeyspaceDefinition from_cluster = cluster.describeKeyspace(Constants.CASSANDRA_KEYSPACE);
+		KeyspaceDefinition from_cluster = cluster.describeKeyspace(keyspace_name);
 		BasicColumnFamilyDefinition column_family_definition =
 				new BasicColumnFamilyDefinition(from_cluster.getCfDefs().get(0));
 		// Add the 2 secondary indexes: gps_latitude and gps_longitude
