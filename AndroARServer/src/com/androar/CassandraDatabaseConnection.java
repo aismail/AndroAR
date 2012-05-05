@@ -320,7 +320,8 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		multiget_query.setColumnFamily(
 				Constants.CASSANDRA_OBJECT_TO_IMAGE_ASSOCIATIONS_COLUMN_FAMILY);
 		multiget_query.setKeys(object_ids);
-		multiget_query.setRange(null, null, false, object_ids.size());
+		multiget_query.setRange(null, null, false, 1000);
+		multiget_query.setColumnNames("metadata");
 		QueryResult<SuperRows<String, String, String, String>> result = multiget_query.execute();
         SuperRows<String, String, String, String> ordered_rows = result.get();
         
