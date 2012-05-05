@@ -60,12 +60,14 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	
 	private Cluster cluster;
 	private Keyspace keyspace_operator;
+	private String keyspace_name;
 	
 	public CassandraDatabaseConnection(String hostname, int port) {
 		this(hostname, port, Constants.CASSANDRA_KEYSPACE);
 	}
 	
 	public CassandraDatabaseConnection(String hostname, int port, String keyspace_name) {
+		this.keyspace_name = keyspace_name;
 		// Connect to a cluster
 		// TODO(alex, andrei * 2): check if getOrCreateCluster is thread-safe
 		cluster = HFactory.getOrCreateCluster(
@@ -76,6 +78,10 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		keyspace_operator = HFactory.createKeyspace(keyspace_name, cluster);
 	}
 
+	public void deleteTables() {
+		cluster.dropKeyspace(keyspace_name);
+	}
+	
 	public void closeConnection() {
 		Logging.LOG(3, "Closing Cassandra connection");
 		//cluster.getConnectionManager().shutdown();
