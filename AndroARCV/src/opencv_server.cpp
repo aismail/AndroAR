@@ -24,7 +24,7 @@ using namespace std;
 
 void processImage(Image* image, ObjectClassifier& classifier) {
 	image->clear_detected_objects();
-	Features current_features = ObjectClassifier::computeFeatureDescriptor(*image);
+	Features current_features = ObjectClassifier::computeFeatureDescriptor(image->image());
 	for (int i = 0; i < image->possible_present_objects_size(); ++i) {
 		const PossibleObject& possible_object = image->possible_present_objects(i);
 		ObjectBoundingBox box;
@@ -49,7 +49,7 @@ MultipleOpenCVFeatures getAllOpenCVFeatures(ObjectClassifier& classifier, const 
 	OpenCVFeatures* opencv_features;
 	// Compute the features for the image. For the big image, we won't set the object_id field
 	opencv_features = ret.add_features();
-	Features features = classifier.computeFeatureDescriptor(image);
+	Features features = classifier.computeFeatureDescriptor(image.image());
 	ObjectClassifier::parseToOpenCVFeatures(features, opencv_features);
 	// Compute the features for all the cropped images (objects) in this image
 	for (int i = 0; i < image.detected_objects_size(); ++i) {

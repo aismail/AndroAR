@@ -52,8 +52,8 @@ Features ObjectClassifier::computeFeatureDescriptor(const string& image_content)
 	return current_features;
 }
 
-Features ObjectClassifier::computeFeatureDescriptor(const Image& image) {
-	return computeFeatureDescriptor(image.image().image_contents());
+Features ObjectClassifier::computeFeatureDescriptor(const ImageContents& image_contents) {
+	return computeFeatureDescriptor(image_contents.image_contents());
 }
 
 void ObjectClassifier::parseToFeatures(const OpenCVFeatures& from, Features* to) {
