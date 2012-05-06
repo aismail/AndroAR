@@ -2,7 +2,6 @@ package com.androar;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
 import java.util.Map;
@@ -32,12 +31,12 @@ public class ClientConnection implements Runnable {
 		try {
 			out = new DataOutputStream(client_socket.getOutputStream());
 			in = new DataInputStream(client_socket.getInputStream());
-		} catch (IOException e) {
-			Logging.LOG(0, e.getMessage());
+			// Initialize a connection to the Cassandra Cluster.
+			cassandra_connection =
+					DatabaseConnectionPool.getDatabaseConnectionPool().borrowConnection();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		// Initialize a connection to the Cassandra Cluster.
-		cassandra_connection = 
-				new CassandraDatabaseConnection(Constants.DATABASE_HOST, Constants.DATABASE_PORT);
 		// Get the request queue for opencv requests
 		opencv_queue = RequestQueue.getRequestQueue();
 	}
@@ -64,9 +63,9 @@ public class ClientConnection implements Runnable {
 				processCurrentMessage(current_client_message);
 			} catch (InvalidProtocolBufferException e) {
 				e.printStackTrace();
+				break;
 			}
 		}
-		cassandra_connection.closeConnection();
 	}
 	
 	/*
@@ -96,8 +95,7 @@ public class ClientConnection implements Runnable {
 								.setDetectedObjects(object, new_detected_object).build();
 					}
 				}
-				Request request = new Request(RequestType.STORE, current_image, out,
-						cassandra_connection);
+				Request request = new Request(RequestType.STORE, current_image, out);
 				opencv_queue.newRequest(request);
 			}
 		} else if (message_type == ClientMessageType.IMAGE_TO_PROCESS) {
@@ -125,8 +123,7 @@ public class ClientConnection implements Runnable {
 								.setId(object_id)
 								.addAllFeatures(features));
 				}
-				Request request = new Request(RequestType.QUERY,
-						image_builder.build(), out, cassandra_connection);
+				Request request = new Request(RequestType.QUERY, image_builder.build(), out);
 				opencv_queue.newRequest(request);
 			}
 		}
@@ -156,7 +153,7 @@ public class ClientConnection implements Runnable {
 	// OpenCV requests queue
 	RequestQueue opencv_queue;
 	// Cassandra connection
-	private CassandraDatabaseConnection cassandra_connection;
+	private IDatabaseConnection cassandra_connection;
 	// Socket between this server and the client
 	private Socket client_socket;
 	// Output stream

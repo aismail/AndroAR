@@ -7,18 +7,14 @@ import com.androar.comm.CommunicationProtos.OpenCVRequest;
 import com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.MultipleOpenCVFeatures;
-import com.google.protobuf.InvalidProtocolBufferException;
 
 public class Request {
 	
 	private OpenCVRequest content;
 	private DataOutputStream out;
-	private IDatabaseConnection database_connection;
 	
-	public Request(RequestType type, Image image_content, DataOutputStream out,
-			IDatabaseConnection database_connection) {
+	public Request(RequestType type, Image image_content, DataOutputStream out) {
 		this.out = out;
-		this.database_connection = database_connection;
 		this.content = OpenCVRequest.newBuilder().
 				setRequestType(type).setImageContents(image_content).build();
 	}
@@ -40,16 +36,18 @@ public class Request {
 			try {
 				MultipleOpenCVFeatures features = MultipleOpenCVFeatures.parseFrom(reply);
 				String image_hash = ImageUtils.computeImageHash(content.getImageContents());
+				IDatabaseConnection database_connection =
+						DatabaseConnectionPool.getDatabaseConnectionPool().borrowConnection();
 				database_connection.storeFeatures(image_hash, features);
-			} catch (InvalidProtocolBufferException e) {
+				DatabaseConnectionPool.getDatabaseConnectionPool().returnConnection(
+						database_connection);
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			return;
 		} else if (request_type == RequestType.QUERY) {
 			// In case this is a query request, we will get the detected objects
 			Communication.sendByteArrayMessage(reply, out);
 			//TODO(alex, andrei): Let's see if we should also store it.
-			return;
 		}
 		return;
 	}
