@@ -11,6 +11,7 @@
 #include "comm.pb.h"
 #include "Communication.h"
 #include "Constants.h"
+#include "opencv_test.h"
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "ObjectClassifier.h"
@@ -20,7 +21,19 @@ using namespace androar;
 using namespace cv;
 using namespace std;
 
+const char* Constants::TEST_FOLDER =  "src/test/";
+
+
 int main(int argc, char** argv) {
+
+	// Test injection
+	if (argc > 1 && strcmp(argv[1], "--test") == 0) {
+		string filename = (argc > 2) ?
+				argv[2] :
+				string(Constants::TEST_FOLDER).append("features_test_input.txt");
+		run_tests(filename);
+		return 0;
+	}
 
 	ObjectClassifier classifier;
 
