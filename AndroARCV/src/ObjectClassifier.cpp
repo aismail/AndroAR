@@ -137,12 +137,14 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 	BruteForceMatcher<L2<float> > matcher;
 	vector<DMatch> matches;
 	double certainty = 0;
+	vector<double> match_percentages;
 	vector<DMatch> best_matches;
 	for (int i = 0; i < object.features_size(); ++i) {
 		Features features;
 		parseToFeatures(object.features(i), &features);
 
 		// Match feature vectors against what we have
+		matches.clear();
 		matcher.match(current_features.descriptor, features.descriptor, matches);
 		// Compute the min and max distances between key points
 		double min_dist = 10000., max_dist = 0., mean_dist = 0., dist;
@@ -168,28 +170,30 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 			mean_dist = 0;
 		}
 
+		double good_matches_threshold = min_dist +
+				Constants::FEATURE_VECTORS_THRESHOLD_DISTANCE * (mean_dist - min_dist);
+
 		// Find the number of good matches
 		unsigned int num_good_matches = 0;
 		for (unsigned int i = 0; i < matches.size(); ++i) {
-			if (matches[i].distance <= 1 + min_dist +
-					Constants::FEATURE_VECTORS_THRESHOLD_DISTANCE * (mean_dist - min_dist)) {
+			if (matches[i].distance <= good_matches_threshold) {
 				++num_good_matches;
 			}
 		}
 		if (num_good_matches > best_matches.size()) {
 			for (unsigned int i = 0; i < matches.size(); ++i) {
-				if (matches[i].distance <= 1 + min_dist +
-						Constants::FEATURE_VECTORS_THRESHOLD_DISTANCE * (mean_dist - min_dist)) {
+				if (matches[i].distance <= good_matches_threshold) {
 					best_matches.push_back(matches[i]);
 				}
 			}
 		}
 		if (matches.size() != 0) {
-			certainty += 1. * num_good_matches / current_features.descriptor.rows;
+			match_percentages.push_back(1. * num_good_matches / matches.size());
 		}
 	}
+	sort(match_percentages.begin(), match_percentages.end(), std::greater<double>());
 
-	certainty /= object.features_size();
+	certainty = match_percentages[0];
 
 	// Find the bounding box by associating this image to the best match
 	int minx = 10000, miny = 10000, maxx = 0, maxy = 0;
