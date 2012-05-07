@@ -10,10 +10,10 @@
         android:id="@+id/tvAndroARTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/AndroAR_Title"
         android:layout_gravity="center_horizontal"
-        android:textAppearance="@android:style/TextAppearance.Large"
         android:paddingBottom="30dp"
+        android:text="@string/AndroAR_Title"
+        android:textAppearance="@android:style/TextAppearance.Large"
         android:textSize="20dp" />
 
     <Button
@@ -28,5 +28,12 @@
         android:layout_height="100dp"
         android:layout_marginTop="20dp"
         android:text="@string/add_data" />
+
+    <Button
+        android:id="@+id/bCameraPreview"
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/camera_preview" />
 
 </LinearLayout>

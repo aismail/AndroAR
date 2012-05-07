@@ -17,11 +17,11 @@ import android.view.SurfaceHolder;
 import android.view.Window;
 import android.widget.Toast;
 
-import com.androar.comm.Communication;
-import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
-import com.androar.comm.Mocking;
-import com.androar.comm.CommunicationProtos.ClientMessage;
-import com.androar.comm.CommunicationProtos.ServerMessage;
+//import com.androar.comm.Communication;
+//import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
+//import com.androar.comm.Mocking;
+//import com.androar.comm.CommunicationProtos.ClientMessage;
+//import com.androar.comm.CommunicationProtos.ServerMessage;
 
 public class MoveSelectionActivity extends Activity implements
 		SurfaceHolder.Callback {
@@ -49,14 +49,15 @@ public class MoveSelectionActivity extends Activity implements
 
 	public void initResources() {
 		// default selection
-		if (bitmap == null) {
-			bitmap = BitmapFactory.decodeResource(getResources(),
-					R.drawable.ic_launcher);
-			mSelectionView.setSelection(bitmap);
-		}
+//		if (bitmap == null) {
+//			bitmap = BitmapFactory.decodeResource(getResources(),
+//					R.drawable.selectionn);
+//			mSelectionView.setSelection(bitmap);
+//		}
 
 		try {
-			byte[] b = getIntent().getByteArrayExtra("data");
+			Bundle bundle = getIntent().getBundleExtra("data");
+			byte[] b = bundle.getByteArray("bitmap");
 			bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
 		} catch (NullPointerException e) {
 			bitmap = BitmapFactory.decodeResource(getResources(),
@@ -69,51 +70,51 @@ public class MoveSelectionActivity extends Activity implements
 				DEFAULT_SELECTION_SIZE);
 		mThread = new DrawThread(mSurfaceHolder, mSelectionView);
 		// Just send a mock protocol buffer
-		// sendMockPB();
+//		sendMockPB();
 	}
 
-	private void sendMockPB() {
-		Socket socket;
-		DataOutputStream out;
-		DataInputStream in;
-
-		try {
-			socket = new Socket("192.168.100.112", 6666);
-			out = new DataOutputStream(socket.getOutputStream());
-			in = new DataInputStream(socket.getInputStream());
-
-			// Read a message
-			ServerMessage server_message = ServerMessage
-					.parseFrom(Communication.readMessage(in));
-			Log.i("PB", "***\n " + server_message.toString() + "\n***");
-			Toast.makeText(context_, "***\n " + server_message.toString()
-					+ "\n***", Toast.LENGTH_LONG);
-
-			// Assume that the message was a HELLO. Let's now send an image to
-			// see if this works.
-			// We will read an image stored on the Hard Drive for now, it's path
-			// is being passed through params
-			InputStream fin = context_.getResources().openRawResource(
-					R.drawable.street);
-			byte file_contents[] = new byte[fin.available()];
-			fin.read(file_contents);
-
-			List<String> objects = new ArrayList<String>();
-			objects.add("OBJ");
-			Mocking.setMetadata("hash", objects, 44, 61);
-			ClientMessage client_message = Mocking
-					.createMockClientMessage(file_contents, ClientMessageType.IMAGES_TO_STORE);
-			Log.i("PB", "***\n " + client_message.toString() + "\n***");
-
-			Communication.sendMessage(client_message, out);
-
-			socket.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Log.e("PB", e.getMessage());
-		}
-		return;
-	}
+//	private void sendMockPB() {
+//		Socket socket;
+//		DataOutputStream out;
+//		DataInputStream in;
+//
+//		try {
+//			socket = new Socket("192.168.1.100", 6666);
+//			out = new DataOutputStream(socket.getOutputStream());
+//			in = new DataInputStream(socket.getInputStream());
+//
+//			// Read a message
+//			ServerMessage server_message = ServerMessage
+//					.parseFrom(Communication.readMessage(in));
+//			Log.i("PB", "***\n " + server_message.toString() + "\n***");
+//			Toast.makeText(context_, "***\n " + server_message.toString()
+//					+ "\n***", Toast.LENGTH_LONG);
+//
+//			// Assume that the message was a HELLO. Let's now send an image to
+//			// see if this works.
+//			// We will read an image stored on the Hard Drive for now, it's path
+//			// is being passed through params
+//			InputStream fin = context_.getResources().openRawResource(
+//					R.drawable.street);
+//			byte file_contents[] = new byte[fin.available()];
+//			fin.read(file_contents);
+//
+//			List<String> objects = new ArrayList<String>();
+//			objects.add("OBJ");
+//			Mocking.setMetadata("hash", objects, 44, 61);
+//			ClientMessage client_message = Mocking
+//					.createMockClientMessage(file_contents, ClientMessageType.IMAGES_TO_STORE);
+//			Log.i("PB", "***\n " + client_message.toString() + "\n***");
+//
+//			Communication.sendMessage(client_message, out);
+//
+//			socket.close();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			Log.e("PB", e.getMessage());
+//		}
+//		return;
+//	}
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {

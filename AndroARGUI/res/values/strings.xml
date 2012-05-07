@@ -2,17 +2,18 @@
 <resources>
 
     <string name="hello">Hello World, DrawWithCanvasActivity!</string>
-    
-<!--Classes -->
+
+    <!-- Classes -->
     <string name="app_name">AndroAR</string>
     <string name="move_selection">MoveSelection</string>
-    
- <!--Labels -->
- 	<string name="AndroAR_Title">Andro-Augmented Reality</string>
- 	<string name="ButtonCapturePhoto">Capture</string>
+
+    <!-- Labels -->
+    <string name="AndroAR_Title">Andro-Augmented Reality</string>
+    <string name="ButtonCapturePhoto">Capture</string>
     <string name="drag">drag</string>
     <string name="send_button">Send</string>
     <string name="navigation">Navigate</string>
     <string name="add_data">Add data</string>
+    <string name="camera_preview">Camera Preview</string>
 
 </resources>

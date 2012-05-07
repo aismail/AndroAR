@@ -45,6 +45,12 @@
             android:name="com.androar.NavigationActivity"
             android:screenOrientation="landscape" >
         </activity>
+        <activity
+            android:label="@string/camera_preview"
+            android:name="com.androar.CameraPreview"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        </activity>
     </application>
 
 </manifest>

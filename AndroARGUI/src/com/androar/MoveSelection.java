@@ -3,18 +3,22 @@ package com.androar;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Paint.Style;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 
 public class MoveSelection extends SurfaceView {
 
-	private Bitmap bitmap, background;
+	private Bitmap background;
 	private float x = 0, y = 0;
 	float saved_dx = 0, saved_dy = 0;
 	private float lastDistance;
+	int width = 30, height = 30;
 	
 	// selection modes
 	private final int NONE = 0;
@@ -44,9 +48,9 @@ public class MoveSelection extends SurfaceView {
 		return background;
 	}
 	
-	public void setSelection(Bitmap bitmap) {
-		this.bitmap = bitmap;
-	}
+//	public void setSelection(Bitmap bitmap) {
+//		this.bitmap = bitmap;
+//	}
 	
 	public void setCoords(float x, float y) {
 		this.x = x;
@@ -83,27 +87,35 @@ public class MoveSelection extends SurfaceView {
 		Rect oldR = new Rect(0, 0, background.getWidth(), background.getHeight());
 		Rect newR = new Rect(0, 0, this.getWidth(), this.getHeight());
 		canvas.drawBitmap(background, oldR, newR, null);
-		canvas.drawBitmap(bitmap, x - (bitmap.getWidth() / 2), y - (bitmap.getHeight() / 2), null);
+//		canvas.drawBitmap(bitmap, x - (bitmap.getWidth() / 2), y - (bitmap.getHeight() / 2), null);
+		System.out.println("x, y, width, height = " + x + " " + y + " " + width + " " + height);
+		Paint paint = new Paint();
+		paint.setStyle(Style.STROKE);
+		paint.setColor(Color.YELLOW);
+		paint.setStrokeWidth(3);
+		canvas.drawRect(x, y, width, height, paint);
 	}
 	
 	/* Resize a bitmap to the newWidth 
 	 * and newHeight using a Matrix
 	 */
 	public void resizeBitmap(float deltaX, float deltaY) {
-		int width = bitmap.getWidth();
-		int height = bitmap.getHeight();
-		
-		if (width + deltaX < DEFAULT_MIN_SIZE ||
-			height +deltaY < DEFAULT_MIN_SIZE)
-			return;
-		
-		float scaleW = (width + deltaX) / width;
-		float scaleH = (height + deltaY) / height;
-		Matrix matrix = new Matrix();
-		matrix.postScale(scaleW, scaleH);
-		// resize the bitmap now
-		bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height,
-				matrix, true);
+//		int width = bitmap.getWidth();
+//		int height = bitmap.getHeight();
+//		
+//		if (width + deltaX < DEFAULT_MIN_SIZE ||
+//			height +deltaY < DEFAULT_MIN_SIZE)
+//			return;
+//		
+//		float scaleW = (width + deltaX) / width;
+//		float scaleH = (height + deltaY) / height;
+//		Matrix matrix = new Matrix();
+//		matrix.postScale(scaleW, scaleH);
+//		// resize the bitmap now
+//		bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height,
+//				matrix, true);
+		width += deltaX;
+		height += deltaY;
 	}
 
 	/*
@@ -129,8 +141,8 @@ public class MoveSelection extends SurfaceView {
 			MODE = NONE;
 			break;
 		case MotionEvent.ACTION_DOWN:
-			if ((Math.abs(current_x - x) <= bitmap.getWidth() / 2)
-					&& (Math.abs(current_y - y) <= bitmap.getHeight() / 2)) {
+			if ((Math.abs(current_x - x) <= width / 2)
+					&& (Math.abs(current_y - y) <= height / 2)) {
 				MODE = DRAG;
 				saved_dx = current_x - x;
 				saved_dy = current_y - y;

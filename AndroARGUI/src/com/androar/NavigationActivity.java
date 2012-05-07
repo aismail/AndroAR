@@ -189,7 +189,10 @@ public class NavigationActivity extends Activity implements
 
 			Intent i = new Intent(NavigationActivity.this,
 					MoveSelectionActivity.class);
-			i.putExtra("data", data);
+			Bundle bundle = new Bundle();
+			bundle.putByteArray("bitmap", data);
+		//	i.putExtra("data", data);
+			i.putExtra("data", bundle);
 
 			camera.stopPreview();
 			mPreviewRunning = false;
