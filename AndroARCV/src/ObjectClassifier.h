@@ -40,6 +40,8 @@ public:
 			DescriptorExtractor** extractor);
 	static void parseToOpenCVFeatures(const Features& from, OpenCVFeatures* to);
 	static void parseToFeatures(const OpenCVFeatures& from, Features* to);
+	void processImage(Image* image);
+	MultipleOpenCVFeatures getAllOpenCVFeatures(const Image& image);
 
 private:
 	map<string, Features>* features_map;
