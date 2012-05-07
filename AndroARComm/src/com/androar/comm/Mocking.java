@@ -16,8 +16,10 @@ import com.androar.comm.ImageFeaturesProtos.GPSPosition;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.ImageContents;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
+import com.androar.comm.ImageFeaturesProtos.MultipleOpenCVFeatures;
 import com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox;
 import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
+import com.androar.comm.ImageFeaturesProtos.OpenCVFeatures;
 import com.google.protobuf.ByteString;
 
 public class Mocking {
@@ -35,17 +37,42 @@ public class Mocking {
 		Mocking.longitude = longitude;
 	}
 	
-	public static ClientMessage createMockClientMessage(byte[] content, ClientMessageType type) {
+	public static MultipleOpenCVFeatures createMockFeatures() {
+		MultipleOpenCVFeatures.Builder builder = MultipleOpenCVFeatures.newBuilder();
+		for (String object : object_ids) {
+			OpenCVFeatures features = OpenCVFeatures.newBuilder()
+				.setObjectId(object)
+				.setKeypoints("KEYPOINTS_" + image_hash + "_" + object)
+				.setFeatureDescriptor("FEATURE_DESCRIPTOR_" + image_hash + "_" + object)
+				.build();
+			builder.addFeatures(features);
+		}
+		OpenCVFeatures big_image_features = OpenCVFeatures.newBuilder()
+				.setKeypoints("KEYPOINTS_" + image_hash)
+				.setFeatureDescriptor("FEATURE_DESCRIPTOR_" + image_hash) 
+				.build();
+		builder.addFeatures(big_image_features);
+		return builder.build();
+	}
+	
+	
+	public static Image createMockImage(byte[] content, ClientMessageType type) {
+		ByteString image_contents_byte_string;
+		if (content == null) {
+			byte[] mock_contents = image_hash.getBytes();
+			image_contents_byte_string = ByteString.copyFrom(mock_contents);
+		} else {
+			image_contents_byte_string = ByteString.copyFrom(content);
+		}
 		// Image contents
-		ByteString image_contents_byte_string = ByteString.copyFrom(content);
 		ImageContents image_contents = ImageContents.newBuilder()
 				.setImageHash(image_hash)
 				.setImageContents(image_contents_byte_string)
 				.build();
-		
+
 		Image.Builder image_builder = Image.newBuilder();
 		image_builder.setImage(image_contents);
-		
+
 		if (type == ClientMessageType.IMAGES_TO_STORE) {
 			// Detected objects
 			for (String object_id : object_ids) {
@@ -53,12 +80,12 @@ public class Mocking {
 						.setObjectType(DetectedObjectType.BUILDING)
 						.setId(object_id)
 						.setBoundingBox(
-								ObjectBoundingBox.newBuilder().setTop(0).setBottom(100).setLeft(0)
-								.setRight(100).build())
+								ObjectBoundingBox.newBuilder().setTop(10).setBottom(100).setLeft(20)
+								.setRight(50).build())
 								.setAngleToViewer(15)
 								.setMetadata(
-										ObjectMetadata.newBuilder().setName("OBJECT_1")
-										.setDescription("OBJECT_1_DESCRIPTION_LONG"))
+										ObjectMetadata.newBuilder().setName("NAME_" + object_id)
+										.setDescription("DESCRIPTION_" + object_id))
 										.build();
 				image_builder.addDetectedObjects(obj);
 			}
@@ -69,8 +96,11 @@ public class Mocking {
 		image_builder.setLocalizationFeatures(
 				LocalizationFeatures.newBuilder().setGpsPosition(gps_position).build());
 
-		// Image
-        Image image = image_builder.build();
+		return image_builder.build();
+	}
+	
+	public static ClientMessage createMockClientMessage(byte[] content, ClientMessageType type) {
+		Image image = createMockImage(content, type);
         
         // Mock authentication info
         AuthentificationInfo auth_info = AuthentificationInfo.newBuilder()

@@ -36,7 +36,7 @@ void Communication::sendSocketMessage(Socket& socket, void* buffer, int length) 
 	} while (total_size_sent < length);
 }
 
-OpenCVRequest Communication::getImageMessage(Socket& socket) {
+OpenCVRequest Communication::getRequestMessage(Socket& socket) {
 	int message_size;
 
 	// Read the length of the message

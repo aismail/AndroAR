@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
 
 	// Just read messages from the java server
 	while (true) {
-		OpenCVRequest request = Communication::getImageMessage(*java_client);
+		OpenCVRequest request = Communication::getRequestMessage(*java_client);
 		if (request.request_type() == OpenCVRequest::STORE) {
 			// Compute the features for this image and its objects and send it back
 			MultipleOpenCVFeatures all_opencv_features =

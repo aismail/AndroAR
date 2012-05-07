@@ -16,7 +16,7 @@ using google::protobuf::Message;
 
 class Communication {
 public:
-	static OpenCVRequest getImageMessage(Socket& socket);
+	static OpenCVRequest getRequestMessage(Socket& socket);
 	static void sendEmptyMessage(Socket& socket);
 	static void sendReplyMessage(Socket& socket, void* message, int length);
 	static void sendMessage(Socket& socket, const Message& message);
