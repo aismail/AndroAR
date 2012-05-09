@@ -1,10 +1,12 @@
 package com.androar;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -27,6 +29,19 @@ import android.view.View.OnTouchListener;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.androar.comm.Communication;
+import com.androar.comm.CommunicationProtos.AuthentificationInfo;
+import com.androar.comm.CommunicationProtos.ClientMessage;
+import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
+import com.androar.comm.ImageFeaturesProtos.DetectedObject;
+import com.androar.comm.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
+import com.androar.comm.ImageFeaturesProtos.GPSPosition;
+import com.androar.comm.ImageFeaturesProtos.Image;
+import com.androar.comm.ImageFeaturesProtos.ImageContents;
+import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
+import com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox;
+import com.google.protobuf.ByteString;
+
 public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 
 	private SurfaceView surfaceView;
@@ -39,7 +54,6 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 	private File pictureDir;
 
 	private static final int CROP_FROM_CAMERA = 2;
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -150,7 +164,7 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 			inPreview = true;
 		}
 	}
-	
+
 	public void surfaceDestroyed(SurfaceHolder holder) {
 	}
 
@@ -174,7 +188,7 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		}
 		return true;
 	}
-	
+
 	Camera.PictureCallback mPictureCallback = new Camera.PictureCallback() {
 
 		@Override
@@ -187,46 +201,101 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 			startActivityForResult(i, CROP_FROM_CAMERA);
 		}
 	};
-	
+
 	@Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        if (resultCode != RESULT_OK) return;
- 
-        switch (requestCode) {
- 
-        	case CROP_FROM_CAMERA:
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// if (resultCode != RESULT_OK) return;
+
+		switch (requestCode) {
+
+		case CROP_FROM_CAMERA:
 			try {
 				send_to_server();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-        		/* Crop image is at /sdcard/Android/androAR/photoCropped.jpg. */
-        		File f = new File(pictureDir.getPath() + "/photoCropped.jpg");
-        		if (f.exists()) {
-        			Toast.makeText(this, "Poza a fost croppuita", Toast.LENGTH_LONG);
-        			f.delete();
-        		}
-        }
+			/* Crop image is at /sdcard/Android/androAR/photoCropped.jpg. */
+			File f = new File(pictureDir.getPath() + "/photoCropped.jpg");
+			if (f.exists()) {
+				Toast.makeText(this, "Poza a fost croppuita", Toast.LENGTH_LONG);
+				f.delete();
+			}
+		}
 	}
-	
+
 	public void send_to_server() throws IOException {
 		File in_file = new File(pictureDir.getPath() + "/photo.jpg");
-        FileInputStream fin = new FileInputStream(in_file);
-        byte image[] = new byte[(int) in_file.length()];
-        fin.read(image);
-        
+		FileInputStream fin = new FileInputStream(in_file);
+		byte image[] = new byte[(int) in_file.length()];
+		fin.read(image);
+
 		in_file = new File(pictureDir.getPath() + "/photoCropped.jpg");
-        fin = new FileInputStream(in_file);
-        byte imageCropped[] = new byte[(int) in_file.length()];
-        fin.read(imageCropped);
+		fin = new FileInputStream(in_file);
+		byte imageCropped[] = new byte[(int) in_file.length()];
+		fin.read(imageCropped);
+
+		String random_hash = Double.toString(Math.random());
+
+		// Create image
+		Image.Builder image_builder = Image.newBuilder();
+		image_builder.setImage(ImageContents.newBuilder()
+				.setImageHash(random_hash)
+				.setImageContents(ByteString.copyFrom(image))
+				.build());
+		// Localization features
+		GPSPosition gps_position = GPSPosition.newBuilder().setLatitude(60)
+				.setLongitude(60).build();
+		image_builder.setLocalizationFeatures(
+				LocalizationFeatures.newBuilder().setGpsPosition(gps_position).build());
+		// Detected objects
+		// We only have 1 detected object
+		DetectedObject detected_object = DetectedObject.newBuilder()
+				.setObjectType(DetectedObjectType.BUILDING)
+				.setBoundingBox(ObjectBoundingBox.newBuilder().setTop(0).setBottom(0).setLeft(0)
+						.setRight(0).build())
+				.setId("NAME")
+				.setCroppedImage(ByteString.copyFrom(imageCropped))
+				.build();
+		image_builder.addDetectedObjects(detected_object);
+		
+		// Mock authentication info
+        AuthentificationInfo auth_info = AuthentificationInfo.newBuilder()
+        		.setPhoneId("PHONE_ID")
+        		.setHash("CURRENT_HASH_OF_PHONE_ID")
+        		.build();
+        // Client message
+        ClientMessage client_message;
+        client_message = ClientMessage.newBuilder()
+        		.setAuthentificationInfo(auth_info)
+        		.setMessageType(ClientMessageType.IMAGES_TO_STORE)
+                .addImagesToStore(image_builder.build())
+                .build();
+        
+		Socket socket;
+		DataOutputStream out;
+		DataInputStream in;
+
+		try {
+			socket = new Socket("192.168.1.73", 6666);
+			out = new DataOutputStream(socket.getOutputStream());
+			in = new DataInputStream(socket.getInputStream());
+
+			// Read a message
+			Communication.readMessage(in);
+			// Assume that the message was a HELLO. Let's now send an image to
+			// see if this works.
+			Communication.sendMessage(client_message, out);
+			socket.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	class SavePhotoTask extends AsyncTask<byte[], String, String> {
 		@Override
 		protected String doInBackground(byte[]... jpeg) {
 			pictureDir = new File(Environment.getExternalStorageDirectory()
-					.getPath()
-					+ "/Android/data/com.androar");
+					.getPath() + "/Android/data/com.androar");
 			if (!pictureDir.isDirectory())
 				pictureDir.mkdirs();
 			File photo = new File(pictureDir, "photo.jpg");
