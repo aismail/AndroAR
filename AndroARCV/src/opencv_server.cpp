@@ -54,7 +54,9 @@ int main(int argc, char** argv) {
 			// Process the possible_present_objects repeated field and return a new image with
 			// the newly set detected objects, if any.
 			Image* image = request.mutable_image_contents();
+			cout << "Processing query for image " << image->image().image_hash() << endl;
 			classifier.processImage(image);
+			cout << "Finished processing query for image " << endl;
 			// Send the new image back to the client
 			Communication::sendMessage(*java_client, *image);
 		}
