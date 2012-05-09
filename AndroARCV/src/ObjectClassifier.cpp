@@ -201,6 +201,55 @@ namespace {
 			box->set_right(maxy);
 	}
 
+	vector<DMatch> computeGoodMatchesBasedOnGeometry(const vector<DMatch> matches,
+			const vector<KeyPoint>& query_keypoints,
+			const vector<KeyPoint>& original_keypoints) {
+		vector<DMatch> ret;
+		vector<pair<double, int> > slopes;
+		int num_inf = 0, num = 0;
+		double mean = 0, total_without_inf = 0;
+		for (unsigned int i = 0; i < matches.size(); ++i) {
+			unsigned int query_idx = matches[i].queryIdx;
+			unsigned int train_idx = matches[i].trainIdx;
+			if (query_idx < 0 || query_idx >= query_keypoints.size() ||
+					train_idx < 0 || train_idx >= original_keypoints.size()) {
+				continue;
+			}
+			Point2f query_point = query_keypoints[query_idx].pt;
+			Point2f original_point = original_keypoints[train_idx].pt;
+			if (query_point == original_point) {
+				ret.push_back(matches[i]);
+				continue;
+			}
+			double slope;
+			if (query_point.x == original_point.x) {
+				slope = (query_point.y < original_point.y) ? INT_MAX : INT_MIN;
+				num_inf += (query_point.y < original_point.y) ? 1 : -1;
+			} else {
+				slope = 1. * (query_point.y - original_point.y) / (query_point.x - original_point.x);
+				total_without_inf += slope;
+			}
+			slopes.push_back(make_pair(slope, i));
+			++num;
+		}
+		if (num == 0) {
+			return ret;
+		}
+		// Compute mean
+		mean = 1. * (total_without_inf / num) + 1. * num_inf / num * INT_MAX;
+		// Compute STD
+		double std = 0;
+		for (unsigned int i = 0; i < slopes.size(); ++i) {
+			std += (mean - slopes[i].first) * (mean - slopes[i].first);
+		}
+		std = sqrt(std / num);
+		for (unsigned int i = 0; i < slopes.size(); ++i) {
+			if (slopes[i].first >= mean - std && slopes[i].first <= mean + std) {
+				ret.push_back(matches[slopes[i].second]);
+			}
+		}
+		return ret;
+	}
 } // anonymous namespace
 
 
@@ -225,6 +274,8 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 			continue;
 		}
 		double min_threshold, max_threshold;
+		//matches = computeGoodMatchesBasedOnGeometry(matches, current_features.key_points,
+		//		features.key_points);
 		computeMinAndMaxThreshold(matches, &min_threshold, &max_threshold);
 
 		// Find the number of good matches
@@ -245,12 +296,9 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 		match_percentages.push_back(1. * num_good_matches / matches.size());
 	}
 	sort(match_percentages.begin(), match_percentages.end(), std::greater<double>());
-
 	certainty = match_percentages[0];
 
 	findBoundingBox(current_features.key_points, best_matches, bounding_box);
-
-
 	return certainty;
 }
 
