@@ -29,12 +29,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
-import android.view.View.OnTouchListener;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.androar.comm.Communication;
@@ -48,25 +44,36 @@ import com.androar.comm.ImageFeaturesProtos.ImageContents;
 import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
 import com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 
+	// Surface View
 	private SurfaceView surfaceView;
 	private SurfaceHolder holder;
+	// Camera Stats
 	private Camera camera;
 	private boolean inPreview = false;
-	private ArrayList<Rect> rectangles;
+	// Bounding boxes
 	private RenderRectanglesView rectanglesView;
-	private LinearLayout layout;
+	// Storage
 	private File pictureDir;
+	// Localization Features
 	private float latitude = 0, longitude = 0, azimuth = 0;
-	
 	private LocationListener locationListener;
 	private LocationManager locationManager;
 	private SensorManager sensorManager;
 	private SensorEventListener sensorListener;
-
+	// Communication
+	private Socket socket;
+	private DataInputStream in;
+	private DataOutputStream out;
+	// Queries
+	private Camera.PictureCallback query_picture_callback = new QueryPictureCallback();
+	
+	// Constants
 	private static final int CROP_FROM_CAMERA = 2;
+	private static final String HOSTNAME = "192.168.1.107";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,42 +82,86 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		init();
 	}
 
-	// public void addMockRect() {
-	// rectangles.add(new Rect(30, 10, 90, 90));
-	// }
-
+	private Image.Builder buildImageWithoutDetectedObjects(byte[] image_contents) {
+		String random_hash = Double.toString(Math.random());
+		// Create image
+		Image.Builder image_builder = Image.newBuilder();
+		image_builder.setImage(ImageContents.newBuilder()
+				.setImageHash(random_hash)
+				.setImageContents(ByteString.copyFrom(image_contents))
+				.build());
+		// Localization features
+		GPSPosition gps_position = GPSPosition.newBuilder().setLatitude(latitude)
+				.setLongitude(longitude).build();
+		CompassPosition compass_position = CompassPosition.newBuilder().setAngle(azimuth).build();
+		image_builder.setLocalizationFeatures(
+				LocalizationFeatures.newBuilder()
+				.setGpsPosition(gps_position)
+				.setCompassPosition(compass_position)
+				.build());
+		return image_builder;
+	}
+	
+	private void sendQueryToServer(byte[] image_contents) {
+        // Client message
+        ClientMessage client_message;
+        client_message = ClientMessage.newBuilder()
+        		.setMessageType(ClientMessageType.IMAGE_TO_PROCESS)
+                .setImageToProcess(buildImageWithoutDetectedObjects(image_contents).build())
+                .build();
+        Communication.sendMessage(client_message, out);
+	}
+	
 	public void init() {
 		// We register the activity to handle the callbacks of the SurfaceView
 		surfaceView = (SurfaceView) findViewById(R.id.camera_surface);
 		holder = surfaceView.getHolder();
 		holder.addCallback(this);
 		holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-		rectangles = new ArrayList<Rect>();
-		// addMockRect();
 		rectanglesView = (RenderRectanglesView) findViewById(R.id.render_rectangles);
 
-		// Add touch event to layout
-		layout = (LinearLayout) findViewById(R.id.top_panel);
-		layout.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				int x = (int) event.getX();
-				int y = (int) event.getY();
-				rectangles.clear();
-				rectangles.add(new Rect(x, y, x + 20, y + 40));
-				rectanglesView.invalidate();
-				return true;
-			}
-		});
-		
 		// Start listening for localization features
 		getOrientation();
+		
+		initSocket();
 	}
 
+	private void initSocket() {
+		// Init the socket for queries and stores.
+		try {
+			socket = new Socket(HOSTNAME, 6666);
+			out = new DataOutputStream(socket.getOutputStream());
+			in = new DataInputStream(socket.getInputStream());
+
+			// Read a message
+			Communication.readMessage(in);
+			// Assume that the message was a HELLO.
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void closeSocket() {
+		if (socket == null) {
+			return;
+		}
+		try {
+			socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		socket = null;
+		in = null;
+		out = null;
+	}
+	
 	@Override
 	public void onResume() {
 		super.onResume();
 		camera = Camera.open();
+		if (socket == null) {
+			initSocket();
+		}
 	}
 
 	@Override
@@ -121,9 +172,13 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		camera.release();
 		camera = null;
 		inPreview = false;
+		closeSocket();
 		super.onPause();
 	}
-
+	
+	/*
+	 * @returns null iff there is no preview size for this screen size.
+	 */
 	private Camera.Size getBestPreviewSize(int width, int height,
 			Camera.Parameters parameters) {
 		Camera.Size result = null;
@@ -156,29 +211,26 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		}
 		rectanglesView.setWillNotDraw(false);
 		rectanglesView.init();
-		rectanglesView.setRects(rectangles);
+		rectanglesView.setRects(new ArrayList<Rect>());
 		rectanglesView.invalidate();
+		camera.startPreview();
+		inPreview = true;
 	}
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
 		System.out.println("changed");
-		try {
-			rectanglesView.setPaintColor(Color.CYAN);
-			rectangles.add(new Rect(50, 30, 70, 70));
-			rectanglesView.setRects(rectangles);
-			rectanglesView.invalidate();
-		} catch (Throwable t) {
-		}
+		rectanglesView.setPaintColor(Color.CYAN);
 		Camera.Parameters params = camera.getParameters();
 		Camera.Size size = getBestPreviewSize(width, height, params);
 
 		if (size != null) {
 			params.setPreviewSize(width, height);
 			camera.setParameters(params);
-			camera.startPreview();
-			inPreview = true;
 		}
+		// Start making queries
+		camera.takePicture(null, null, query_picture_callback);
+
 	}
 
 	public void surfaceDestroyed(SurfaceHolder holder) {
@@ -198,8 +250,6 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 	}
 	
 	void getOrientation() {
-		String position, orientation;
-
 		// Acquire a reference to the system Location Manager
 		locationManager = (LocationManager) this
 				.getSystemService(Context.LOCATION_SERVICE);
@@ -281,7 +331,7 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 
 		case CROP_FROM_CAMERA:
 			try {
-				send_to_server();
+				sendStoreRequestToServer();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -294,7 +344,7 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		}
 	}
 
-	public void send_to_server() throws IOException {
+	public void sendStoreRequestToServer() throws IOException {
 		File in_file = new File(pictureDir.getPath() + "/photo.jpg");
 		FileInputStream fin = new FileInputStream(in_file);
 		byte image[] = new byte[(int) in_file.length()];
@@ -305,23 +355,8 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		byte imageCropped[] = new byte[(int) in_file.length()];
 		fin.read(imageCropped);
 
-		String random_hash = Double.toString(Math.random());
-
 		// Create image
-		Image.Builder image_builder = Image.newBuilder();
-		image_builder.setImage(ImageContents.newBuilder()
-				.setImageHash(random_hash)
-				.setImageContents(ByteString.copyFrom(image))
-				.build());
-		// Localization features
-		GPSPosition gps_position = GPSPosition.newBuilder().setLatitude(latitude)
-				.setLongitude(longitude).build();
-		CompassPosition compass_position = CompassPosition.newBuilder().setAngle(azimuth).build();
-		image_builder.setLocalizationFeatures(
-				LocalizationFeatures.newBuilder()
-				.setGpsPosition(gps_position)
-				.setCompassPosition(compass_position)
-				.build());
+		Image.Builder image_builder = buildImageWithoutDetectedObjects(image);
 		// Detected objects
 		// We only have 1 detected object
 		DetectedObject detected_object = DetectedObject.newBuilder()
@@ -338,27 +373,52 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
         		.setMessageType(ClientMessageType.IMAGES_TO_STORE)
                 .addImagesToStore(image_builder.build())
                 .build();
-        
-		Socket socket;
-		DataOutputStream out;
-		DataInputStream in;
-
-		try {
-			socket = new Socket("192.168.1.73", 6666);
-			out = new DataOutputStream(socket.getOutputStream());
-			in = new DataInputStream(socket.getInputStream());
-
-			// Read a message
-			Communication.readMessage(in);
-			// Assume that the message was a HELLO. Let's now send an image to
-			// see if this works.
-			Communication.sendMessage(client_message, out);
-			socket.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
+        Communication.sendMessage(client_message, out);
 	}
 
+	/*
+	 * Class to enable queries
+	 */
+	class QueryPictureCallback implements Camera.PictureCallback {
+		@Override
+		public void onPictureTaken(byte[] data, Camera camera) {
+			long startTime = System.currentTimeMillis();
+			if (socket != null && in != null && out != null) {
+				// Send data to server
+				sendQueryToServer(data);
+				// Wait for reply
+				Image annotated_image;
+				try {
+					annotated_image = Image.parseFrom(Communication.readMessage(in));
+					ArrayList<Rect> new_rectangles = new ArrayList<Rect>();
+					for (DetectedObject detected_object : annotated_image.getDetectedObjectsList()) {
+						ObjectBoundingBox box = detected_object.getBoundingBox();
+						new_rectangles.add(new Rect(
+								box.getLeft(),
+								box.getTop(),
+								box.getRight(),
+								box.getBottom()));
+					}
+					int corner = (int) Math.random() * 50;
+					new_rectangles.add(new Rect(corner, corner, corner + 50, corner + 50));
+					rectanglesView.setRects(new_rectangles);
+					rectanglesView.invalidate();
+				} catch (InvalidProtocolBufferException e) {
+				}
+			}
+			long endTime = System.currentTimeMillis();
+			long rtt = endTime - startTime;
+			Log.d("RoundTripTime", "" + rtt);
+			camera.startPreview();
+			camera.takePicture(null, null, query_picture_callback);
+		}
+		
+	};
+	
+	/*
+	 * Class used to asynchronously save a photo to disk
+	 */
 	class SavePhotoTask extends AsyncTask<byte[], String, String> {
 		@Override
 		protected String doInBackground(byte[]... jpeg) {
