@@ -102,6 +102,9 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 				return true;
 			}
 		});
+		
+		// Start listening for localization features
+		getOrientation();
 	}
 
 	@Override
