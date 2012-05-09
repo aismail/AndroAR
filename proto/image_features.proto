@@ -42,7 +42,7 @@ message DetectedObject {
 		LAST_ELEMENT = 3;
 	}
 	
-	required DetectedObjectType object_type = 1;
+	optional DetectedObjectType object_type = 1;
 	required ObjectBoundingBox bounding_box = 2;
 	optional ObjectMetadata metadata = 3;
 	required string id = 4;

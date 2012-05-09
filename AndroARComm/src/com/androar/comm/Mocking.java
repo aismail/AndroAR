@@ -10,7 +10,6 @@ import java.util.List;
 import com.androar.comm.CommunicationProtos.ClientMessage;
 import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
 import com.androar.comm.ImageFeaturesProtos.DetectedObject;
-import com.androar.comm.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
 import com.androar.comm.ImageFeaturesProtos.GPSPosition;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.ImageContents;
@@ -76,7 +75,6 @@ public class Mocking {
 			// Detected objects
 			for (String object_id : object_ids) {
 				DetectedObject obj = DetectedObject.newBuilder()
-						.setObjectType(DetectedObjectType.BUILDING)
 						.setId(object_id)
 						.setBoundingBox(
 								ObjectBoundingBox.newBuilder().setTop(10).setBottom(100).setLeft(20)

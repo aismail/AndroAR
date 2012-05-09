@@ -33,7 +33,6 @@ import com.androar.comm.Communication;
 import com.androar.comm.CommunicationProtos.ClientMessage;
 import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
 import com.androar.comm.ImageFeaturesProtos.DetectedObject;
-import com.androar.comm.ImageFeaturesProtos.DetectedObject.DetectedObjectType;
 import com.androar.comm.ImageFeaturesProtos.GPSPosition;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.ImageContents;
@@ -249,7 +248,6 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		// Detected objects
 		// We only have 1 detected object
 		DetectedObject detected_object = DetectedObject.newBuilder()
-				.setObjectType(DetectedObjectType.BUILDING)
 				.setBoundingBox(ObjectBoundingBox.newBuilder().setTop(0).setBottom(0).setLeft(0)
 						.setRight(0).build())
 				.setId("NAME")
