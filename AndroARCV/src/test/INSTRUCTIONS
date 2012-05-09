@@ -1,0 +1,17 @@
+# The test file is formatted as follows:
+# N (number of training images) M (number of tests)
+# big_image1 K1 obj1_name obj1_cropped_image ... objK1_name objK1_cropped_image
+# ...
+# big_imageN KN obj1_name obj1_cropped_image ... objKN_name objKN_cropped_image
+# test_image1 K1 obj1_name ... objK1_name
+# ...
+# test_imageM KN obj1_name ... objKN_name
+# EXAMPLE:
+3 3
+universitate.jpg 2 tnb tnb.jpg intercontinental intercontinental.jpg
+universitate2.jpg 1 intercontinental intercontinental2.jpg
+universitate3.jpg 1 tnb tnb2.jpg
+test_tnb1.jpg 1 tnb
+test_tnb2.jpg 1 tnb
+test_intercontinental.jpg 1 intercontinental
+

@@ -1,0 +1,8 @@
+3 3
+universitate.jpg 2 tnb tnb.jpg intercontinental intercontinental.jpg
+universitate3.jpg 1 tnb tnb2.jpg
+universitate2.jpg 1 intercontinental intercontinental2.jpg
+test_intercontinental.jpg 1 intercontinental
+tnb.jpg 1 tnb
+intercontinental.jpg 1 intercontinental
+
