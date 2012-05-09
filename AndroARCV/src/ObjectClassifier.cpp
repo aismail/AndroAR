@@ -127,13 +127,88 @@ void ObjectClassifier::parseToOpenCVFeatures(const Features& from, OpenCVFeature
 	return;
 }
 
+namespace {
+	void computeMinAndMaxThreshold(vector<DMatch>& matches, double* min_threshold,
+			double* max_threshold) {
+		double min_dist = 10000, max_dist = 0, mean_dist = 0, std = 0, dist;
+		int total = 0;
+		// MIN, MAX, MEAN
+		for (unsigned int i = 0; i < matches.size(); ++i) {
+			dist = matches[i].distance;
+			if (isnan(dist) || isnan(-dist)) {
+				--total;
+				continue;
+			}
+			if (dist < min_dist) {
+				min_dist = dist;
+			}
+			if (dist > max_dist) {
+				max_dist = dist;
+			}
+			mean_dist += dist;
+			++total;
+		}
+		if (total != 0) {
+			mean_dist /= (total);
+		} else {
+			mean_dist = 0;
+		}
+		// STANDARD DEVIATION
+		for (unsigned int i = 0; i < matches.size(); ++i) {
+			dist = matches[i].distance;
+			if (isnan(dist) || isnan(-dist)) {
+				continue;
+			}
+			std += (dist - mean_dist) * (dist - mean_dist);
+		}
+		if (total != 0) {
+			std /= total;
+		} else {
+			std = 0;
+		}
+		std = sqrt(std);
+		// MIN AND MAX THRESHOLDS
+		*min_threshold = mean_dist - Constants::FEATURE_VECTORS_THRESHOLD_DISTANCE * std;
+		*max_threshold = mean_dist + Constants::FEATURE_VECTORS_THRESHOLD_DISTANCE * std;
+	}
+
+	void findBoundingBox(const vector<KeyPoint>& key_points,
+			const vector<DMatch>& matches,
+			ObjectBoundingBox* box) {
+		// Find the bounding box by associating this image to the best match
+			int minx = 10000, miny = 10000, maxx = 0, maxy = 0;
+			for (unsigned int i = 0; i < matches.size(); ++i) {
+				// Get the keypoints from the good matches
+				Point2f point = key_points[matches[i].queryIdx].pt;
+				if (minx > point.x) {
+					minx = point.x;
+				}
+				if (miny > point.y) {
+					miny = point.y;
+				}
+				if (maxx < point.x) {
+					maxx = point.x;
+				}
+				if (maxy < point.y) {
+					maxy = point.y;
+				}
+			}
+			// Create the bounding box
+			box->Clear();
+			box->set_bottom(minx);
+			box->set_top(maxx);
+			box->set_left(miny);
+			box->set_right(maxy);
+	}
+
+} // anonymous namespace
+
 
 // This method will classify objects against features and feature vectors that were already
 // extracted beforehand
 double ObjectClassifier::matchObject(const Features& current_features, const PossibleObject& object,
-		ObjectBoundingBox& bounding_box) {
+		ObjectBoundingBox* bounding_box) {
 	// Match the current features against what we got from storage
-	//FlannBasedMatcher matcher;
 	BruteForceMatcher<L2<float> > matcher;
 	vector<DMatch> matches;
 	double certainty = 0;
@@ -146,79 +221,35 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 		// Match feature vectors against what we have
 		matches.clear();
 		matcher.match(current_features.descriptor, features.descriptor, matches);
-		// Compute the min and max distances between key points
-		double min_dist = 10000., max_dist = 0., mean_dist = 0., dist;
-		int total_features = 0;
-		for (unsigned int i = 0; i < matches.size(); ++i) {
-			dist = matches[i].distance;
-			if (isnan(dist) || isnan(-dist)) {
-				--total_features;
-				continue;
-			}
-			if (dist < min_dist) {
-				min_dist = dist;
-			}
-			if (dist > max_dist) {
-				max_dist = dist;
-			}
-			mean_dist += dist;
-			++total_features;
+		if (matches.size() == 0) {
+			continue;
 		}
-		if (total_features != 0) {
-			mean_dist /= (total_features);
-		} else {
-			mean_dist = 0;
-		}
-
-		double good_matches_threshold = min_dist +
-				Constants::FEATURE_VECTORS_THRESHOLD_DISTANCE * (mean_dist - min_dist);
+		double min_threshold, max_threshold;
+		computeMinAndMaxThreshold(matches, &min_threshold, &max_threshold);
 
 		// Find the number of good matches
 		unsigned int num_good_matches = 0;
 		for (unsigned int i = 0; i < matches.size(); ++i) {
-			if (matches[i].distance <= good_matches_threshold) {
+			if ((matches[i].distance >= min_threshold) && (matches[i].distance <= max_threshold)) {
 				++num_good_matches;
 			}
 		}
 		if (num_good_matches > best_matches.size()) {
 			for (unsigned int i = 0; i < matches.size(); ++i) {
-				if (matches[i].distance <= good_matches_threshold) {
+				if ((matches[i].distance >= min_threshold) &&
+						(matches[i].distance <= max_threshold)) {
 					best_matches.push_back(matches[i]);
 				}
 			}
 		}
-		if (matches.size() != 0) {
-			match_percentages.push_back(1. * num_good_matches / matches.size());
-		}
+		match_percentages.push_back(1. * num_good_matches / matches.size());
 	}
 	sort(match_percentages.begin(), match_percentages.end(), std::greater<double>());
 
 	certainty = match_percentages[0];
 
-	// Find the bounding box by associating this image to the best match
-	int minx = 10000, miny = 10000, maxx = 0, maxy = 0;
-	for (unsigned int i = 0; i < best_matches.size(); ++i) {
-		// Get the keypoints from the good matches
-		Point2f point = current_features.key_points[best_matches[i].queryIdx].pt;
-		if (minx > point.x) {
-			minx = point.x;
-		}
-		if (miny > point.y) {
-			miny = point.y;
-		}
-		if (maxx < point.x) {
-			maxx = point.x;
-		}
-		if (maxy < point.y) {
-			maxy = point.y;
-		}
-	}
-	// Create the bounding box
-	bounding_box.Clear();
-	bounding_box.set_bottom(minx);
-	bounding_box.set_top(maxx);
-	bounding_box.set_left(miny);
-	bounding_box.set_right(maxy);
+	findBoundingBox(current_features.key_points, best_matches, bounding_box);
+
 
 	return certainty;
 }
@@ -242,7 +273,7 @@ void ObjectClassifier::processImage(Image* image) {
 	for (int i = 0; i < image->possible_present_objects_size(); ++i) {
 		const PossibleObject& possible_object = image->possible_present_objects(i);
 		ObjectBoundingBox box;
-		double confidence = matchObject(current_features, possible_object, box);
+		double confidence = matchObject(current_features, possible_object, &box);
 		if (confidence >= Constants::CONFIDENCE_THRESHOLD) {
 			DetectedObject detected_object;
 			detected_object.set_object_type(DetectedObject::BUILDING);
