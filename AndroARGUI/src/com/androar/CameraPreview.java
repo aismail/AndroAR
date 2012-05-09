@@ -10,10 +10,18 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -32,6 +40,7 @@ import android.widget.Toast;
 import com.androar.comm.Communication;
 import com.androar.comm.CommunicationProtos.ClientMessage;
 import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
+import com.androar.comm.ImageFeaturesProtos.CompassPosition;
 import com.androar.comm.ImageFeaturesProtos.DetectedObject;
 import com.androar.comm.ImageFeaturesProtos.GPSPosition;
 import com.androar.comm.ImageFeaturesProtos.Image;
@@ -50,6 +59,12 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 	private RenderRectanglesView rectanglesView;
 	private LinearLayout layout;
 	private File pictureDir;
+	private float latitude = 0, longitude = 0, azimuth = 0;
+	
+	private LocationListener locationListener;
+	private LocationManager locationManager;
+	private SensorManager sensorManager;
+	private SensorEventListener sensorListener;
 
 	private static final int CROP_FROM_CAMERA = 2;
 
@@ -164,6 +179,11 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 	}
 
 	public void surfaceDestroyed(SurfaceHolder holder) {
+		try {
+			locationManager.removeUpdates(locationListener);
+			sensorManager.unregisterListener(sensorListener);
+		} catch (IllegalArgumentException e) {
+		}
 	}
 
 	/* Menu inflate. */
@@ -172,6 +192,56 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.preview, menu);
 		return true;
+	}
+	
+	void getOrientation() {
+		String position, orientation;
+
+		// Acquire a reference to the system Location Manager
+		locationManager = (LocationManager) this
+				.getSystemService(Context.LOCATION_SERVICE);
+
+		// Define a listener that responds to location updates
+		locationListener = new LocationListener() {
+			public void onLocationChanged(Location location) {
+				latitude = (float) location.getLatitude();
+				longitude = (float) location.getLongitude();
+			}
+
+			public void onStatusChanged(String provider, int status,
+					Bundle extras) {
+			}
+
+			public void onProviderEnabled(String provider) {
+			}
+
+			public void onProviderDisabled(String provider) {
+			}
+		};
+
+		// Register the listener with the Location Manager to receive location
+		// updates
+
+		locationManager.requestLocationUpdates(
+				LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
+				0, locationListener);
+
+		sensorListener = new SensorEventListener() {
+
+			@Override
+			public void onSensorChanged(SensorEvent event) {
+				azimuth = event.values[0];
+			}
+
+			@Override
+			public void onAccuracyChanged(Sensor sensor, int accuracy) {
+			}
+		};
+		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+		sensorManager.registerListener(sensorListener, sensorManager
+				.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+				SensorManager.SENSOR_DELAY_GAME);
 	}
 
 	/* Add action when menu buttons pressed. */
@@ -241,10 +311,14 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 				.setImageContents(ByteString.copyFrom(image))
 				.build());
 		// Localization features
-		GPSPosition gps_position = GPSPosition.newBuilder().setLatitude(60)
-				.setLongitude(60).build();
+		GPSPosition gps_position = GPSPosition.newBuilder().setLatitude(latitude)
+				.setLongitude(longitude).build();
+		CompassPosition compass_position = CompassPosition.newBuilder().setAngle(azimuth).build();
 		image_builder.setLocalizationFeatures(
-				LocalizationFeatures.newBuilder().setGpsPosition(gps_position).build());
+				LocalizationFeatures.newBuilder()
+				.setGpsPosition(gps_position)
+				.setCompassPosition(compass_position)
+				.build());
 		// Detected objects
 		// We only have 1 detected object
 		DetectedObject detected_object = DetectedObject.newBuilder()
