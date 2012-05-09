@@ -16,4 +16,5 @@
     <string name="add_data">Add data</string>
     <string name="camera_preview">Camera Preview</string>
     <string name="crop_image">Crop Image</string>
+    <string name="capture">Capture</string>
 </resources>

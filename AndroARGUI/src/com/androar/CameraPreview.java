@@ -8,6 +8,9 @@ import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -33,9 +36,9 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		init();
 	}
 
-//	public void addMockRect() {
-//		rectangles.add(new Rect(30, 10, 90, 90));
-//	}
+	// public void addMockRect() {
+	// rectangles.add(new Rect(30, 10, 90, 90));
+	// }
 
 	public void init() {
 		// We register the activity to handle the callbacks of the SurfaceView
@@ -44,7 +47,7 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		holder.addCallback(this);
 		holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 		rectangles = new ArrayList<Rect>();
-//		addMockRect();
+		// addMockRect();
 		rectanglesView = (RenderRectanglesView) findViewById(R.id.render_rectangles);
 
 		// Add touch event to layout
@@ -137,5 +140,23 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 	}
 
 	public void surfaceDestroyed(SurfaceHolder holder) {
+	}
+
+	/* Menu inflate. */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.preview, menu);
+		return true;
+	}
+
+	/* Add action when menu buttons pressed. */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menuCapture:
+
+		}
+		return true;
 	}
 }
