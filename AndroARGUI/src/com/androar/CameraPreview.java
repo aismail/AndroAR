@@ -30,7 +30,6 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.androar.comm.Communication;
-import com.androar.comm.CommunicationProtos.AuthentificationInfo;
 import com.androar.comm.CommunicationProtos.ClientMessage;
 import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
 import com.androar.comm.ImageFeaturesProtos.DetectedObject;
@@ -258,15 +257,9 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 				.build();
 		image_builder.addDetectedObjects(detected_object);
 		
-		// Mock authentication info
-        AuthentificationInfo auth_info = AuthentificationInfo.newBuilder()
-        		.setPhoneId("PHONE_ID")
-        		.setHash("CURRENT_HASH_OF_PHONE_ID")
-        		.build();
         // Client message
         ClientMessage client_message;
         client_message = ClientMessage.newBuilder()
-        		.setAuthentificationInfo(auth_info)
         		.setMessageType(ClientMessageType.IMAGES_TO_STORE)
                 .addImagesToStore(image_builder.build())
                 .build();

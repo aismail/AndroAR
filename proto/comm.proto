@@ -8,7 +8,7 @@ option java_outer_classname = "CommunicationProtos";
 // CLIENT
 
 // Next id = 3
-message AuthentificationInfo {
+message AuthenticationInfo {
 	required string phone_id = 1;
 	required string hash = 2;
 }
@@ -24,7 +24,7 @@ message ClientMessage {
 	
 	// Message header
 	// Authentification information
-	required AuthentificationInfo authentification_info = 1;
+	optional AuthenticationInfo authentication_info = 1;
 	// Message type: see all message types defined in the enum above
 	required ClientMessageType message_type = 2;
 	

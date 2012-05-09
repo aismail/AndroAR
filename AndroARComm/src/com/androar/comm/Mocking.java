@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.androar.comm.CommunicationProtos.AuthentificationInfo;
 import com.androar.comm.CommunicationProtos.ClientMessage;
 import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
 import com.androar.comm.ImageFeaturesProtos.DetectedObject;
@@ -102,23 +101,15 @@ public class Mocking {
 	public static ClientMessage createMockClientMessage(byte[] content, ClientMessageType type) {
 		Image image = createMockImage(content, type);
         
-        // Mock authentication info
-        AuthentificationInfo auth_info = AuthentificationInfo.newBuilder()
-        		.setPhoneId("PHONE_ID")
-        		.setHash("CURRENT_HASH_OF_PHONE_ID")
-        		.build();
-        
         // Client message
         ClientMessage client_message;
         if (type == ClientMessageType.IMAGE_TO_PROCESS) {
         	client_message = ClientMessage.newBuilder()
-                	.setAuthentificationInfo(auth_info)
                 	.setMessageType(type)
                 	.setImageToProcess(image)
                 	.build();
         } else {
         	client_message = ClientMessage.newBuilder()
-                	.setAuthentificationInfo(auth_info)
                 	.setMessageType(type)
                 	.addImagesToStore(image)
                 	.build();
