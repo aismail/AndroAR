@@ -15,5 +15,5 @@
     <string name="navigation">Navigate</string>
     <string name="add_data">Add data</string>
     <string name="camera_preview">Camera Preview</string>
-
+    <string name="crop_image">Crop Image</string>
 </resources>

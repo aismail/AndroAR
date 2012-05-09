@@ -32,6 +32,7 @@ public class NavigationActivity extends Activity implements
 		SurfaceHolder.Callback, OnClickListener {
 	SurfaceView mSurfaceView;
 	SurfaceHolder mSurfaceHolder;
+	File pictureDir;
 
 	Bitmap mCameraCaptureBmp;
 	Camera mCamera;
@@ -67,6 +68,9 @@ public class NavigationActivity extends Activity implements
 		metadataOrientation = (TextView) findViewById(R.id.tvMetadataOrientation);
 		// get orientation details
 		getOrientation();
+		pictureDir = new File(Environment.getExternalStorageDirectory()
+				.getPath()
+				+ "/Android/data/com.androar");
 	}
 
 	@Override
@@ -191,7 +195,7 @@ public class NavigationActivity extends Activity implements
 					MoveSelectionActivity.class);
 			Bundle bundle = new Bundle();
 			bundle.putByteArray("bitmap", data);
-		//	i.putExtra("data", data);
+			// i.putExtra("data", data);
 			i.putExtra("data", bundle);
 
 			camera.stopPreview();
@@ -203,8 +207,9 @@ public class NavigationActivity extends Activity implements
 	class SavePhotoTask extends AsyncTask<byte[], String, String> {
 		@Override
 		protected String doInBackground(byte[]... jpeg) {
-			File photo = new File(Environment.getExternalStorageDirectory(),
-					"photo.jpg");
+			if (!pictureDir.isDirectory())
+				pictureDir.mkdirs();
+			File photo = new File(pictureDir, "photo.jpg");
 			if (photo.exists())
 				photo.delete();
 
@@ -222,7 +227,7 @@ public class NavigationActivity extends Activity implements
 
 	void getOrientation() {
 		String position, orientation;
-		
+
 		// Acquire a reference to the system Location Manager
 		locationManager = (LocationManager) this
 				.getSystemService(Context.LOCATION_SERVICE);
@@ -265,7 +270,8 @@ public class NavigationActivity extends Activity implements
 			}
 
 			@Override
-			public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+			public void onAccuracyChanged(Sensor sensor, int accuracy) {
+			}
 		};
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		sensorManager.registerListener(sensorListener, sensorManager
@@ -274,8 +280,8 @@ public class NavigationActivity extends Activity implements
 	}
 
 	void makeUseOfNewLocation(Location location) {
-		String pos = "latitude: " + location.getLatitude()
-				+ ", longitude: " + location.getLongitude() + ", height: "
+		String pos = "latitude: " + location.getLatitude() + ", longitude: "
+				+ location.getLongitude() + ", height: "
 				+ location.getAltitude();
 		metadataPosition.setText(pos);
 	}
