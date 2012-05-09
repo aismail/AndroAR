@@ -1,7 +1,10 @@
 package com.androar;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -187,18 +190,35 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 	
 	@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode != RESULT_OK) return;
+//        if (resultCode != RESULT_OK) return;
  
         switch (requestCode) {
  
         	case CROP_FROM_CAMERA:
+			try {
+				send_to_server();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
         		/* Crop image is at /sdcard/Android/androAR/photoCropped.jpg. */
-        		File f = new File(pictureDir.getPath() + "/pictureCropped.jpg");
+        		File f = new File(pictureDir.getPath() + "/photoCropped.jpg");
         		if (f.exists()) {
         			Toast.makeText(this, "Poza a fost croppuita", Toast.LENGTH_LONG);
         			f.delete();
         		}
         }
+	}
+	
+	public void send_to_server() throws IOException {
+		File in_file = new File(pictureDir.getPath() + "/photo.jpg");
+        FileInputStream fin = new FileInputStream(in_file);
+        byte image[] = new byte[(int) in_file.length()];
+        fin.read(image);
+        
+		in_file = new File(pictureDir.getPath() + "/photoCropped.jpg");
+        fin = new FileInputStream(in_file);
+        byte imageCropped[] = new byte[(int) in_file.length()];
+        fin.read(imageCropped);
 	}
 
 	class SavePhotoTask extends AsyncTask<byte[], String, String> {
