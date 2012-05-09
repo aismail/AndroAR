@@ -1,12 +1,17 @@
 package com.androar;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,6 +33,10 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 	private ArrayList<Rect> rectangles;
 	private RenderRectanglesView rectanglesView;
 	private LinearLayout layout;
+	private File pictureDir;
+
+	private static final int CROP_FROM_CAMERA = 2;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -138,7 +147,7 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 			inPreview = true;
 		}
 	}
-
+	
 	public void surfaceDestroyed(SurfaceHolder holder) {
 	}
 
@@ -155,8 +164,64 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menuCapture:
-
+			if (inPreview) {
+				camera.takePicture(null, null, mPictureCallback);
+				inPreview = false;
+			}
 		}
 		return true;
+	}
+	
+	Camera.PictureCallback mPictureCallback = new Camera.PictureCallback() {
+
+		@Override
+		public void onPictureTaken(byte[] data, Camera camera) {
+			new SavePhotoTask().execute(data);
+
+			Intent i = new Intent(CameraPreview.this, CropOptionActivity.class);
+			camera.stopPreview();
+			inPreview = false;
+			startActivityForResult(i, CROP_FROM_CAMERA);
+		}
+	};
+	
+	@Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != RESULT_OK) return;
+ 
+        switch (requestCode) {
+ 
+        	case CROP_FROM_CAMERA:
+        		/* Crop image is at /sdcard/Android/androAR/photoCropped.jpg. */
+        		File f = new File(pictureDir.getPath() + "/pictureCropped.jpg");
+        		if (f.exists()) {
+        			Toast.makeText(this, "Poza a fost croppuita", Toast.LENGTH_LONG);
+        			f.delete();
+        		}
+        }
+	}
+
+	class SavePhotoTask extends AsyncTask<byte[], String, String> {
+		@Override
+		protected String doInBackground(byte[]... jpeg) {
+			pictureDir = new File(Environment.getExternalStorageDirectory()
+					.getPath()
+					+ "/Android/data/com.androar");
+			if (!pictureDir.isDirectory())
+				pictureDir.mkdirs();
+			File photo = new File(pictureDir, "photo.jpg");
+			if (photo.exists())
+				photo.delete();
+
+			try {
+				FileOutputStream fos = new FileOutputStream(photo.getPath());
+
+				fos.write(jpeg[0]);
+				fos.close();
+			} catch (java.io.IOException e) {
+				e.printStackTrace();
+			}
+			return (null);
+		}
 	}
 }

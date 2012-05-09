@@ -1,6 +1,10 @@
 package com.androar;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +30,7 @@ public class CropOptionActivity extends Activity {
 	private ImageView mImageView;
 	private Bitmap bitmap;
 	private File picturePath;
+	private File pictureCroppedPath;
 
 	private static final int CROP_FROM_CAMERA = 2;
 
@@ -43,24 +48,14 @@ public class CropOptionActivity extends Activity {
 		picturePath = new File(Environment.getExternalStorageDirectory()
 				.getPath()
 				+ "/Android/data/com.androar/photo.jpg");
+		pictureCroppedPath = new File(Environment.getExternalStorageDirectory()
+				.getPath()
+				+ "/Android/data/com.androar/photoCropped.jpg");
 		if (picturePath.isFile())
 			bitmap = BitmapFactory.decodeFile(picturePath.getPath());
 		else
 			bitmap = BitmapFactory.decodeResource(getResources(),
 					R.drawable.street);
-		mImageView.setImageBitmap(bitmap);
-		mImageView.setOnTouchListener(new OnTouchListener() {
-			
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				Bitmap cropBitmap = Bitmap.createBitmap(bitmap, 30, 30, 50, 50);
-				System.out.println("CropOption touched");
-				cropBitmap = BitmapFactory.decodeResource(getResources(),
-						R.drawable.street);
-				mImageView.setImageBitmap(cropBitmap);
-				return false;
-			}
-		});
 	}
 
 	private void doCrop() {
@@ -82,7 +77,6 @@ public class CropOptionActivity extends Activity {
 		} else {
 			mImageCaptureUri = Uri.fromFile(picturePath);
 			intent.setData(mImageCaptureUri);
-
 
 			intent.putExtra("outputX", 200);
 			intent.putExtra("outputY", 200);
@@ -135,7 +129,7 @@ public class CropOptionActivity extends Activity {
 						.setOnCancelListener(new DialogInterface.OnCancelListener() {
 							@Override
 							public void onCancel(DialogInterface dialog) {
-								
+
 								if (mImageCaptureUri != null) {
 									getContentResolver().delete(
 											mImageCaptureUri, null, null);
@@ -150,7 +144,7 @@ public class CropOptionActivity extends Activity {
 			}
 		}
 	}
-	
+
 	@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != RESULT_OK) return;
@@ -163,14 +157,27 @@ public class CropOptionActivity extends Activity {
                 if (extras != null) {
                 	/* Get cropped photo. */
                     Bitmap photo = extras.getParcelable("data");
-                    mImageView.setImageBitmap(photo);
+//                  mImageView.setImageBitmap(photo);
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] byteArray = stream.toByteArray();
+
+        			try {
+        				FileOutputStream fos = new FileOutputStream(pictureCroppedPath);
+
+        				fos.write(byteArray);
+        				fos.close();
+        			} catch (java.io.IOException e) {
+        				e.printStackTrace();
+        			}
                 }
  
-                File f = new File(mImageCaptureUri.getPath());
+//                File f = new File(mImageCaptureUri.getPath());
+// 
+//                if (f.exists()) f.delete();
  
-                if (f.exists()) f.delete();
- 
-                break;
+                finish();
+//        		finishActivity(RESULT_OK);
         }
 	}
 }
