@@ -34,7 +34,11 @@ int main(int argc, char** argv) {
 		string filename = (argc > 2) ?
 				argv[2] :
 				string(Constants::TEST_FOLDER).append("features_test_input.txt");
+		struct timeval start_time, end_time;
+		gettimeofday(&start_time, NULL);
 		run_tests(filename);
+		gettimeofday(&end_time, NULL);
+		cout << "Processing took " << MILLISEC(start_time, end_time) << " millis" << endl;
 		return 0;
 	}
 
