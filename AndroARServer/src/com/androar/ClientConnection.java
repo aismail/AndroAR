@@ -111,10 +111,12 @@ public class ClientConnection implements Runnable {
 					e.printStackTrace();
 				}
 				image_builder.clearPossiblePresentObjects();
+				long query_start = System.currentTimeMillis();
 				Map<String, List<OpenCVFeatures>> objects_in_range =
 						cassandra_connection.getFeaturesForAllObjectsInRange(
 								image_to_process.getLocalizationFeatures(),
 								Constants.DEFAULT_RANGE);
+				Logging.LOG(0, "Query for features took " + (System.currentTimeMillis() - query_start));
 				Set<Entry<String, List<OpenCVFeatures>>> entry_set = objects_in_range.entrySet();
 				for (Entry<String, List<OpenCVFeatures>> entry : entry_set) {
 					String object_id = entry.getKey();
