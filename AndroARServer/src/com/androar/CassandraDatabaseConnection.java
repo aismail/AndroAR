@@ -62,6 +62,10 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	private Keyspace keyspace_operator;
 	private String keyspace_name;
 	
+	// Let's do some caching
+	Map<String, List<OpenCVFeatures>> cached_features_for_all_objects_in_range;
+	LocalizationFeatures cached_position;
+	
 	public CassandraDatabaseConnection(String hostname, int port) {
 		this(hostname, port, Constants.CASSANDRA_KEYSPACE);
 	}
@@ -76,6 +80,8 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 			createSchema(cluster, keyspace_name);
 		}
 		keyspace_operator = HFactory.createKeyspace(keyspace_name, cluster);
+		cached_position = null;
+		cached_features_for_all_objects_in_range = null;
 	}
 
 	public void deleteTables() {
@@ -615,6 +621,20 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	@Override
 	public Map<String, List<OpenCVFeatures>> getFeaturesForAllObjectsInRange(
 			LocalizationFeatures position, double range) {
+		// Check if the location has changed that much, and if it did, then recompute the
+		// features for the new possible objects in range
+		if (cached_position != null && cached_features_for_all_objects_in_range != null) {
+			double threshold = range / 4;
+			float prev_latitude = cached_position.getGpsPosition().getLatitude();
+			float prev_longitude = cached_position.getGpsPosition().getLongitude();
+			float curr_latitude = position.getGpsPosition().getLatitude();
+			float curr_longitude = position.getGpsPosition().getLatitude();
+			if (Math.abs(prev_latitude - curr_latitude) < threshold &&
+					Math.abs(prev_longitude - curr_longitude) < threshold) {
+				return cached_features_for_all_objects_in_range;
+			}
+		}
+		
 		Map<String, List<OpenCVFeatures>> ret = new HashMap<String, List<OpenCVFeatures>>();
 		List<String> row_keys = getRowKeysForImagesInRange(position, range);
 		// Multiget ALL the keys!
@@ -663,6 +683,8 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 				}
 			}
 		}
+		cached_position = position;
+		cached_features_for_all_objects_in_range = ret;
 		return ret;
 	}
 }
