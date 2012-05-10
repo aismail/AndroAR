@@ -37,6 +37,7 @@ Features ObjectClassifier::computeFeatureDescriptor(const string& image_content)
 	// Create a Mat from the image we got and compute the features for that.
 	const char* image_contents = image_content.data();
 	int image_contents_size = image_content.size();
+	cout << "Computing features for an image of size " << image_contents_size << endl;
 	Mat image_mat = imdecode(vector<char>(image_contents, image_contents + image_contents_size), 0);
 
 	FeatureDetector* detector;
@@ -296,7 +297,7 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 		match_percentages.push_back(1. * num_good_matches / matches.size());
 	}
 	sort(match_percentages.begin(), match_percentages.end(), std::greater<double>());
-	certainty = match_percentages[0];
+	certainty = (match_percentages.empty()) ? 0 : match_percentages[0];
 
 	findBoundingBox(current_features.key_points, best_matches, bounding_box);
 	return certainty;
