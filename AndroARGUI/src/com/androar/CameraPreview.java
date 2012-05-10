@@ -1,5 +1,6 @@
 package com.androar;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -12,7 +13,14 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Sensor;
@@ -69,12 +77,76 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 	private DataInputStream in;
 	private DataOutputStream out;
 	// Queries
-	private Camera.PictureCallback query_picture_callback = new QueryPictureCallback();
-	
+	private Camera.PictureCallback query_picture_callback = new Camera.PictureCallback() {
+		@Override
+		public void onPictureTaken(byte[] data, Camera camera) {
+			long startTime = System.currentTimeMillis();
+			if (socket != null && in != null && out != null) {
+				Bitmap color_bm = BitmapFactory.decodeByteArray(data, 0, data.length);
+				Bitmap scaled_bm = Bitmap.createScaledBitmap(color_bm, color_bm.getWidth(),
+						color_bm.getHeight(), false);
+				Bitmap grayscale_bm = Bitmap.createBitmap(scaled_bm.getWidth(),
+						scaled_bm.getHeight(), Bitmap.Config.RGB_565);
+				
+				Canvas c = new Canvas(grayscale_bm);
+				Paint p = new Paint();
+				ColorMatrix cm = new ColorMatrix();
+
+				cm.setSaturation(0);
+				ColorMatrixColorFilter filter = new ColorMatrixColorFilter(cm);
+				p.setColorFilter(filter); 
+				c.drawBitmap(scaled_bm, 0, 0, p);
+				
+				ByteArrayOutputStream internal_output_stream = new ByteArrayOutputStream();
+				grayscale_bm.compress(CompressFormat.JPEG, 50, internal_output_stream);
+				byte[] compressed_data = internal_output_stream.toByteArray();
+				
+				// Send data to server
+				sendQueryToServer(compressed_data);
+				// Wait for reply
+				Image annotated_image;
+				try {
+					annotated_image = Image.parseFrom(Communication.readMessage(in));
+					ArrayList<Rect> new_rectangles = new ArrayList<Rect>();
+					for (DetectedObject detected_object : annotated_image.getDetectedObjectsList()) {
+						ObjectBoundingBox box = detected_object.getBoundingBox();
+						new_rectangles.add(new Rect(
+								box.getLeft(),
+								box.getTop(),
+								box.getRight(),
+								box.getBottom()));
+					}
+					int corner = (int) (Math.random() * 100);
+					new_rectangles.add(new Rect(corner, corner, corner + 50, corner + 50));
+					rectanglesView.setRects(new_rectangles);
+					rectanglesView.invalidate();
+				} catch (InvalidProtocolBufferException e) {
+				}
+			}
+			long endTime = System.currentTimeMillis();
+			long rtt = endTime - startTime;
+			Log.d("RoundTripTime", "" + rtt);
+			camera.startPreview();
+			camera.takePicture(null, null, query_picture_callback);
+		}
+		
+	};
+	private Camera.PictureCallback mPictureCallback = new Camera.PictureCallback() {
+
+		@Override
+		public void onPictureTaken(byte[] data, Camera camera) {
+			new SavePhotoTask().execute(data);
+
+			Intent i = new Intent(CameraPreview.this, CropOptionActivity.class);
+			camera.stopPreview();
+			inPreview = false;
+			startActivityForResult(i, CROP_FROM_CAMERA);
+		}
+	};
 	// Constants
 	private static final int CROP_FROM_CAMERA = 2;
-	private static final String HOSTNAME = "192.168.1.107";
-
+	private static final String HOSTNAME = "192.168.1.73";
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -132,8 +204,7 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 			socket = new Socket(HOSTNAME, 6666);
 			out = new DataOutputStream(socket.getOutputStream());
 			in = new DataInputStream(socket.getInputStream());
-
-			// Read a message
+			// Read a hello message
 			Communication.readMessage(in);
 			// Assume that the message was a HELLO.
 		} catch (Exception e) {
@@ -148,7 +219,6 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		try {
 			socket.close();
 		} catch (IOException e) {
-			e.printStackTrace();
 		}
 		socket = null;
 		in = null;
@@ -274,7 +344,6 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 
 		// Register the listener with the Location Manager to receive location
 		// updates
-
 		locationManager.requestLocationUpdates(
 				LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
@@ -310,30 +379,15 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		return true;
 	}
 
-	Camera.PictureCallback mPictureCallback = new Camera.PictureCallback() {
-
-		@Override
-		public void onPictureTaken(byte[] data, Camera camera) {
-			new SavePhotoTask().execute(data);
-
-			Intent i = new Intent(CameraPreview.this, CropOptionActivity.class);
-			camera.stopPreview();
-			inPreview = false;
-			startActivityForResult(i, CROP_FROM_CAMERA);
-		}
-	};
-
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		// if (resultCode != RESULT_OK) return;
 
 		switch (requestCode) {
-
 		case CROP_FROM_CAMERA:
 			try {
 				sendStoreRequestToServer();
 			} catch (IOException e) {
-				e.printStackTrace();
 			}
 			/* Crop image is at /sdcard/Android/androAR/photoCropped.jpg. */
 			File f = new File(pictureDir.getPath() + "/photoCropped.jpg");
@@ -341,6 +395,7 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 				Toast.makeText(this, "Poza a fost croppuita", Toast.LENGTH_LONG);
 				f.delete();
 			}
+			break;
 		}
 	}
 
@@ -377,45 +432,6 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
         Communication.sendMessage(client_message, out);
 	}
 
-	/*
-	 * Class to enable queries
-	 */
-	class QueryPictureCallback implements Camera.PictureCallback {
-		@Override
-		public void onPictureTaken(byte[] data, Camera camera) {
-			long startTime = System.currentTimeMillis();
-			if (socket != null && in != null && out != null) {
-				// Send data to server
-				sendQueryToServer(data);
-				// Wait for reply
-				Image annotated_image;
-				try {
-					annotated_image = Image.parseFrom(Communication.readMessage(in));
-					ArrayList<Rect> new_rectangles = new ArrayList<Rect>();
-					for (DetectedObject detected_object : annotated_image.getDetectedObjectsList()) {
-						ObjectBoundingBox box = detected_object.getBoundingBox();
-						new_rectangles.add(new Rect(
-								box.getLeft(),
-								box.getTop(),
-								box.getRight(),
-								box.getBottom()));
-					}
-					int corner = (int) Math.random() * 50;
-					new_rectangles.add(new Rect(corner, corner, corner + 50, corner + 50));
-					rectanglesView.setRects(new_rectangles);
-					rectanglesView.invalidate();
-				} catch (InvalidProtocolBufferException e) {
-				}
-			}
-			long endTime = System.currentTimeMillis();
-			long rtt = endTime - startTime;
-			Log.d("RoundTripTime", "" + rtt);
-			camera.startPreview();
-			camera.takePicture(null, null, query_picture_callback);
-		}
-		
-	};
-	
 	/*
 	 * Class used to asynchronously save a photo to disk
 	 */
