@@ -12,6 +12,7 @@
 
 #include <iostream>
 
+using namespace std;
 using google::protobuf::Message;
 
 Communication::Communication() {}
@@ -54,8 +55,8 @@ OpenCVRequest Communication::getRequestMessage(Socket& socket) {
 
 void Communication::sendReplyMessage(Socket& socket, void* message, int length) {
 	// Send the length of the message
-	length = htonl(length);
-	sendSocketMessage(socket, &length, sizeof(length));
+	int network_length = htonl(length);
+	sendSocketMessage(socket, &network_length, sizeof(network_length));
 	// Send entire message, as byte array
 	sendSocketMessage(socket, message, length);
 	return;
@@ -68,6 +69,7 @@ void Communication::sendEmptyMessage(Socket& socket) {
 
 void Communication::sendMessage(Socket& socket, const Message& message) {
 	int serialized_size = message.ByteSize();
+	cout << "Message has size " << serialized_size << endl;
 	char *serialized_pb = new char[serialized_size];
 	message.SerializeToArray(serialized_pb, serialized_size);
 	sendReplyMessage(socket, serialized_pb, serialized_size);
