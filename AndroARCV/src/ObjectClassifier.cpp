@@ -129,7 +129,7 @@ void ObjectClassifier::parseToOpenCVFeatures(const Features& from, OpenCVFeature
 }
 
 namespace {
-	void computeMinAndMaxThreshold(vector<DMatch>& matches, double* min_threshold,
+	void computeMinAndMaxThreshold(const vector<DMatch>& matches, double* min_threshold,
 			double* max_threshold) {
 		double min_dist = 10000, max_dist = 0, mean_dist = 0, std = 0, dist;
 		int total = 0;
@@ -202,7 +202,7 @@ namespace {
 			box->set_right(maxy);
 	}
 
-	vector<DMatch> computeGoodMatchesBasedOnGeometry(const vector<DMatch> matches,
+	vector<DMatch> computeGoodMatchesBasedOnGeometry(const vector<DMatch>& matches,
 			const vector<KeyPoint>& query_keypoints,
 			const vector<KeyPoint>& original_keypoints) {
 		vector<DMatch> ret;
