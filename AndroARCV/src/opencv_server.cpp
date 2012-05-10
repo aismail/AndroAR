@@ -5,6 +5,8 @@
 #include <string.h>
 #include <string>
 #include <iostream>
+#include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 
@@ -23,6 +25,7 @@ using namespace std;
 
 const char* Constants::TEST_FOLDER =  "src/test/";
 
+#define MILLISEC(s, e) ((e.tv_sec - s.tv_sec) * 1000 + (e.tv_usec - s.tv_usec) / 1000)
 
 int main(int argc, char** argv) {
 
@@ -55,8 +58,15 @@ int main(int argc, char** argv) {
 			// the newly set detected objects, if any.
 			Image* image = request.mutable_image_contents();
 			cout << "Processing query for image " << image->image().image_hash() << endl;
+			struct timeval start_time, end_time;
+			gettimeofday(&start_time, NULL);
 			classifier.processImage(image);
-			cout << "Finished processing query for image " << endl;
+			gettimeofday(&end_time, NULL);
+			cout << "Finished processing query for image " << image->image().image_hash() <<
+					" of size " << image->image().image_contents().size() << endl;
+			cout << "Processing took " << MILLISEC(start_time, end_time) << " millis" << endl;
+			// We don't need to send the image back
+			image->mutable_image()->set_image_contents("");
 			// Send the new image back to the client
 			Communication::sendMessage(*java_client, *image);
 		}
