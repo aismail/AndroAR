@@ -35,13 +35,19 @@ public class RequestQueue {
 					// Get request from queue
 					Request request;
 					try {
-						request = queue.take();
+						request = queue.poll();
+						if (request == null) continue;
+						Logging.LOG(0, "Sending request to OpenCV for image " +
+								ImageUtils.computeImageHash(request.getImage()));
+						Logging.LOG(0, "Image has size" + 
+								request.getImage().getImage().getImageContents().size());
 						// Transmit message, get reply and execute callback
 						byte[] response = Communication.sendAndProcessRequestToOpenCV(
 								request.getRequestToByteArray(), opencv_socket);
 						// Execute callback
 						request.callCallback(response);
-					} catch (InterruptedException e) {
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 				}
 			}
@@ -51,7 +57,7 @@ public class RequestQueue {
 	
 	public synchronized void newRequest(Request request) {
 		// Put request in queue
-		Logging.LOG(0, "Queued request for image " + ImageUtils.computeImageHash(request.getImage()));
+		Logging.LOG(0, "Queuing request for image " + ImageUtils.computeImageHash(request.getImage()));
 		queue.add(request);
 	}
 	

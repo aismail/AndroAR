@@ -100,6 +100,7 @@ public class ClientConnection implements Runnable {
 			}
 		} else if (message_type == ClientMessageType.IMAGE_TO_PROCESS) {
 			if (client_message.hasImageToProcess()) {
+				long start_time = System.currentTimeMillis();
 				// We should add all the possible objects to the image
 				// These objects are located in a range around the current position
 				Image image_to_process = client_message.getImageToProcess();
@@ -123,6 +124,9 @@ public class ClientConnection implements Runnable {
 								.setId(object_id)
 								.addAllFeatures(features));
 				}
+				long end_time = System.currentTimeMillis();
+				Logging.LOG(0, "Adding possible features to this image took " + 
+						(end_time - start_time) + " milliseconds");
 				Request request = new Request(RequestType.QUERY, image_builder.build(), out);
 				opencv_queue.newRequest(request);
 			}

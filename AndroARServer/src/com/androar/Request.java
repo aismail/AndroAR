@@ -7,16 +7,19 @@ import com.androar.comm.CommunicationProtos.OpenCVRequest;
 import com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.MultipleOpenCVFeatures;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 public class Request {
 	
 	private OpenCVRequest content;
 	private DataOutputStream out;
+	private long start_time;
 	
 	public Request(RequestType type, Image image_content, DataOutputStream out) {
 		this.out = out;
 		this.content = OpenCVRequest.newBuilder().
 				setRequestType(type).setImageContents(image_content).build();
+		start_time = System.currentTimeMillis();
 	}
 	
 	public Image getImage() {
@@ -29,7 +32,9 @@ public class Request {
 	}
 
 	public void callCallback(byte[] reply) {
-		Logging.LOG(0, "Got reply from OpenCV for image " + ImageUtils.computeImageHash(getImage()));
+		Logging.LOG(0, "Got reply from OpenCV for image " + 
+				ImageUtils.computeImageHash(getImage()) + " of size " + reply.length +
+				". Reply took " + (System.currentTimeMillis() - start_time));
 		RequestType request_type = content.getRequestType(); 
 		if (request_type == RequestType.STORE) {
 			// In case this is a store request, we will receive the image features and we will have
@@ -46,6 +51,11 @@ public class Request {
 				e.printStackTrace();
 			}
 		} else if (request_type == RequestType.QUERY) {
+			try {
+				Logging.LOG(10, "Forwarding reply: \n" + Image.parseFrom(reply).toString());
+			} catch (InvalidProtocolBufferException e) {
+				e.printStackTrace();
+			}
 			// In case this is a query request, we will get the detected objects
 			Communication.sendByteArrayMessage(reply, out);
 			//TODO(alex, andrei): Let's see if we should also store it.
