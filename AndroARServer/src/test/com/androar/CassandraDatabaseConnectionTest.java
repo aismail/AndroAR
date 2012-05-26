@@ -304,28 +304,17 @@ public class CassandraDatabaseConnectionTest {
 			expected_features.put(key, object_features);
 		}
 		ObjectFeatureCache.clearCache();
-		// First one
-		Map<String, List<OpenCVFeatures>> features = db.getFeaturesForAllObjectsInRange(center, 2);
-		Assert.assertEquals(expected_features.entrySet().size(), features.entrySet().size());
-		for (Map.Entry<String, List<OpenCVFeatures>> entry : features.entrySet()) {
-			String key = entry.getKey();
-			List<OpenCVFeatures> value = entry.getValue();
-			Assert.assertTrue(expected_features.containsKey(key));
-			List<OpenCVFeatures> expected_value = expected_features.get(key);
-			for (OpenCVFeatures returned_feature : value) {
-				Assert.assertTrue(expected_value.contains(returned_feature));
-			}
-		}
-		// Second one
-		features = db.getFeaturesForAllObjectsInRange(center, 2);
-		Assert.assertEquals(expected_features.entrySet().size(), features.entrySet().size());
-		for (Map.Entry<String, List<OpenCVFeatures>> entry : features.entrySet()) {
-			String key = entry.getKey();
-			List<OpenCVFeatures> value = entry.getValue();
-			Assert.assertTrue(expected_features.containsKey(key));
-			List<OpenCVFeatures> expected_value = expected_features.get(key);
-			for (OpenCVFeatures returned_feature : value) {
-				Assert.assertTrue(expected_value.contains(returned_feature));
+		for (int i = 0; i < 2; ++i) {
+			Map<String, List<OpenCVFeatures>> features = db.getFeaturesForAllObjectsInRange(center, 2);
+			Assert.assertEquals(expected_features.entrySet().size(), features.entrySet().size());
+			for (Map.Entry<String, List<OpenCVFeatures>> entry : features.entrySet()) {
+				String key = entry.getKey();
+				List<OpenCVFeatures> value = entry.getValue();
+				Assert.assertTrue(expected_features.containsKey(key));
+				List<OpenCVFeatures> expected_value = expected_features.get(key);
+				for (OpenCVFeatures returned_feature : value) {
+					Assert.assertTrue(expected_value.contains(returned_feature));
+				}
 			}
 		}
 	}
