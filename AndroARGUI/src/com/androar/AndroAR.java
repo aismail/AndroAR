@@ -3,9 +3,10 @@ package com.androar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.Button;
 
 public class AndroAR extends Activity implements OnClickListener {
@@ -30,6 +31,14 @@ public class AndroAR extends Activity implements OnClickListener {
 		b2.setOnClickListener(this);
 		b3.setOnClickListener(this);
 		b4.setOnClickListener(this);
+		
+		try {
+			Class.forName("android.os.StrictMode", true, 
+					Thread.currentThread().getContextClassLoader());
+			StrictMode.enableDefaults();
+		} catch (ClassNotFoundException e) {
+		}
+		
 	}
 
 	@Override
