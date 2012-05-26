@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import me.prettyprint.cassandra.model.BasicColumnDefinition;
 import me.prettyprint.cassandra.model.BasicColumnFamilyDefinition;
@@ -40,6 +41,7 @@ import me.prettyprint.hector.api.query.SubColumnQuery;
 import me.prettyprint.hector.api.query.SuperColumnQuery;
 import me.prettyprint.hector.api.query.SuperSliceQuery;
 
+import com.androar.caching.ObjectFeatureCache;
 import com.androar.comm.ImageFeaturesProtos.DetectedObject;
 import com.androar.comm.ImageFeaturesProtos.GPSPosition;
 import com.androar.comm.ImageFeaturesProtos.Image;
@@ -62,9 +64,8 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	private Keyspace keyspace_operator;
 	private String keyspace_name;
 	
-	// Let's do some caching
-	Map<String, List<OpenCVFeatures>> cached_features_for_all_objects_in_range;
-	LocalizationFeatures cached_position;
+	// Features cache
+	ObjectFeatureCache features_cache;
 	
 	public CassandraDatabaseConnection(String hostname, int port) {
 		this(hostname, port, Constants.CASSANDRA_KEYSPACE);
@@ -80,8 +81,8 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 			createSchema(cluster, keyspace_name);
 		}
 		keyspace_operator = HFactory.createKeyspace(keyspace_name, cluster);
-		cached_position = null;
-		cached_features_for_all_objects_in_range = null;
+		// Caching
+		features_cache = ObjectFeatureCache.getInstance();
 	}
 
 	public void deleteTables() {
@@ -621,33 +622,44 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	@Override
 	public Map<String, List<OpenCVFeatures>> getFeaturesForAllObjectsInRange(
 			LocalizationFeatures position, double range) {
-		// Check if the location has changed that much, and if it did, then recompute the
-		// features for the new possible objects in range
-		if (cached_position != null && cached_features_for_all_objects_in_range != null) {
-			double threshold = range / 4;
-			float prev_latitude = cached_position.getGpsPosition().getLatitude();
-			float prev_longitude = cached_position.getGpsPosition().getLongitude();
-			float curr_latitude = position.getGpsPosition().getLatitude();
-			float curr_longitude = position.getGpsPosition().getLatitude();
-			if (Math.abs(prev_latitude - curr_latitude) < threshold &&
-					Math.abs(prev_longitude - curr_longitude) < threshold) {
-				return cached_features_for_all_objects_in_range;
-			}
-		}
-		
 		Map<String, List<OpenCVFeatures>> ret = new HashMap<String, List<OpenCVFeatures>>();
 		List<String> row_keys = getRowKeysForImagesInRange(position, range);
-		// Multiget ALL the keys!
+		// We need to get the subset of row keys that aren't in the cache and query only those.
+		List<String> uncached_row_keys = new ArrayList<String>();
+		for (String key : row_keys) {
+			if (features_cache.parsedImageId(key)) {
+				Map<String, OpenCVFeatures> containing_objects = features_cache.getContainingObjects(key);
+				for (Entry<String, OpenCVFeatures> entry : containing_objects.entrySet()) {
+					String object_id = entry.getKey();
+					OpenCVFeatures features = entry.getValue();
+					List<OpenCVFeatures> value;
+					if (ret.containsKey(object_id)) {
+						value = ret.get(object_id);
+					} else {
+						value = new ArrayList<OpenCVFeatures>();
+					}
+					value.add(features);
+					ret.put(object_id, value);
+				}
+			} else {
+				uncached_row_keys.add(key);
+			}
+		}
+		// Multiget the uncached keys
+		Logging.LOG(10, "Multigetting only " + uncached_row_keys.size() + " out of " +
+				row_keys.size() + " keys. The rest are cached.");
 		MultigetSliceQuery<String, String, byte[]> multiget_query =
 				HFactory.createMultigetSliceQuery(keyspace_operator, string_serializer,
 						string_serializer, bytearray_serializer);
 		multiget_query.setColumnFamily(Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY);
-		multiget_query.setKeys(row_keys);
+		multiget_query.setKeys(uncached_row_keys);
 		multiget_query.setRange(null, null, false, 10000);
 		QueryResult<Rows<String, String, byte[]>> multiget_result = multiget_query.execute();
 		Rows<String, String, byte[]> ordered_rows = multiget_result.get();
 		// Put opencv features for each image in the keys associated with objects inside the image
 		for (Row<String, String, byte[]> row : ordered_rows) {
+			String image_id = row.getKey();
+			Map<String, OpenCVFeatures> containing_objects = new HashMap<String, OpenCVFeatures>();
 			Map<Integer, String> object_ids_map = new HashMap<Integer, String>();
 			// object_ids_map[K] = V where there exists column "objectK" = "V"
 			List<HColumn<String, byte[]>> all_columns = row.getColumnSlice().getColumns();
@@ -672,6 +684,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 					} catch (InvalidProtocolBufferException e) {
 						continue;
 					}
+					containing_objects.put(object_id, features);
 					List<OpenCVFeatures> value;
 					if (ret.containsKey(object_id)) {
 						value = ret.get(object_id);
@@ -682,9 +695,8 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 					ret.put(object_id, value);
 				}
 			}
+			features_cache.addObjectFeaturesToCache(image_id, containing_objects);
 		}
-		cached_position = position;
-		cached_features_for_all_objects_in_range = ret;
 		return ret;
 	}
 }

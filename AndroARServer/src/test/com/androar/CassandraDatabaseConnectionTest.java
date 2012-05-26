@@ -12,6 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.androar.CassandraDatabaseConnection;
+import com.androar.caching.ObjectFeatureCache;
 import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
 import com.androar.comm.ImageFeaturesProtos.GPSPosition;
 import com.androar.comm.ImageFeaturesProtos.Image;
@@ -262,6 +263,70 @@ public class CassandraDatabaseConnectionTest {
 			db.getFeaturesForAllObjectsInRange(center, 2);
 			long total_time = System.currentTimeMillis() - start_time;
 			System.out.println(i + " : " + total_time);
+		}
+	}
+	
+	@Test
+	public void testGetFeaturesForAllObjectsInRange_Caching() {
+		LocalizationFeatures center = LocalizationFeatures.newBuilder()
+				.setGpsPosition(
+						GPSPosition.newBuilder().setLatitude(30).setLongitude(30).build())
+				.build();
+		Map<String, List<OpenCVFeatures>> expected_features =
+				new HashMap<String, List<OpenCVFeatures>>();
+		// Range 2
+		// In range 2, we have images:
+		// * hash1, containing objects A, B
+		// * hash2, containing object C
+		// * hash3, containing object C
+		Map<String, List<String>> objects = new HashMap<String, List<String>>();
+		List<String> a_images = new ArrayList<String>();
+		a_images.add("hash1");
+		objects.put("A", a_images);
+		List<String> b_images = new ArrayList<String>();
+		b_images.add("hash1");
+		objects.put("B", b_images);
+		List<String> c_images = new ArrayList<String>();
+		c_images.add("hash2");
+		c_images.add("hash3");
+		objects.put("C", c_images);
+		for (Map.Entry<String, List<String>> entry : objects.entrySet()) {
+			List<OpenCVFeatures> object_features = new ArrayList<OpenCVFeatures>();
+			String key = entry.getKey();
+			List<String> image_hashes = entry.getValue();
+			for (String image_hash : image_hashes) {
+				object_features.add(OpenCVFeatures.newBuilder()
+					.setObjectId(key)
+					.setKeypoints("KEYPOINTS_" + image_hash + "_" + key)
+					.setFeatureDescriptor("FEATURE_DESCRIPTOR_" + image_hash + "_" + key)
+					.build());
+			}
+			expected_features.put(key, object_features);
+		}
+		ObjectFeatureCache.clearCache();
+		// First one
+		Map<String, List<OpenCVFeatures>> features = db.getFeaturesForAllObjectsInRange(center, 2);
+		Assert.assertEquals(expected_features.entrySet().size(), features.entrySet().size());
+		for (Map.Entry<String, List<OpenCVFeatures>> entry : features.entrySet()) {
+			String key = entry.getKey();
+			List<OpenCVFeatures> value = entry.getValue();
+			Assert.assertTrue(expected_features.containsKey(key));
+			List<OpenCVFeatures> expected_value = expected_features.get(key);
+			for (OpenCVFeatures returned_feature : value) {
+				Assert.assertTrue(expected_value.contains(returned_feature));
+			}
+		}
+		// Second one
+		features = db.getFeaturesForAllObjectsInRange(center, 2);
+		Assert.assertEquals(expected_features.entrySet().size(), features.entrySet().size());
+		for (Map.Entry<String, List<OpenCVFeatures>> entry : features.entrySet()) {
+			String key = entry.getKey();
+			List<OpenCVFeatures> value = entry.getValue();
+			Assert.assertTrue(expected_features.containsKey(key));
+			List<OpenCVFeatures> expected_value = expected_features.get(key);
+			for (OpenCVFeatures returned_feature : value) {
+				Assert.assertTrue(expected_value.contains(returned_feature));
+			}
 		}
 	}
 }
