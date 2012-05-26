@@ -24,6 +24,8 @@ import com.google.protobuf.ByteString;
 
 public class CassandraDatabaseConnectionTest {
 	
+	private static boolean RUN_LOAD_TESTS = true;
+	
 	private static String HOSTNAME = "emerald";
 	private static CassandraDatabaseConnection db = null;
 
@@ -244,5 +246,22 @@ public class CassandraDatabaseConnectionTest {
 	
 	@Test
 	public void testGetFeaturesForObject() {
+	}
+	
+	@Test
+	public void loadTestGetFeaturesForAllObjectsInRange() {
+		if (RUN_LOAD_TESTS == false) {
+			return;
+		}
+		LocalizationFeatures center = LocalizationFeatures.newBuilder()
+				.setGpsPosition(
+						GPSPosition.newBuilder().setLatitude(30).setLongitude(30).build())
+				.build();
+		for (int i = 0; i < 50; ++i) {
+			long start_time = System.currentTimeMillis();
+			db.getFeaturesForAllObjectsInRange(center, 2);
+			long total_time = System.currentTimeMillis() - start_time;
+			System.out.println(i + " : " + total_time);
+		}
 	}
 }
