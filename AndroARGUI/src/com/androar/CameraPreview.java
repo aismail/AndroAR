@@ -80,56 +80,61 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 	private Camera.PictureCallback query_picture_callback = new Camera.PictureCallback() {
 		@Override
 		public void onPictureTaken(byte[] data, Camera camera) {
-			long startTime = System.currentTimeMillis();
 			if (socket != null && in != null && out != null) {
-				Bitmap color_bm = BitmapFactory.decodeByteArray(data, 0, data.length);
-				Bitmap scaled_bm = Bitmap.createScaledBitmap(color_bm, color_bm.getWidth(),
-						color_bm.getHeight(), false);
-				Bitmap grayscale_bm = Bitmap.createBitmap(scaled_bm.getWidth(),
-						scaled_bm.getHeight(), Bitmap.Config.RGB_565);
-				
+				long startTime = System.currentTimeMillis();
+				Bitmap color_bm = BitmapFactory.decodeByteArray(data, 0,
+						data.length);
+				Bitmap grayscale_bm = Bitmap.createBitmap(color_bm.getWidth(),
+						color_bm.getHeight(), Bitmap.Config.RGB_565);
+
 				Canvas c = new Canvas(grayscale_bm);
 				Paint p = new Paint();
 				ColorMatrix cm = new ColorMatrix();
 
 				cm.setSaturation(0);
 				ColorMatrixColorFilter filter = new ColorMatrixColorFilter(cm);
-				p.setColorFilter(filter); 
-				c.drawBitmap(scaled_bm, 0, 0, p);
-				
+				p.setColorFilter(filter);
+				c.drawBitmap(color_bm, 0, 0, p);
+
 				ByteArrayOutputStream internal_output_stream = new ByteArrayOutputStream();
-				grayscale_bm.compress(CompressFormat.JPEG, 50, internal_output_stream);
+				grayscale_bm.compress(CompressFormat.JPEG, 60,
+						internal_output_stream);
 				byte[] compressed_data = internal_output_stream.toByteArray();
-				
+
+				Log.d("CompressImageTime", ""
+						+ (System.currentTimeMillis() - startTime));
+				startTime = System.currentTimeMillis();
 				// Send data to server
 				sendQueryToServer(compressed_data);
 				// Wait for reply
 				Image annotated_image;
 				try {
-					annotated_image = Image.parseFrom(Communication.readMessage(in));
+					annotated_image = Image.parseFrom(Communication
+							.readMessage(in));
+					long endTime = System.currentTimeMillis();
+					long rtt = endTime - startTime;
+					Log.d("RoundTripTime", "" + rtt);
 					ArrayList<Rect> new_rectangles = new ArrayList<Rect>();
-					for (DetectedObject detected_object : annotated_image.getDetectedObjectsList()) {
-						ObjectBoundingBox box = detected_object.getBoundingBox();
-						new_rectangles.add(new Rect(
-								box.getLeft(),
-								box.getTop(),
-								box.getRight(),
-								box.getBottom()));
+					for (DetectedObject detected_object : annotated_image
+							.getDetectedObjectsList()) {
+						ObjectBoundingBox box = detected_object
+								.getBoundingBox();
+						new_rectangles.add(new Rect(box.getLeft(),
+								box.getTop(), box.getRight(), box.getBottom()));
 					}
+					// Just add another random rectangle
 					int corner = (int) (Math.random() * 100);
-					new_rectangles.add(new Rect(corner, corner, corner + 50, corner + 50));
+					new_rectangles.add(new Rect(corner, corner, corner + 50,
+							corner + 50));
 					rectanglesView.setRects(new_rectangles);
 					rectanglesView.invalidate();
 				} catch (InvalidProtocolBufferException e) {
 				}
 			}
-			long endTime = System.currentTimeMillis();
-			long rtt = endTime - startTime;
-			Log.d("RoundTripTime", "" + rtt);
 			camera.startPreview();
 			camera.takePicture(null, null, query_picture_callback);
 		}
-		
+
 	};
 	private Camera.PictureCallback mPictureCallback = new Camera.PictureCallback() {
 
@@ -145,8 +150,8 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 	};
 	// Constants
 	private static final int CROP_FROM_CAMERA = 2;
-	private static final String HOSTNAME = "192.168.1.73";
-	
+	private static final String HOSTNAME = "192.168.1.112";
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -160,30 +165,30 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		Image.Builder image_builder = Image.newBuilder();
 		image_builder.setImage(ImageContents.newBuilder()
 				.setImageHash(random_hash)
-				.setImageContents(ByteString.copyFrom(image_contents))
-				.build());
+				.setImageContents(ByteString.copyFrom(image_contents)).build());
 		// Localization features
-		GPSPosition gps_position = GPSPosition.newBuilder().setLatitude(latitude)
-				.setLongitude(longitude).build();
-		CompassPosition compass_position = CompassPosition.newBuilder().setAngle(azimuth).build();
-		image_builder.setLocalizationFeatures(
-				LocalizationFeatures.newBuilder()
+		GPSPosition gps_position = GPSPosition.newBuilder()
+				.setLatitude(latitude).setLongitude(longitude).build();
+		CompassPosition compass_position = CompassPosition.newBuilder()
+				.setAngle(azimuth).build();
+		image_builder.setLocalizationFeatures(LocalizationFeatures.newBuilder()
 				.setGpsPosition(gps_position)
-				.setCompassPosition(compass_position)
-				.build());
+				.setCompassPosition(compass_position).build());
 		return image_builder;
 	}
-	
+
 	private void sendQueryToServer(byte[] image_contents) {
-        // Client message
-        ClientMessage client_message;
-        client_message = ClientMessage.newBuilder()
-        		.setMessageType(ClientMessageType.IMAGE_TO_PROCESS)
-                .setImageToProcess(buildImageWithoutDetectedObjects(image_contents).build())
-                .build();
-        Communication.sendMessage(client_message, out);
+		// Client message
+		ClientMessage client_message;
+		client_message = ClientMessage
+				.newBuilder()
+				.setMessageType(ClientMessageType.IMAGE_TO_PROCESS)
+				.setImageToProcess(
+						buildImageWithoutDetectedObjects(image_contents)
+								.build()).build();
+		Communication.sendMessage(client_message, out);
 	}
-	
+
 	public void init() {
 		// We register the activity to handle the callbacks of the SurfaceView
 		surfaceView = (SurfaceView) findViewById(R.id.camera_surface);
@@ -194,7 +199,7 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 
 		// Start listening for localization features
 		getOrientation();
-		
+
 		initSocket();
 	}
 
@@ -211,7 +216,7 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void closeSocket() {
 		if (socket == null) {
 			return;
@@ -224,11 +229,16 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		in = null;
 		out = null;
 	}
-	
+
 	@Override
 	public void onResume() {
 		super.onResume();
 		camera = Camera.open();
+		Camera.Parameters parameters = camera.getParameters();
+		parameters.setJpegQuality(60);
+		Camera.Size original_size = camera.getParameters().getPictureSize();
+		parameters.setPictureSize(original_size.height / 4, original_size.width / 4);
+		camera.setParameters(parameters);
 		if (socket == null) {
 			initSocket();
 		}
@@ -236,16 +246,14 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 
 	@Override
 	public void onPause() {
-		if (inPreview) {
-			camera.stopPreview();
-		}
+		camera.stopPreview();
 		camera.release();
 		camera = null;
 		inPreview = false;
 		closeSocket();
 		super.onPause();
 	}
-	
+
 	/*
 	 * @returns null iff there is no preview size for this screen size.
 	 */
@@ -271,9 +279,12 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 	}
 
 	public void surfaceCreated(SurfaceHolder holder) {
+		if (camera == null) {
+			return;
+		}
 		try {
 			camera.setPreviewDisplay(holder);
-		} catch (Throwable t) {
+		} catch (Exception t) {
 			Log.e("PreviewDemo-surfaceCallback",
 					"Exception in setPreviewDisplay()", t);
 			Toast.makeText(CameraPreview.this, t.getMessage(),
@@ -289,7 +300,9 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
-		System.out.println("changed");
+		if (camera == null) {
+			return;
+		}
 		rectanglesView.setPaintColor(Color.CYAN);
 		Camera.Parameters params = camera.getParameters();
 		Camera.Size size = getBestPreviewSize(width, height, params);
@@ -318,7 +331,7 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		inflater.inflate(R.menu.preview, menu);
 		return true;
 	}
-	
+
 	void getOrientation() {
 		// Acquire a reference to the system Location Manager
 		locationManager = (LocationManager) this
@@ -344,8 +357,8 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 
 		// Register the listener with the Location Manager to receive location
 		// updates
-		locationManager.requestLocationUpdates(
-				LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+		//locationManager.requestLocationUpdates(
+		//		LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
 				0, locationListener);
 
@@ -361,8 +374,8 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 			}
 		};
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-		sensorManager.registerListener(sensorListener, sensorManager
-				.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+		sensorManager.registerListener(sensorListener,
+				sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
 				SensorManager.SENSOR_DELAY_GAME);
 	}
 
@@ -414,22 +427,21 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		Image.Builder image_builder = buildImageWithoutDetectedObjects(image);
 		// Detected objects
 		// We only have 1 detected object
-		DetectedObject detected_object = DetectedObject.newBuilder()
-				.setBoundingBox(ObjectBoundingBox.newBuilder().setTop(0).setBottom(0).setLeft(0)
-						.setRight(0).build())
-				.setId("NAME")
-				.setCroppedImage(ByteString.copyFrom(imageCropped))
-				.build();
+		DetectedObject detected_object = DetectedObject
+				.newBuilder()
+				.setBoundingBox(
+						ObjectBoundingBox.newBuilder().setTop(0).setBottom(0)
+								.setLeft(0).setRight(0).build()).setId("NAME")
+				.setCroppedImage(ByteString.copyFrom(imageCropped)).build();
 		image_builder.addDetectedObjects(detected_object);
-		
-        // Client message
-        ClientMessage client_message;
-        client_message = ClientMessage.newBuilder()
-        		.setMessageType(ClientMessageType.IMAGES_TO_STORE)
-                .addImagesToStore(image_builder.build())
-                .build();
-		
-        Communication.sendMessage(client_message, out);
+
+		// Client message
+		ClientMessage client_message;
+		client_message = ClientMessage.newBuilder()
+				.setMessageType(ClientMessageType.IMAGES_TO_STORE)
+				.addImagesToStore(image_builder.build()).build();
+
+		Communication.sendMessage(client_message, out);
 	}
 
 	/*
