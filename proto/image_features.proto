@@ -56,6 +56,10 @@ message OpenCVFeatures {
 	required string keypoints = 1;
 	required string feature_descriptor = 2;
 	optional string object_id = 3;
+
+	// DEBUG fields
+	optional bytes cropped_image = 100;
+	optional bytes result_match = 101;
 }
 
 // Next id = 2
