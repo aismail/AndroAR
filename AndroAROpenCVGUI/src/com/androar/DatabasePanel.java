@@ -262,6 +262,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import com.androar.comm.ImageFeaturesProtos.GPSPosition;
@@ -331,11 +332,17 @@ public class DatabasePanel extends JPanel {
 					response_panel.add(results_list);
 					final JPanel image_panel = new JPanel();
 					response_panel.add(image_panel);
+					final JTextArea localization_ta = new JTextArea(4, 10);
+					response_panel.add(localization_ta);
 					if (results_list.getSelectedIndex() != -1) {
 						int index = results_list.getSelectedIndex();
 						byte[] big_image = ret.get(index).getImage().getImageContents().
 								toByteArray();
 						image_panel.add(new JLabel(new ImageIcon(big_image)));
+						if (ret.get(index).hasLocalizationFeatures()) {
+							localization_ta.setText(
+									ret.get(index).getLocalizationFeatures().toString());
+						}
 						response_panel.revalidate();
 					}
 					// Combo box action listener
@@ -350,6 +357,10 @@ public class DatabasePanel extends JPanel {
 							byte[] big_image = ret.get(index).getImage().getImageContents().
 									toByteArray();
 							image_panel.add(new JLabel(new ImageIcon(big_image)));
+							if (ret.get(index).hasLocalizationFeatures()) {
+								localization_ta.setText(
+										ret.get(index).getLocalizationFeatures().toString());
+							}
 							response_panel.revalidate();
 						}
 					});
