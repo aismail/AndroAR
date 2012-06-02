@@ -8,8 +8,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import com.androar.comm.Communication;
-import com.androar.comm.CommunicationProtos.ServerMessage;
 
+@SuppressWarnings("serial")
 public class OpenCVPanel extends JPanel {
 	
 	Socket socket;
@@ -23,7 +23,7 @@ public class OpenCVPanel extends JPanel {
             in = new DataInputStream(socket.getInputStream());
             
             // Read a message, assume it's hello
-            ServerMessage server_message = ServerMessage.parseFrom(Communication.readMessage(in));
+            Communication.readMessage(in);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
