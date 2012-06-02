@@ -264,11 +264,15 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
+import com.androar.comm.ImageFeaturesProtos.GPSPosition;
+import com.androar.comm.ImageFeaturesProtos.Image;
+import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
 import com.androar.comm.ImageFeaturesProtos.ObjectMetadata;
 
 @SuppressWarnings("serial")
 public class DatabasePanel extends JPanel {
 
+	private static String IMAGES_IN_RANGE_PANEL = "Images in Range";
 	private static String OBJECT_METADATA_PANEL = "Object Metadata";
 	private static String IMAGES_CONTAINING_OBJECT_PANEL = "Images containing Object";
 
@@ -282,6 +286,80 @@ public class DatabasePanel extends JPanel {
 	private void initPanel() {
 		initDatabase();
 		JTabbedPane tabbed_pane = new JTabbedPane();
+		/*
+		 * IMAGES_IN_RANGE query
+		 */
+		{
+			final JPanel main_panel = new JPanel();
+			main_panel.setPreferredSize(
+					new Dimension(GUIConstants.WIDTH - 50, GUIConstants.HEIGHT - 100));
+			main_panel.setLayout(new BoxLayout(main_panel, BoxLayout.Y_AXIS));
+			JPanel query_panel = new JPanel();
+			query_panel.setPreferredSize(new Dimension(GUIConstants.WIDTH - 50, 50));
+			final JPanel response_panel = new JPanel();
+			response_panel.setPreferredSize(
+					new Dimension(GUIConstants.WIDTH - 50, GUIConstants.HEIGHT - 150));
+			main_panel.add(query_panel);
+			main_panel.add(new JScrollPane(response_panel));
+			
+			final JTextField latitude_tf = new JTextField("Lat", 6);
+			final JTextField longitude_tf = new JTextField("Lng", 6);
+			final JTextField range_tf = new JTextField("R", 2);
+			query_panel.add(latitude_tf);
+			query_panel.add(longitude_tf);
+			query_panel.add(range_tf);
+			// Go button
+			JButton go = new JButton("GO");
+			query_panel.add(go);
+			go.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					float latitude = Float.parseFloat(latitude_tf.getText());
+					float longitude = Float.parseFloat(longitude_tf.getText());
+					float range = Float.parseFloat(range_tf.getText());
+					LocalizationFeatures position = LocalizationFeatures.newBuilder()
+							.setGpsPosition(GPSPosition.newBuilder().setLatitude(latitude)
+									.setLongitude(longitude))
+							.build();
+					final List<Image> ret = db.getImagesInRange(position, range);
+					
+					String[] data = new String[ret.size()];
+					for (int i = 0; i < ret.size(); ++i) {
+						data[i] = "Image " + i;
+					}
+					final JComboBox results_list = new JComboBox(data);
+					response_panel.add(results_list);
+					final JPanel image_panel = new JPanel();
+					response_panel.add(image_panel);
+					if (results_list.getSelectedIndex() != -1) {
+						int index = results_list.getSelectedIndex();
+						byte[] big_image = ret.get(index).getImage().getImageContents().
+								toByteArray();
+						image_panel.add(new JLabel(new ImageIcon(big_image)));
+						response_panel.revalidate();
+					}
+					// Combo box action listener
+					results_list.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent arg0) {
+							int index = results_list.getSelectedIndex();
+							if (index == -1) {
+								return;
+							}
+							image_panel.removeAll();
+							byte[] big_image = ret.get(index).getImage().getImageContents().
+									toByteArray();
+							image_panel.add(new JLabel(new ImageIcon(big_image)));
+							response_panel.revalidate();
+						}
+					});
+					response_panel.revalidate();
+					main_panel.revalidate();
+				}
+			});
+			
+			tabbed_pane.add(IMAGES_IN_RANGE_PANEL, new JScrollPane(main_panel));
+		}
 		/*
 		 * OBJECTS_METADATA query
 		 */
