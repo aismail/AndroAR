@@ -166,18 +166,41 @@ public class OpenCVPanel extends JPanel {
 		this.add(tabbed_pane);
 	}
 
-=======
 import java.awt.Container;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.Socket;
 
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+
+import com.androar.comm.Communication;
+import com.androar.comm.CommunicationProtos.ServerMessage;
 
 public class OpenCVPanel extends JPanel {
 	
+	Socket socket;
+	DataOutputStream out;
+    DataInputStream in;
+	
+	private void initClient() {
+		try {
+			socket = new Socket(GUIConstants.SERVER_HOST, 6666);
+			out = new DataOutputStream(socket.getOutputStream());
+            in = new DataInputStream(socket.getInputStream());
+            
+            // Read a message, assume it's hello
+            ServerMessage server_message = ServerMessage.parseFrom(Communication.readMessage(in));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private void initPanel() {
-		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		this.add(new JButton("OpenCVPanel"));
+		initClient();
+		JTabbedPane tabbed_pane = new JTabbedPane();
+		
+		this.add(tabbed_pane);
 	}
 	
 	public OpenCVPanel() {
