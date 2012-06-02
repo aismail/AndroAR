@@ -401,7 +401,9 @@ void ObjectClassifier::processImage(Image* image) {
 			image->add_detected_objects()->CopyFrom(detected_object);
 		}
 	}
-	image->clear_possible_present_objects();
+	if (Constants::DEBUG == false) {
+		image->clear_possible_present_objects();
+	}
 }
 
 MultipleOpenCVFeatures ObjectClassifier::getAllOpenCVFeatures(const Image& image) {
