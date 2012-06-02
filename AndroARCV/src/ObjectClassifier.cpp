@@ -45,6 +45,11 @@ Features ObjectClassifier::computeFeatureDescriptor(const string& image_content)
 	getDetectorAndExtractor(&detector, &extractor);
 
 	Features current_features;
+	if (Constants::DEBUG) {
+		current_features.query_image = image_mat;
+	} else {
+		current_features.query_image = Mat();
+	}
 	// Detect key points
 	detector->detect(image_mat, current_features.key_points);
 	// Extract feature vectors
@@ -87,6 +92,14 @@ void ObjectClassifier::parseToFeatures(const OpenCVFeatures& from, Features* to)
 	fs2.release();
 	// Unlink the file
 	unlink(filename);
+
+	// Initial features
+	if (from.has_cropped_image() && Constants::DEBUG) {
+		const char* image_contents = from.cropped_image().data();
+		int image_contents_size = from.cropped_image().size();
+		to->query_image =
+				imdecode(vector<char>(image_contents, image_contents + image_contents_size), 0);
+	}
 	return;
 }
 
@@ -123,6 +136,20 @@ void ObjectClassifier::parseToOpenCVFeatures(const Features& from, OpenCVFeature
 			std::istreambuf_iterator<char>());
 	f2.close();
 	to->set_feature_descriptor(str2);
+
+	if (Constants::DEBUG) {
+		// Truncate the file
+		FILE *ff = fopen(filename, "wt");
+		fclose(ff);
+		// Write the image to disk
+		imwrite(filename, from.query_image);
+		// Read it into cassandra format
+		ifstream f3(filename);
+		string str3((std::istreambuf_iterator<char>(f3)),
+				std::istreambuf_iterator<char>());
+		f3.close();
+		to->set_cropped_image(str3);
+	}
 	// Unlink the file
 	unlink(filename);
 	return;
@@ -257,16 +284,16 @@ namespace {
 // This method will classify objects against features and feature vectors that were already
 // extracted beforehand
 double ObjectClassifier::matchObject(const Features& current_features, const PossibleObject& object,
-		ObjectBoundingBox* bounding_box) {
+		ObjectBoundingBox* bounding_box, PossibleObject* updated_possible_object) {
 	// Match the current features against what we got from storage
 	BruteForceMatcher<L2<float> > matcher;
 	vector<DMatch> matches;
 	double certainty = 0;
 	vector<double> match_percentages;
 	vector<DMatch> best_matches;
-	for (int i = 0; i < object.features_size(); ++i) {
+	for (int features_num = 0; features_num < object.features_size(); ++features_num) {
 		Features features;
-		parseToFeatures(object.features(i), &features);
+		parseToFeatures(object.features(features_num), &features);
 
 		// Match feature vectors against what we have
 		matches.clear();
@@ -281,9 +308,11 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 
 		// Find the number of good matches
 		unsigned int num_good_matches = 0;
+		vector<DMatch> good_matches;
 		for (unsigned int i = 0; i < matches.size(); ++i) {
 			if ((matches[i].distance >= min_threshold) && (matches[i].distance <= max_threshold)) {
 				++num_good_matches;
+				good_matches.push_back(matches[i]);
 			}
 		}
 		if (num_good_matches > best_matches.size()) {
@@ -295,6 +324,37 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 			}
 		}
 		match_percentages.push_back(1. * num_good_matches / matches.size());
+		if (Constants::DEBUG && updated_possible_object != NULL) {
+			Mat overall_matches;
+			drawMatches(
+					current_features.query_image,
+					current_features.key_points,
+					features.query_image,
+					features.key_points,
+					good_matches,
+					overall_matches,
+					Scalar::all(-1),
+					Scalar::all(-1),
+					vector<char>(),
+					DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+
+			char filename[] = "featuresXXXXXX";
+			int fd = mkstemp(filename);
+			close(fd);
+			// Write the image to disk
+			imwrite(filename, overall_matches);
+			// Read it into cassandra format
+			ifstream f(filename);
+			string str((std::istreambuf_iterator<char>(f)),
+					std::istreambuf_iterator<char>());
+			f.close();
+			// Unlink the file
+			unlink(filename);
+
+			updated_possible_object->mutable_features(features_num)->set_result_match(str);
+			imshow("BLAH", overall_matches);
+			waitKey(0);
+		}
 	}
 	sort(match_percentages.begin(), match_percentages.end(), std::greater<double>());
 	certainty = (match_percentages.empty()) ? 0 : match_percentages[0];
@@ -321,8 +381,14 @@ void ObjectClassifier::processImage(Image* image) {
 	Features current_features = ObjectClassifier::computeFeatureDescriptor(image->image());
 	for (int i = 0; i < image->possible_present_objects_size(); ++i) {
 		const PossibleObject& possible_object = image->possible_present_objects(i);
+		PossibleObject* mutable_possible_object = image->mutable_possible_present_objects(i);
 		ObjectBoundingBox box;
-		double confidence = matchObject(current_features, possible_object, &box);
+		double confidence;
+		if (Constants::DEBUG) {
+			confidence = matchObject(current_features, possible_object, &box, mutable_possible_object);
+		} else {
+			confidence = matchObject(current_features, possible_object, &box);
+		}
 		if (confidence >= Constants::CONFIDENCE_THRESHOLD) {
 			DetectedObject detected_object;
 			detected_object.set_object_type(DetectedObject::BUILDING);

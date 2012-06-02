@@ -70,7 +70,9 @@ int main(int argc, char** argv) {
 					" of size " << image->image().image_contents().size() << endl;
 			cout << "Processing took " << MILLISEC(start_time, end_time) << " millis" << endl;
 			// We don't need to send the image back
-			image->mutable_image()->set_image_contents("");
+			if (Constants::DEBUG == false) {
+				image->mutable_image()->set_image_contents("");
+			}
 			// Send the new image back to the client
 			Communication::sendMessage(*java_client, *image);
 		}

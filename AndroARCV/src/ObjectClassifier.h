@@ -23,6 +23,7 @@ using std::vector;
 struct Features {
 	vector<KeyPoint> key_points;
 	Mat descriptor;
+	Mat query_image;
 
 	Features() : key_points(), descriptor() {}
 };
@@ -33,7 +34,7 @@ public:
 	virtual ~ObjectClassifier();
 
 	double matchObject(const Features& current_features, const PossibleObject& object,
-			ObjectBoundingBox* bounding_box);
+			ObjectBoundingBox* bounding_box, PossibleObject* updated_possible_object = NULL);
 	static Features computeFeatureDescriptor(const ImageContents& image_contents);
 	static Features computeFeatureDescriptor(const string& image_content);
 	static void getDetectorAndExtractor(FeatureDetector** detector,
