@@ -76,6 +76,7 @@ public interface IDatabaseConnection {
 	 * Fetches all the features for the objects in an area surrounding this position.
 	 * @param position a LocalizationFeatures protocol buffer containing information about the current position
 	 * @param range the rage to search in
+	 * @returns a map[object_id] = list of opencv features
 	 */
 	public Map<String, List<OpenCVFeatures>> getFeaturesForAllObjectsInRange(LocalizationFeatures position,
 			double range);
