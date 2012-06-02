@@ -10,6 +10,7 @@ import java.util.List;
 import com.androar.comm.CommunicationProtos.ClientMessage;
 import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
 import com.androar.comm.ImageFeaturesProtos.DetectedObject;
+import com.androar.comm.ImageFeaturesProtos.DetectedObject.Builder;
 import com.androar.comm.ImageFeaturesProtos.GPSPosition;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.ImageContents;
@@ -26,6 +27,7 @@ public class Mocking {
 	private static List<String> object_ids = new ArrayList<String>();
 	private static float latitude = 0;
 	private static float longitude = 0;
+	public static List<byte[]> object_cropped_images = null;
 	
 	public static void setMetadata(String image_hash, List<String> object_ids,
 			float latitude, float longitude) {
@@ -73,8 +75,9 @@ public class Mocking {
 
 		if (type == ClientMessageType.IMAGES_TO_STORE) {
 			// Detected objects
-			for (String object_id : object_ids) {
-				DetectedObject obj = DetectedObject.newBuilder()
+			for (int i = 0; i < object_ids.size(); ++i) {
+				String object_id = object_ids.get(i);
+				DetectedObject.Builder obj = DetectedObject.newBuilder()
 						.setId(object_id)
 						.setBoundingBox(
 								ObjectBoundingBox.newBuilder().setTop(10).setBottom(100).setLeft(20)
@@ -82,8 +85,11 @@ public class Mocking {
 								.setAngleToViewer(15)
 								.setMetadata(
 										ObjectMetadata.newBuilder().setName("NAME_" + object_id)
-										.setDescription("DESCRIPTION_" + object_id))
-										.build();
+										.setDescription("DESCRIPTION_" + object_id));
+				if (object_cropped_images != null) {
+					byte[] cropped_image = object_cropped_images.get(i);
+					obj.setCroppedImage(ByteString.copyFrom(cropped_image));
+				}
 				image_builder.addDetectedObjects(obj);
 			}
 		}
