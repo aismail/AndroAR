@@ -157,6 +157,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		//   - compass orientation 
 		// * number of detected objects
 		// * all detected objects' ids, in columns "objectX" (Column)
+		// * all detected objects' cropped images, in columns "croppedX" (Column)
 		// The row key is the image hash / id.
 		String image_hash = ImageUtils.computeImageHash(image);
 		Logging.LOG(10, "Image Hash is: " + image_hash);
@@ -164,9 +165,22 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		for (int object = 0; object < image.getDetectedObjectsCount(); ++object) {
 			DetectedObject detected_object = image.getDetectedObjects(object);
 			Logging.LOG(10, "Storing detected object: " + detected_object.getId());
+			// Id
 			mutator.insert(image_hash,
 					Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY,
 					HFactory.createStringColumn("object" + object, detected_object.getId()));
+			// Cropped image
+			ByteString cropped_image = null;
+			if (detected_object.hasCroppedImage()) {
+				cropped_image = detected_object.getCroppedImage();
+			} else {
+				cropped_image = 
+						ImageUtils.getCroppedImageContents(image.getImage(), detected_object);
+			}
+			mutator.insert(image_hash,
+					Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY,
+					HFactory.createColumn("cropped" + object,
+					cropped_image.toByteArray(), string_serializer, bytearray_serializer));
 		}
 		mutator.insert(image_hash,
 				Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY, 
@@ -678,9 +692,12 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 						continue;
 					}
 					String object_id = object_ids_map.get(object_num);
+					byte[] cropped_image = 
+							row.getColumnSlice().getColumnByName("cropped" + object_num).getValue();
 					OpenCVFeatures features;
 					try {
-						features = OpenCVFeatures.parseFrom(column.getValue());
+						features = OpenCVFeatures.newBuilder().mergeFrom(column.getValue())
+								.setCroppedImage(ByteString.copyFrom(cropped_image)).build();
 					} catch (InvalidProtocolBufferException e) {
 						continue;
 					}
