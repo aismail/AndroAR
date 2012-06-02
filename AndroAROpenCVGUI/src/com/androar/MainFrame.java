@@ -10,6 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+@SuppressWarnings("serial")
 public class MainFrame extends JFrame {
 
 	private static String DATABASE_PANEL = "database_panel";
@@ -33,7 +34,7 @@ public class MainFrame extends JFrame {
 		browse_database_panel = new DatabasePanel();
 		opencv_query_panel = new OpenCVPanel();
 		// Frame stats
-		setBounds(0, 0, 800, 600);
+		setBounds(0, 0, GUIConstants.WIDTH, GUIConstants.HEIGHT);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		// Add the two panels to the container
 		default_container.setLayout(new BoxLayout(default_container,
