@@ -7,7 +7,6 @@ import com.androar.comm.CommunicationProtos.OpenCVRequest;
 import com.androar.comm.CommunicationProtos.OpenCVRequest.RequestType;
 import com.androar.comm.ImageFeaturesProtos.Image;
 import com.androar.comm.ImageFeaturesProtos.MultipleOpenCVFeatures;
-import com.google.protobuf.InvalidProtocolBufferException;
 
 public class Request {
 	
@@ -51,11 +50,6 @@ public class Request {
 				e.printStackTrace();
 			}
 		} else if (request_type == RequestType.QUERY) {
-			try {
-				Logging.LOG(10, "Forwarding reply: \n" + Image.parseFrom(reply).toString());
-			} catch (InvalidProtocolBufferException e) {
-				e.printStackTrace();
-			}
 			// In case this is a query request, we will get the detected objects
 			Communication.sendByteArrayMessage(reply, out);
 			//TODO(alex, andrei): Let's see if we should also store it.
