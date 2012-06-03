@@ -35,7 +35,7 @@ public class RequestQueue {
 					// Get request from queue
 					Request request;
 					try {
-						request = queue.poll();
+						request = queue.take();
 						if (request == null) continue;
 						Logging.LOG(0, "Sending request to OpenCV for image " +
 								ImageUtils.computeImageHash(request.getImage()));
