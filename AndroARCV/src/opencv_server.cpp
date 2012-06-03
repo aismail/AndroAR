@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 		gettimeofday(&start_time, NULL);
 		run_tests(filename);
 		gettimeofday(&end_time, NULL);
-		cout << "Processing took " << MILLISEC(start_time, end_time) << " millis" << endl;
+		cout << "Testing took " << MILLISEC(start_time, end_time) << " milliseconds." << endl;
 		return 0;
 	}
 
@@ -67,8 +67,8 @@ int main(int argc, char** argv) {
 			classifier.processImage(image);
 			gettimeofday(&end_time, NULL);
 			cout << "Finished processing query for image " << image->image().image_hash() <<
-					" of size " << image->image().image_contents().size() << endl;
-			cout << "Processing took " << MILLISEC(start_time, end_time) << " millis" << endl;
+					" of size " << image->image().image_contents().size() << " bytes." << endl;
+			cout << "Processing took " << MILLISEC(start_time, end_time) << " milliseconds." << endl;
 			// We don't need to send the image back
 			if (Constants::DEBUG == false) {
 				image->mutable_image()->set_image_contents("");

@@ -37,7 +37,7 @@ Features ObjectClassifier::computeFeatureDescriptor(const string& image_content)
 	// Create a Mat from the image we got and compute the features for that.
 	const char* image_contents = image_content.data();
 	int image_contents_size = image_content.size();
-	cout << "Computing features for an image of size " << image_contents_size << endl;
+	cout << "Computing features for an image of size " << image_contents_size << " bytes." << endl;
 	Mat image_mat = imdecode(vector<char>(image_contents, image_contents + image_contents_size), 0);
 
 	FeatureDetector* detector;
@@ -294,6 +294,7 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 	vector<double> match_percentages;
 	vector<DMatch> best_matches;
 	for (int features_num = 0; features_num < object.features_size(); ++features_num) {
+		cout << "Matching image against object " << object.id() << " " << features_num << endl;
 		Features features;
 		parseToFeatures(object.features(features_num), &features);
 

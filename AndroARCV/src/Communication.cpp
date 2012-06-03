@@ -69,7 +69,6 @@ void Communication::sendEmptyMessage(Socket& socket) {
 
 void Communication::sendMessage(Socket& socket, const Message& message) {
 	int serialized_size = message.ByteSize();
-	cout << "Message has size " << serialized_size << endl;
 	char *serialized_pb = new char[serialized_size];
 	message.SerializeToArray(serialized_pb, serialized_size);
 	sendReplyMessage(socket, serialized_pb, serialized_size);
