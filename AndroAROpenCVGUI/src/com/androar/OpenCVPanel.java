@@ -235,7 +235,7 @@ public class OpenCVPanel extends JPanel {
 			main_panel.add(query_panel);
 			main_panel.add(new JScrollPane(response_panel));
 			// imagine, hash = random, latitudine, longitudine, azimut
-			final JFileChooser image_fc = new JFileChooser();
+			final JFileChooser image_fc = new JFileChooser("..");
 			final JTextField file_name_tf = new JTextField("No file", 10);
 			file_name_tf.setEditable(false);
 			final JButton choose_file_b = new JButton("Choose file");
