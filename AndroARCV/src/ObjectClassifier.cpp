@@ -142,7 +142,9 @@ void ObjectClassifier::parseToOpenCVFeatures(const Features& from, OpenCVFeature
 		FILE *ff = fopen(filename, "wt");
 		fclose(ff);
 		// Write the image to disk
-		imwrite(filename, from.query_image);
+		FileStorage fs2(filename, FileStorage::WRITE);
+		cv::write(fs2, "", from.query_image);
+		fs2.release();
 		// Read it into cassandra format
 		ifstream f3(filename);
 		string str3((std::istreambuf_iterator<char>(f3)),
@@ -338,8 +340,8 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 					vector<char>(),
 					DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 
-			char filename[] = "featuresXXXXXX";
-			int fd = mkstemp(filename);
+			char filename[] = "featuresXXXXXX.jpg";
+			int fd = mkstemps(filename, 4);
 			close(fd);
 			// Write the image to disk
 			imwrite(filename, overall_matches);
@@ -352,8 +354,6 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 			unlink(filename);
 
 			updated_possible_object->mutable_features(features_num)->set_result_match(str);
-			imshow("BLAH", overall_matches);
-			waitKey(0);
 		}
 	}
 	sort(match_percentages.begin(), match_percentages.end(), std::greater<double>());
@@ -425,4 +425,3 @@ MultipleOpenCVFeatures ObjectClassifier::getAllOpenCVFeatures(const Image& image
 	}
 	return ret;
 }
-
