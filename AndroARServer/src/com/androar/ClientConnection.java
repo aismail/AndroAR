@@ -43,12 +43,12 @@ public class ClientConnection implements Runnable {
 	
 	@Override
 	public void run() {
-		Logging.LOG(0, "Client " + client_socket.getInetAddress() + " connected.");
+		Logging.LOG(Logging.SERVER, "Client " + client_socket.getInetAddress() + " connected.");
 		
 		// Just send a friendly hello
 		ServerMessage hello_message = 
 				ClientConnection.createServerMessage(ServerMessageType.HELLO_MESSAGE);
-		Logging.LOG(2, "Created hello message");
+		Logging.LOG(Logging.CONNECTIONS, "Created hello message");
 		Communication.sendMessage(hello_message, out);
 		
 		// Parse incoming messages
@@ -116,7 +116,7 @@ public class ClientConnection implements Runnable {
 						cassandra_connection.getFeaturesForAllObjectsInRange(
 								image_to_process.getLocalizationFeatures(),
 								Constants.DEFAULT_RANGE);
-				Logging.LOG(0, "Query for features took " + (System.currentTimeMillis() - query_start));
+				Logging.LOG(Logging.CONNECTIONS, "Query for features took " + (System.currentTimeMillis() - query_start) + " milliseconds");
 				Set<Entry<String, List<OpenCVFeatures>>> entry_set = objects_in_range.entrySet();
 				for (Entry<String, List<OpenCVFeatures>> entry : entry_set) {
 					String object_id = entry.getKey();
@@ -127,7 +127,7 @@ public class ClientConnection implements Runnable {
 								.addAllFeatures(features));
 				}
 				long end_time = System.currentTimeMillis();
-				Logging.LOG(0, "Adding possible features to this image took " + 
+				Logging.LOG(Logging.CONNECTIONS, "Adding possible features to this image took " + 
 						(end_time - start_time) + " milliseconds");
 				Request request = new Request(RequestType.QUERY, image_builder.build(), out);
 				opencv_queue.newRequest(request);

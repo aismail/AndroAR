@@ -31,9 +31,9 @@ public class Request {
 	}
 
 	public void callCallback(byte[] reply) {
-		Logging.LOG(0, "Got reply from OpenCV for image " + 
+		Logging.LOG(Logging.CONNECTIONS, "Got reply from OpenCV for image " + 
 				ImageUtils.computeImageHash(getImage()) + " of size " + reply.length +
-				". Reply took " + (System.currentTimeMillis() - start_time));
+				" bytes. Reply took " + (System.currentTimeMillis() - start_time));
 		RequestType request_type = content.getRequestType(); 
 		if (request_type == RequestType.STORE) {
 			// In case this is a store request, we will receive the image features and we will have

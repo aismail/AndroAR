@@ -41,7 +41,7 @@ public class InboundConnectionListener extends Thread {
 			e.printStackTrace();
 		}
 		// Listen for connections_s
-		Logging.LOG(0, "Listening for connections on port " + listening_port + 
+		Logging.LOG(Logging.CRITICAL, "Listening for connections on port " + listening_port + 
 				", using maximum " + num_threads + " threads.");
 		while (true) {
 			try {

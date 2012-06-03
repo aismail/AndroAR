@@ -1,8 +1,15 @@
 package com.androar;
 
 public final class Logging {
+
 	
-	private static int log_level = 2;
+	public static int CRITICAL = 0;
+	public static int INTERNAL = 10;
+	public static int SERVER = 20;
+	public static int CONNECTIONS = 30;
+	public static int DEBUGGING = 100; 
+	
+	private static int log_level = DEBUGGING;
 	
 	/*
 	 * Sets the log level. All the logging with log levels higher than this will not be shown.
@@ -28,9 +35,9 @@ public final class Logging {
 	 * @param level logging level
 	 * @param message message that will be logged
 	 */
-	public static synchronized void LOG(int level, String message) {
+	public static void LOG(int level, String message) {
 		if (level <= log_level) {
-			System.out.println(message);
+			System.out.println("[" + System.currentTimeMillis() + "] "+ message);
 		}
 	}
 }

@@ -38,7 +38,7 @@ public class MockClient {
             
             // Read a message
             ServerMessage server_message = ServerMessage.parseFrom(Communication.readMessage(in));
-            Logging.LOG(2, "***\n " + server_message.toString() + "\n***");
+            Logging.LOG(Logging.DEBUGGING, "***\n " + server_message.toString() + "\n***");
             
             // Assume that the message was a HELLO. Let's now send an image to see if this works.
             // We will read an image stored on the Hard Drive for now, it's path is being passed 
@@ -62,7 +62,7 @@ public class MockClient {
             Communication.sendMessage(Mocking.createMockClientMessage(args[1], type), out);
             if (type == ClientMessageType.IMAGE_TO_PROCESS) {
             	Image returned_image = Image.parseFrom(Communication.readMessage(in));
-            	Logging.LOG(0, returned_image.toString());
+            	Logging.LOG(Logging.CRITICAL, returned_image.toString());
             }
             // Sleep for a while to allow opencv to process stuff and send us data
             // Until the user presses enter

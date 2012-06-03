@@ -11,7 +11,7 @@ public class AndroARServer {
 	 * @param args Arguments.
 	 */
 	public static void main(String[] args) {
-		Logging.setLOGLevel(10);
+		Logging.setLOGLevel(Logging.DEBUGGING);
 		InboundConnectionListener.Init(6666, 10);
 		DatabaseConnectionPool.Init(11, CassandraDatabaseConnection.class);
 		// Let's initialize the connections here, since it might take a while

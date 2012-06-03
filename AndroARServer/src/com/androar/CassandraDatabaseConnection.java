@@ -90,7 +90,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	}
 	
 	public void closeConnection() {
-		Logging.LOG(3, "Closing Cassandra connection");
+		Logging.LOG(Logging.CONNECTIONS, "Closing Cassandra connection");
 		//cluster.getConnectionManager().shutdown();
 	}
 	
@@ -113,7 +113,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 				Constants.CASSANDRA_REPLICATION_FACTOR,
 				all_column_families);
 		// Add the schema to the cluster.
-		Logging.LOG(3, "Creating Cassandra keyspace " + keyspace_name);
+		Logging.LOG(Logging.CONNECTIONS, "Creating Cassandra keyspace " + keyspace_name);
 		cluster.addKeyspace(new_keyspace, true);
 		// Edit the column family to add secondary indexes
 		KeyspaceDefinition from_cluster = cluster.describeKeyspace(keyspace_name);
@@ -160,11 +160,11 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 		// * all detected objects' cropped images, in columns "croppedX" (Column)
 		// The row key is the image hash / id.
 		String image_hash = ImageUtils.computeImageHash(image);
-		Logging.LOG(10, "Image Hash is: " + image_hash);
+		Logging.LOG(Logging.DEBUGGING, "Image Hash is: " + image_hash);
 		// Detected Objects
 		for (int object = 0; object < image.getDetectedObjectsCount(); ++object) {
 			DetectedObject detected_object = image.getDetectedObjects(object);
-			Logging.LOG(10, "Storing detected object: " + detected_object.getId());
+			Logging.LOG(Logging.DEBUGGING, "Storing detected object: " + detected_object.getId());
 			// Id
 			mutator.insert(image_hash,
 					Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY,
@@ -187,15 +187,14 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 				HFactory.createColumn("num_objects", image.getDetectedObjectsCount(),
 						string_serializer, integer_serializer));
 		// Image Contents
-		Logging.LOG(10, 
-				"Storing image contents: " + image.getImage().getImageContents().toByteArray());
+		Logging.LOG(Logging.DEBUGGING, "Storing image contents.");
 		mutator.insert(image_hash,
 				Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY,
 				HFactory.createColumn("image_contents",
 						image.getImage().getImageContents().toByteArray(),
 						string_serializer, bytearray_serializer));
 		// Localization Features
-		Logging.LOG(10, 
+		Logging.LOG(Logging.DEBUGGING, 
 				"Storing image features: " + image.getLocalizationFeatures().toString());
 		float latitude = 0;
 		float longitude = 0;
@@ -312,7 +311,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 					HFactory.createSuperColumn(
 							"image" + first_unused_image_id, image_values, string_serializer, 
 							string_serializer, TypeInferringSerializer.get()));
-			Logging.LOG(10, "Storing image <" + image_hash + "> under key: " + object_id +
+			Logging.LOG(Logging.DEBUGGING, "Storing image <" + image_hash + "> under key: " + object_id +
 					", super column: " + "image" + first_unused_image_id);
 			// We change the value of the first available image id column
 			ArrayList<HColumn<String, Integer>> image_index = 
@@ -324,7 +323,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 					HFactory.createSuperColumn("image_index", image_index, 
 							string_serializer, string_serializer, integer_serializer));
 		}
-		Logging.LOG(10, "Done storing image");
+		Logging.LOG(Logging.DEBUGGING, "Done storing image");
 		return true;
 	}
 	
@@ -530,7 +529,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	@Override
 	public boolean storeFeatures(String image_hash, OpenCVFeatures opencv_features) {
 		Mutator<String> mutator = HFactory.createMutator(keyspace_operator, string_serializer);
-		Logging.LOG(10, "Image Hash is: " + image_hash + ", storing features for original image.");
+		Logging.LOG(Logging.DEBUGGING, "Image Hash is: " + image_hash + ", storing features for original image.");
 		// OpenCVFeatures
 		mutator.insert(image_hash,
 				Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY, 
@@ -542,7 +541,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 	@Override
 	public boolean storeFeatures(String image_hash, MultipleOpenCVFeatures opencv_features) {
 		Mutator<String> mutator = HFactory.createMutator(keyspace_operator, string_serializer);
-		Logging.LOG(10, "Image Hash is: " + image_hash + ", storing features for original image " +
+		Logging.LOG(Logging.DEBUGGING, "Image Hash is: " + image_hash + ", storing features for original image " +
 				"and for cropped images.");
 		Map<String, Integer> object_ids_map = new HashMap<String, Integer>();
 		// object_ids_map[K] = V where there exists column "objectV" = "K"
@@ -571,7 +570,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 				if (!object_ids_map.containsKey(object_id)) {
 					continue;
 				}
-				Logging.LOG(10, "Storing features for object " + object_id);
+				Logging.LOG(Logging.DEBUGGING, "Storing features for object " + object_id);
 				mutator.insert(image_hash,
 						Constants.CASSANDRA_IMAGE_FEATURES_COLUMN_FAMILY, 
 						HFactory.createColumn("cv" + object_ids_map.get(object_id),
@@ -660,7 +659,7 @@ public class CassandraDatabaseConnection implements IDatabaseConnection {
 			}
 		}
 		// Multiget the uncached keys
-		Logging.LOG(10, "Multigetting only " + uncached_row_keys.size() + " out of " +
+		Logging.LOG(Logging.DEBUGGING, "Multigetting only " + uncached_row_keys.size() + " out of " +
 				row_keys.size() + " keys. The rest are cached.");
 		MultigetSliceQuery<String, String, byte[]> multiget_query =
 				HFactory.createMultigetSliceQuery(keyspace_operator, string_serializer,
