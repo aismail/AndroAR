@@ -14,6 +14,7 @@
 #include "opencv2/core/core.hpp"
 #include "opencv2/features2d/features2d.hpp"
 #include "Common.h"
+#include "MatchPurger.h"
 #include "image_features.pb.h"
 
 using namespace androar;
@@ -38,9 +39,10 @@ public:
 	MultipleOpenCVFeatures getAllOpenCVFeatures(const Image& image);
 
 private:
-	map<string, Features>* features_map;
 	static FeatureDetector* detector_;
 	static DescriptorExtractor* extractor_;
+
+	MatchPurger* match_purger;
 
 };
 

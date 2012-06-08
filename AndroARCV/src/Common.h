@@ -11,7 +11,6 @@
 #include <vector>
 #include "opencv2/features2d/features2d.hpp"
 
-using namespace androar;
 using namespace cv;
 
 struct Features {
