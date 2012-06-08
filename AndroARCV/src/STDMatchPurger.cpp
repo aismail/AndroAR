@@ -17,8 +17,7 @@ STDMatchPurger::~STDMatchPurger() {
 }
 
 namespace {
-
-void computeMinAndMaxThreshold(const vector<DMatch>& matches, double* min_threshold,
+	void computeMinAndMaxThreshold(const vector<DMatch>& matches, double* min_threshold,
 			double* max_threshold) {
 		double min_dist = 10000, max_dist = 0, mean_dist = 0, std = 0, dist;
 		int total = 0;
