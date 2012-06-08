@@ -138,19 +138,19 @@ void ObjectClassifier::parseToOpenCVFeatures(const Features& from, OpenCVFeature
 	to->set_feature_descriptor(str2);
 
 	if (Constants::DEBUG) {
-		// Truncate the file
-		FILE *ff = fopen(filename, "wt");
-		fclose(ff);
+		char filename[] = "featuresXXXXXX.jpg";
+		int fd = mkstemps(filename, 4);
+		close(fd);
 		// Write the image to disk
-		FileStorage fs2(filename, FileStorage::WRITE);
-		cv::write(fs2, "", from.query_image);
-		fs2.release();
+		imwrite(filename, from.query_image);
 		// Read it into cassandra format
-		ifstream f3(filename);
-		string str3((std::istreambuf_iterator<char>(f3)),
+		ifstream f(filename);
+		string str((std::istreambuf_iterator<char>(f)),
 				std::istreambuf_iterator<char>());
-		f3.close();
-		to->set_cropped_image(str3);
+		f.close();
+		// Unlink the file
+		unlink(filename);
+		to->set_cropped_image(str);
 	}
 	// Unlink the file
 	unlink(filename);
