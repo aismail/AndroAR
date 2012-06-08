@@ -13,20 +13,13 @@
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/features2d/features2d.hpp"
+#include "Common.h"
 #include "image_features.pb.h"
 
 using namespace androar;
 using namespace cv;
 using std::map;
 using std::vector;
-
-struct Features {
-	vector<KeyPoint> key_points;
-	Mat descriptor;
-	Mat query_image;
-
-	Features() : key_points(), descriptor() {}
-};
 
 class ObjectClassifier {
 public:
