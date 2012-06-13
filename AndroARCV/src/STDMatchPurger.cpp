@@ -66,7 +66,6 @@ namespace {
 vector<DMatch> STDMatchPurger::purgeMatches(const vector<DMatch>& matches,
 		const Features& query_features,
 		const Features& train_features) {
-	std::cout << "Purging features using the STDMatchPurger" << std::endl;
 	double min_threshold = 0, max_threshold = 0;
 	computeMinAndMaxThreshold(matches, &min_threshold, &max_threshold);
 
@@ -77,7 +76,8 @@ vector<DMatch> STDMatchPurger::purgeMatches(const vector<DMatch>& matches,
 			good_matches.push_back(matches[i]);
 		}
 	}
-
+	std::cout << "[STDMatchPurger] Purged " << (100. * good_matches.size() / matches.size())
+			<< "% features." << std::endl;
 	return good_matches;
 }
 
