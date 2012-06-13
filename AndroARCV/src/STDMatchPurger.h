@@ -19,6 +19,7 @@ public:
 			const Features& query_features,
 			const Features& train_features);
 
+	static const double STD_THRESHOLD = 0.5;
 };
 
 #endif /* STDMATCHPURGER_H_ */

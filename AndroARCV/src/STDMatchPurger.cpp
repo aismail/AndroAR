@@ -57,8 +57,8 @@ namespace {
 		}
 		std = sqrt(std);
 		// MIN AND MAX THRESHOLDS
-		*min_threshold = mean_dist - Constants::FEATURE_VECTORS_THRESHOLD_DISTANCE * std;
-		*max_threshold = mean_dist + Constants::FEATURE_VECTORS_THRESHOLD_DISTANCE * std;
+		*min_threshold = mean_dist - STDMatchPurger::STD_THRESHOLD * std;
+		*max_threshold = mean_dist + STDMatchPurger::STD_THRESHOLD * std;
 	}
 
 } //anonymous namespace
