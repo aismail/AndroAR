@@ -66,10 +66,12 @@ public class OpenCVPanel extends JPanel {
 			final JPanel query_panel = new JPanel();
 			query_panel.setPreferredSize(new Dimension(GUIConstants.WIDTH - 50, 50));
 			final JPanel response_panel = new JPanel();
-			response_panel.setPreferredSize(
-					new Dimension(GUIConstants.WIDTH - 50, GUIConstants.HEIGHT - 150));
+			response_panel.setLayout(new BoxLayout(response_panel, BoxLayout.Y_AXIS));
 			main_panel.add(query_panel);
-			main_panel.add(new JScrollPane(response_panel));
+			final JScrollPane response_scroll_pane = new JScrollPane(response_panel);
+			response_scroll_pane.setPreferredSize(
+					new Dimension(GUIConstants.WIDTH - 50, GUIConstants.HEIGHT - 150));
+			main_panel.add(response_scroll_pane);
 			// imagine, hash = random, latitudine, longitudine, azimut
 			final JFileChooser image_fc = new JFileChooser("..");
 			final JTextField file_name_tf = new JTextField("No file", 10);
@@ -100,6 +102,7 @@ public class OpenCVPanel extends JPanel {
 			go.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
+					response_panel.removeAll();
 					float latitude = Float.parseFloat(latitude_tf.getText());
 					float longitude = Float.parseFloat(longitude_tf.getText());
 					//float azimuth = Float.parseFloat(azimuth_tf.getText());
@@ -135,6 +138,7 @@ public class OpenCVPanel extends JPanel {
 							byte[] big_image = results.get(index);
 							image_panel.add(new JLabel(new ImageIcon(big_image)));
 							response_panel.revalidate();
+							response_panel.repaint();
 						}
 						// Combo box action listener
 						results_list.addActionListener(new ActionListener() {
@@ -148,12 +152,12 @@ public class OpenCVPanel extends JPanel {
 								byte[] big_image = results.get(index);
 								image_panel.add(new JLabel(new ImageIcon(big_image)));
 								response_panel.revalidate();
+								response_panel.repaint();
 							}
 						});
 						response_panel.revalidate();
+						response_panel.repaint();
 						main_panel.revalidate();
-						
-						
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

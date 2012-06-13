@@ -54,10 +54,12 @@ public class DatabasePanel extends JPanel {
 			JPanel query_panel = new JPanel();
 			query_panel.setPreferredSize(new Dimension(GUIConstants.WIDTH - 50, 50));
 			final JPanel response_panel = new JPanel();
-			response_panel.setPreferredSize(
-					new Dimension(GUIConstants.WIDTH - 50, GUIConstants.HEIGHT - 150));
+			response_panel.setLayout(new BoxLayout(response_panel, BoxLayout.Y_AXIS));
 			main_panel.add(query_panel);
-			main_panel.add(new JScrollPane(response_panel));
+			final JScrollPane response_scroll_pane = new JScrollPane(response_panel);
+			response_scroll_pane.setPreferredSize(
+					new Dimension(GUIConstants.WIDTH - 50, GUIConstants.HEIGHT - 150));
+			main_panel.add(response_scroll_pane);
 			
 			final JTextField latitude_tf = new JTextField("Lat", 6);
 			final JTextField longitude_tf = new JTextField("Lng", 6);
@@ -71,6 +73,7 @@ public class DatabasePanel extends JPanel {
 			go.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					response_panel.removeAll();
 					float latitude = Float.parseFloat(latitude_tf.getText());
 					float longitude = Float.parseFloat(longitude_tf.getText());
 					float range = Float.parseFloat(range_tf.getText());
@@ -100,6 +103,7 @@ public class DatabasePanel extends JPanel {
 									ret.get(index).getLocalizationFeatures().toString());
 						}
 						response_panel.revalidate();
+						response_panel.repaint();
 					}
 					// Combo box action listener
 					results_list.addActionListener(new ActionListener() {
@@ -118,9 +122,11 @@ public class DatabasePanel extends JPanel {
 										ret.get(index).getLocalizationFeatures().toString());
 							}
 							response_panel.revalidate();
+							response_panel.repaint();
 						}
 					});
 					response_panel.revalidate();
+					response_panel.repaint();
 					main_panel.revalidate();
 				}
 			});
@@ -138,10 +144,12 @@ public class DatabasePanel extends JPanel {
 			JPanel query_panel = new JPanel();
 			query_panel.setPreferredSize(new Dimension(GUIConstants.WIDTH - 50, 50));
 			final JPanel response_panel = new JPanel();
-			response_panel.setPreferredSize(
-					new Dimension(GUIConstants.WIDTH - 50, GUIConstants.HEIGHT - 150));
+			response_panel.setLayout(new BoxLayout(response_panel, BoxLayout.Y_AXIS));
 			main_panel.add(query_panel);
-			main_panel.add(new JScrollPane(response_panel));
+			final JScrollPane response_scroll_pane = new JScrollPane(response_panel);
+			response_scroll_pane.setPreferredSize(
+					new Dimension(GUIConstants.WIDTH - 50, GUIConstants.HEIGHT - 150));
+			main_panel.add(response_scroll_pane);
 			// Input text area
 			final JTextField objects_ids_tf = new JTextField(
 					"Query objects, separated by (,)", 50);
@@ -153,6 +161,7 @@ public class DatabasePanel extends JPanel {
 
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
+					response_panel.removeAll();
 					String[] all_objects = objects_ids_tf.getText().split(",");
 					List<String> all_objects_list = new ArrayList<String>();
 					for (String object : all_objects) {
@@ -190,10 +199,13 @@ public class DatabasePanel extends JPanel {
 			JPanel query_panel = new JPanel();
 			query_panel.setPreferredSize(new Dimension(GUIConstants.WIDTH - 50, 50));
 			final JPanel response_panel = new JPanel();
-			response_panel.setPreferredSize(
-					new Dimension(GUIConstants.WIDTH - 50, GUIConstants.HEIGHT - 150));
+			response_panel.setLayout(new BoxLayout(response_panel, BoxLayout.Y_AXIS));
 			main_panel.add(query_panel);
-			main_panel.add(new JScrollPane(response_panel));
+			final JScrollPane response_scroll_pane = new JScrollPane(response_panel);
+			response_scroll_pane.setPreferredSize(
+					new Dimension(GUIConstants.WIDTH - 50, GUIConstants.HEIGHT - 150));
+			main_panel.add(response_scroll_pane);
+			
 			final JTextField object_id_tf = new JTextField("Object ID", 10);
 			query_panel.add(object_id_tf);
 			JButton go = new JButton("GO");
@@ -202,6 +214,7 @@ public class DatabasePanel extends JPanel {
 
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
+					response_panel.removeAll();
 					String object_id = object_id_tf.getText();
 					final List<ImageWithObject> ret = db.getAllImagesContainingObject(object_id);
 					String[] data = new String[ret.size()];
