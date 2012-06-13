@@ -20,7 +20,7 @@
 #include "Constants.h"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/features2d/features2d.hpp"
-#include "STDMatchPurger.h"
+#include "GeometryMatchPurger.h"
 
 using namespace std;
 
@@ -28,7 +28,7 @@ FeatureDetector* ObjectClassifier::detector_ = NULL;
 DescriptorExtractor* ObjectClassifier::extractor_ = NULL;
 
 ObjectClassifier::ObjectClassifier() {
-	match_purger = new STDMatchPurger();
+	match_purger = new GeometryMatchPurger();
 }
 
 ObjectClassifier::~ObjectClassifier() {
@@ -39,7 +39,7 @@ Features ObjectClassifier::computeFeatureDescriptor(const string& image_content)
 	// Create a Mat from the image we got and compute the features for that.
 	const char* image_contents = image_content.data();
 	int image_contents_size = image_content.size();
-	cout << "Computing features for an image of size " << image_contents_size << " bytes." << endl;
+	cout << "[ObjectClassifier] Computing features for an image of size " << image_contents_size << " bytes." << endl;
 	Mat image_mat = imdecode(vector<char>(image_contents, image_contents + image_contents_size), 0);
 
 	FeatureDetector* detector;
@@ -203,7 +203,7 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 	vector<double> match_percentages;
 	vector<DMatch> best_matches;
 	for (int features_num = 0; features_num < object.features_size(); ++features_num) {
-		cout << "Matching image against object " << object.id() << " " << features_num << endl;
+		cout << "[ObjectClassifier] Matching image against object " << object.id() << " " << features_num << endl;
 		Features features;
 		parseToFeatures(object.features(features_num), &features);
 

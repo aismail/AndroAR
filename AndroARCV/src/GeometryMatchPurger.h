@@ -20,7 +20,8 @@ public:
 				const Features& train_features);
 
 private:
-	static const double THRESHOLD = 0.3;
+	static const double STD_THRESHOLD = 0.5;
+	static const int QUERY_IMAGE_AVERAGE_SIZE = 800;
 
 };
 
