@@ -23,7 +23,7 @@ vector<DMatch> GeometryMatchPurger::purgeMatches(const vector<DMatch>& matches,
 	double min = 1000, max = -1000;
 	for (unsigned int i = 0; i < matches.size(); ++i) {
 		unsigned int query_idx = matches[i].queryIdx;
-		unsigned int train_idx r= matches[i].trainIdx;
+		unsigned int train_idx = matches[i].trainIdx;
 		if (query_idx < 0 || query_idx >= query_features.key_points.size() ||
 				train_idx < 0 || train_idx >= train_features.key_points.size()) {
 			continue;
