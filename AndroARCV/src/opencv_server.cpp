@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 		gettimeofday(&start_time, NULL);
 		run_tests(filename);
 		gettimeofday(&end_time, NULL);
-		cout << "Testing took " << MILLISEC(start_time, end_time) << " milliseconds." << endl;
+		cout << "[opencv_test] Testing took " << MILLISEC(start_time, end_time) << " milliseconds." << endl;
 		return 0;
 	}
 
@@ -61,14 +61,14 @@ int main(int argc, char** argv) {
 			// Process the possible_present_objects repeated field and return a new image with
 			// the newly set detected objects, if any.
 			Image* image = request.mutable_image_contents();
-			cout << "Processing query for image " << image->image().image_hash() << endl;
+			cout << "[opencv_server] Processing query for image " << image->image().image_hash() << endl;
 			struct timeval start_time, end_time;
 			gettimeofday(&start_time, NULL);
 			classifier.processImage(image);
 			gettimeofday(&end_time, NULL);
-			cout << "Finished processing query for image " << image->image().image_hash() <<
+			cout << "[opencv_server] Finished processing query for image " << image->image().image_hash() <<
 					" of size " << image->image().image_contents().size() << " bytes." << endl;
-			cout << "Processing took " << MILLISEC(start_time, end_time) << " milliseconds." << endl;
+			cout << "[opencv_server] Processing took " << MILLISEC(start_time, end_time) << " milliseconds." << endl;
 			// We don't need to send the image back
 			if (Constants::DEBUG == false) {
 				image->mutable_image()->set_image_contents("");
