@@ -3,12 +3,14 @@ abstract
 introduction
   motivation
   structure of thesis
-state of the art
-  google maps
-  layar
-improvements to these
-overall workflow
-  query
+state of the art                            x
+  google maps                               x
+  layar                                     x
+  wikitude
+  mixare
+improvements to these                       x
+overall workflow                            x
+  query                                     x
   store
 system design
   server
