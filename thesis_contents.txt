@@ -1,7 +1,6 @@
 tags
 abstract
 introduction
-  theme
   motivation
   structure of thesis
 state of the art
