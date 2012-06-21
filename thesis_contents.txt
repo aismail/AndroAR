@@ -1,59 +1,63 @@
+! timpuri
+system design                               
+  server                                    
+  storage                                   
+  feature detection + image recognition     
+  mobile app                                
+
+sparse queries even when there is no compass (help from opencv)
+
+
 tags
 abstract
 introduction
   motivation
   structure of thesis
-state of the art                            x
-  google maps                               x
-  layar                                     x
+*state of the art                            
+*  google maps                               
+*  layar                                     
   wikitude
   mixare
-improvements to these                       x
-overall workflow                            x
-  query                                     x
-  store
-system design
-  server
-  storage
-  feature detection + image recognition
-  android
-improvements & speedup
+*goals for androar (live, fast, correct)     
+*system workflow                            
+*  query                                     
+*  store                                     
+performance issues
   queries
-    sparse queries
-      support from mobile app
-    caching
-  storage
-    crowdsourced
-    retrieving more examples
+*    sparse queries
+*      support from mobile app
+*    caching
+*  storage
+*    crowdsourced
+*    retrieving more examples
 implementation
-  server
-  storage
-    database choices
-    cap theorem
-      our choice == distributed + available
-    choices for distributed + available
-      mongo db
-      cassandra
+*  server                                    
+*  storage                                   
+*    database choices                        
+*    cap theorem                             
+*      our choice == distributed + available 
+*    choices for distributed + available     
+      mongo db                              
+      cassandra                             
       why cassandra
-  feature detection + image recognition
-    why separate server
-    opencv
-      feature detection
-        sift detector
-        surf detector
+  feature detection + image recognition     
+*    why separate server                     
+*    opencv                                  
+*      feature detection                     
+?        sift detector
+?        surf detector
       feature matching
         brute force matcher
         flann matcher
-      improving accuracy
-        finding correct subsets of images
-        clustering of features to remove uninteresting features
-        interpreting the geometric properties of matches (translation + scale)
-      hog detector?
-    android opencv?
-      sparse queries backed up by translations?
-  testing gui
-  mobile application
-  communication
+*      optimization
+*        finding correct subsets of images
+*        clustering of features to remove uninteresting features
+*        interpreting the geometric properties of matches (translation + scale)
+      hog detector
+*  testing gui                               
+*  mobile application
+     android opencv
+*  communication                               
 results
 improvements
 conclusions
