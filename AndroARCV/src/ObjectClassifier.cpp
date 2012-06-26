@@ -21,6 +21,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/features2d/features2d.hpp"
 #include "GeometryMatchPurger.h"
+#include "ImageNormalizer.h"
 
 using namespace std;
 
@@ -40,7 +41,9 @@ Features ObjectClassifier::computeFeatureDescriptor(const string& image_content)
 	const char* image_contents = image_content.data();
 	int image_contents_size = image_content.size();
 	cout << "[ObjectClassifier] Computing features for an image of size " << image_contents_size << " bytes." << endl;
-	Mat image_mat = imdecode(vector<char>(image_contents, image_contents + image_contents_size), 0);
+	Mat image_mat_raw = imdecode(vector<char>(image_contents, image_contents + image_contents_size), 0);
+
+	Mat image_mat = ImageNormalizer::normalizeImage(image_mat_raw);
 
 	FeatureDetector* detector;
 	DescriptorExtractor* extractor;
