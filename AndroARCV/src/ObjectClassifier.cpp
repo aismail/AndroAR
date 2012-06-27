@@ -22,6 +22,7 @@
 #include "opencv2/features2d/features2d.hpp"
 #include "GeometryMatchPurger.h"
 #include "ImageNormalizer.h"
+#include "KNNMatchPurger.h"
 
 using namespace std;
 
@@ -201,31 +202,50 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 		ObjectBoundingBox* bounding_box, PossibleObject* updated_possible_object) {
 	// Match the current features against what we got from storage
 	BruteForceMatcher<L2<float> > matcher;
+
 	vector<DMatch> matches;
-	double certainty = 0;
-	vector<double> match_percentages;
+	vector<vector<DMatch> > knn_matches;
 	vector<DMatch> best_matches;
+
+	double current_rating;
+	double best_rating = -1;
+	vector<double> match_percentages;
+
+	double certainty = 0;
+
 	for (int features_num = 0; features_num < object.features_size(); ++features_num) {
 		cout << "[ObjectClassifier] Matching image against object " << object.id() << " " << features_num << endl;
 		Features features;
 		parseToFeatures(object.features(features_num), &features);
 
-		// Match feature vectors against what we have
-		matches.clear();
-		matcher.match(current_features.descriptor, features.descriptor, matches);
-		if (matches.size() == 0) {
-			continue;
-		}
-		//matches = computeGoodMatchesBasedOnGeometry(matches, current_features.key_points,
-		//		features.key_points);
+		//matches.clear();
+		//matcher.match(current_features.descriptor, features.descriptor, matches);
+		//if (matches.size() == 0) {
+		//	continue;
+		//}
+		//vector<DMatch> good_matches = match_purger->purgeMatches(matches, current_features, features);
 
-		vector<DMatch> good_matches = match_purger->purgeMatches(matches, current_features, features);
-		// Find the number of good matches
-		unsigned int num_good_matches = good_matches.size();
-		if (num_good_matches > best_matches.size()) {
-			best_matches = good_matches;
+		// Match feature vectors against what we have. We have decided to find matches using the
+		// KNN algorithm. Specifically, we are targetting the following case, also stated in the
+		// thesis doc: buildings that have repetitive patterns.
+		knn_matches.clear();
+		matcher.knnMatch(current_features.descriptor, features.descriptor, knn_matches, 2);
+
+		KNNMatchPurger knn_match_purger;
+		vector<vector<DMatch> > good_knn_matches =
+				knn_match_purger.purgeMatches(knn_matches, current_features, features);
+
+		vector<DMatch> good_matches;
+		for (unsigned int i = 0; i < good_knn_matches.size(); ++i) {
+			good_matches.push_back(good_knn_matches[i][0]);
 		}
-		match_percentages.push_back(1. * num_good_matches / matches.size());
+
+		current_rating = 1. * good_matches.size() / knn_matches.size();
+		if (current_rating > best_rating) {
+			best_matches = good_matches;
+			best_rating = current_rating;
+		}
+		match_percentages.push_back(current_rating);
 		if (Constants::DEBUG && updated_possible_object != NULL) {
 			Mat overall_matches;
 			drawMatches(
