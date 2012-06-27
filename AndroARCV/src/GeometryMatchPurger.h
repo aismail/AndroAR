@@ -19,6 +19,10 @@ public:
 				const Features& query_features,
 				const Features& train_features);
 
+	vector<vector<DMatch> > purgeMatches(const vector<vector<DMatch> >& matches,
+			const Features& query_features,
+			const Features& train_features);
+
 private:
 	static const double STD_THRESHOLD = 0.5;
 	static const int QUERY_IMAGE_AVERAGE_SIZE = 800;

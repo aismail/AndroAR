@@ -81,3 +81,11 @@ vector<DMatch> STDMatchPurger::purgeMatches(const vector<DMatch>& matches,
 	return good_matches;
 }
 
+vector<vector<DMatch> > STDMatchPurger::purgeMatches(
+		const vector<vector<DMatch> >& matches,
+		const Features& query_features,
+		const Features& train_features) {
+	// We don't have support for this in the STDMatchPurger;
+	return matches;
+}
+

@@ -14,6 +14,14 @@ GeometryMatchPurger::GeometryMatchPurger() {}
 
 GeometryMatchPurger::~GeometryMatchPurger() {}
 
+vector<vector<DMatch> > GeometryMatchPurger::purgeMatches(
+		const vector<vector<DMatch> >& matches,
+		const Features& query_features,
+		const Features& train_features) {
+	// We don't have support for this in the GeometryMatchPurger;
+	return matches;
+}
+
 vector<DMatch> GeometryMatchPurger::purgeMatches(const vector<DMatch>& matches,
 		const Features& query_features,
 		const Features& train_features) {

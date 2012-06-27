@@ -24,6 +24,10 @@ public:
 	virtual vector<DMatch> purgeMatches(const vector<DMatch>& matches,
 			const Features& query_features,
 			const Features& train_features) = 0;
+
+	virtual vector<vector<DMatch> > purgeMatches(const vector<vector<DMatch> >& matches,
+			const Features& query_features,
+			const Features& train_features) = 0;
 };
 
 #endif /* MATCHPURGER_H_ */
