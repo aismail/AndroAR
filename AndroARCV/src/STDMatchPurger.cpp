@@ -76,7 +76,7 @@ vector<DMatch> STDMatchPurger::purgeMatches(const vector<DMatch>& matches,
 			good_matches.push_back(matches[i]);
 		}
 	}
-	std::cout << "[STDMatchPurger] Purged " << (100. * good_matches.size() / matches.size())
+	std::cout << "[STDMatchPurger] Purged " << (100 - 100. * good_matches.size() / matches.size())
 			<< "% features." << std::endl;
 	return good_matches;
 }

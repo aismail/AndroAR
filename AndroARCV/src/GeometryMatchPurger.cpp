@@ -74,7 +74,7 @@ vector<DMatch> GeometryMatchPurger::purgeMatches(const vector<DMatch>& matches,
 			good_matches.push_back(matches[slopes[i].second]);
 		}
 	}
-	std::cout << "[GeometryMatchPurger] Purged " << (100. * good_matches.size() / matches.size())
+	std::cout << "[GeometryMatchPurger] Purged " << (100 - 100. * good_matches.size() / matches.size())
 				<< "% features." << std::endl;
 	return good_matches;
 }
