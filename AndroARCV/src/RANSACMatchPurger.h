@@ -24,6 +24,9 @@ public:
 			const Features& train_features) {
 		return matches;
 	}
+
+	static const double RANSAC_DISTANCE = 3;
+	static const double RANSAC_CONFIDENCE = 0.99;
 };
 
 #endif /* RANSACMATCHPURGER_H_ */

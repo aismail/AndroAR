@@ -43,7 +43,7 @@ vector<DMatch> RANSACMatchPurger::purgeMatches(
 	std::vector<uchar> status(query_points.size(), 0);
 	// status[i] = 0, when the point/match is an outlier
 	//             1, when the point/match is an inlier
-	Mat fundamental_mat = findFundamentalMat(query_points, train_points, status, FM_RANSAC);
+	Mat fundamental_mat = findFundamentalMat(query_points, train_points, status, FM_RANSAC, RANSAC_DISTANCE, RANSAC_CONFIDENCE);
 	for (unsigned int i = 0; i < status.size(); ++i) {
 		if (status[i] == 1) {
 			//inlier
