@@ -23,6 +23,7 @@
 #include "GeometryMatchPurger.h"
 #include "ImageNormalizer.h"
 #include "KNNMatchPurger.h"
+#include "RANSACMatchPurger.h"
 
 using namespace std;
 
@@ -202,9 +203,11 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 		ObjectBoundingBox* bounding_box, PossibleObject* updated_possible_object) {
 	// Match the current features against what we got from storage
 	BruteForceMatcher<L2<float> > matcher;
+	KNNMatchPurger knn_match_purger;
+	RANSACMatchPurger ransac_match_purger;
 
 	vector<DMatch> matches;
-	vector<vector<DMatch> > knn_matches;
+	vector<vector<DMatch> > knn_matches1, knn_matches2;
 	vector<DMatch> best_matches;
 
 	double current_rating;
@@ -218,29 +221,39 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 		Features features;
 		parseToFeatures(object.features(features_num), &features);
 
-		//matches.clear();
-		//matcher.match(current_features.descriptor, features.descriptor, matches);
-		//if (matches.size() == 0) {
-		//	continue;
-		//}
-		//vector<DMatch> good_matches = match_purger->purgeMatches(matches, current_features, features);
-
+		// STEP (1): KNN match purger
 		// Match feature vectors against what we have. We have decided to find matches using the
 		// KNN algorithm. Specifically, we are targetting the following case, also stated in the
 		// thesis doc: buildings that have repetitive patterns.
-		knn_matches.clear();
-		matcher.knnMatch(current_features.descriptor, features.descriptor, knn_matches, 2);
-
-		KNNMatchPurger knn_match_purger;
-		vector<vector<DMatch> > good_knn_matches =
-				knn_match_purger.purgeMatches(knn_matches, current_features, features);
-
-		vector<DMatch> good_matches;
-		for (unsigned int i = 0; i < good_knn_matches.size(); ++i) {
-			good_matches.push_back(good_knn_matches[i][0]);
+		// query -> train
+		knn_matches1.clear();
+		matcher.knnMatch(current_features.descriptor, features.descriptor, knn_matches1, 2);
+		vector<vector<DMatch> > good_knn_matches1 =
+				knn_match_purger.purgeMatches(knn_matches1, current_features, features);
+		// train -> query
+		knn_matches2.clear();
+		matcher.knnMatch(features.descriptor, current_features.descriptor, knn_matches2, 2);
+		vector<vector<DMatch> > good_knn_matches2 =
+				knn_match_purger.purgeMatches(knn_matches2, features, current_features);
+		// get the good matches, by getting the intersection between good_knn_matches1 and
+		// good_knn_matches2 (based on symmetry)
+		vector<DMatch> matches_subset;
+		for (unsigned int i = 0; i < good_knn_matches1.size(); ++i) {
+			for (unsigned int j = i; j < good_knn_matches2.size(); ++j) {
+				const DMatch& m1 = good_knn_matches1[i][0];
+				const DMatch& m2 = good_knn_matches2[j][0];
+				if (m1.queryIdx == m2.trainIdx && m1.trainIdx == m2.queryIdx) {
+					matches_subset.push_back(m1);
+				}
+			}
 		}
+		// STEP (2): RANSAC match purger
+		matches_subset =
+				ransac_match_purger.purgeMatches(matches_subset, current_features, features);
+		// THESE ARE THE GOOD MATCHES
+		vector<DMatch> good_matches = matches_subset;
 
-		current_rating = 1. * good_matches.size() / knn_matches.size();
+		current_rating = 1. * good_matches.size() / knn_matches1.size();
 		if (current_rating > best_rating) {
 			best_matches = good_matches;
 			best_rating = current_rating;
