@@ -29,13 +29,13 @@ vector<vector<DMatch> > KNNMatchPurger::purgeMatches(
 			//TODO(alex) Remove the match? Or keep it?
 			continue;
 		}
-		//std::cout << matches[i][0].distance << " " << matches[i][1].distance << std::endl;
 		if (matches[i][0].distance < matches[i][1].distance * NEIGHBOR_RATIO_THRESHOLD) {
 			good_matches.push_back(matches[i]);
 		}
 	}
 	std::cout << "[KNNMatchPurger] Purged " << (100 - 100. * good_matches.size() / matches.size())
-				<< "% features." << std::endl;
+				<< "% (" << good_matches.size() << "/" << matches.size() << ") features."
+				<< std::endl;
 	return good_matches;
 }
 
