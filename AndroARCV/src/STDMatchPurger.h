@@ -24,6 +24,10 @@ public:
 			const Features& train_features);
 
 	static const double STD_THRESHOLD = 0.5;
+
+	string getName() const {
+		return "STDMatchPurger";
+	}
 };
 
 #endif /* STDMATCHPURGER_H_ */

@@ -33,9 +33,7 @@ vector<vector<DMatch> > KNNMatchPurger::purgeMatches(
 			good_matches.push_back(matches[i]);
 		}
 	}
-	std::cout << "[KNNMatchPurger] Purged " << (100 - 100. * good_matches.size() / matches.size())
-				<< "% (" << good_matches.size() << "/" << matches.size() << ") features."
-				<< std::endl;
+	printStatistics(good_matches.size(), matches.size());
 	return good_matches;
 }
 

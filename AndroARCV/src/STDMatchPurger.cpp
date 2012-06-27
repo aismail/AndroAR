@@ -10,11 +10,9 @@
 #include <iostream>
 #include "Constants.h"
 
-STDMatchPurger::STDMatchPurger() {
-}
+STDMatchPurger::STDMatchPurger() {}
 
-STDMatchPurger::~STDMatchPurger() {
-}
+STDMatchPurger::~STDMatchPurger() {}
 
 namespace {
 	void computeMinAndMaxThreshold(const vector<DMatch>& matches, double* min_threshold,
@@ -76,8 +74,7 @@ vector<DMatch> STDMatchPurger::purgeMatches(const vector<DMatch>& matches,
 			good_matches.push_back(matches[i]);
 		}
 	}
-	std::cout << "[STDMatchPurger] Purged " << (100 - 100. * good_matches.size() / matches.size())
-			<< "% features." << std::endl;
+	printStatistics(good_matches.size(), matches.size());
 	return good_matches;
 }
 
@@ -88,4 +85,3 @@ vector<vector<DMatch> > STDMatchPurger::purgeMatches(
 	// We don't have support for this in the STDMatchPurger;
 	return matches;
 }
-

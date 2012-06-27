@@ -23,6 +23,11 @@ public:
 			const Features& query_features,
 			const Features& train_features);
 
+	string getName() const {
+		return "KNNMatchPurger";
+	}
+
+private:
 	static const double NEIGHBOR_RATIO_THRESHOLD = 0.8;
 };
 

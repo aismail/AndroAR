@@ -25,6 +25,11 @@ public:
 		return matches;
 	}
 
+	string getName() const {
+			return "RANSACMatchPurger";
+		}
+
+private:
 	static const double RANSAC_DISTANCE = 3;
 	static const double RANSAC_CONFIDENCE = 0.99;
 };
