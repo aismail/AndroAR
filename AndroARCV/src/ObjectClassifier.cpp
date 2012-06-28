@@ -210,9 +210,7 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 	vector<vector<DMatch> > knn_matches1, knn_matches2;
 	vector<DMatch> best_matches;
 
-	double current_rating;
-	double best_rating = -1;
-	vector<double> match_percentages;
+	vector<int> match_sizes;
 
 	double certainty = 0;
 
@@ -253,12 +251,10 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 		// THESE ARE THE GOOD MATCHES
 		vector<DMatch> good_matches = matches_subset;
 
-		current_rating = 1. * good_matches.size() / knn_matches1.size();
-		if (current_rating > best_rating) {
+		if (good_matches.size() > best_matches.size()) {
 			best_matches = good_matches;
-			best_rating = current_rating;
 		}
-		match_percentages.push_back(current_rating);
+		match_sizes.push_back(good_matches.size());
 		if (Constants::DEBUG && updated_possible_object != NULL) {
 			Mat overall_matches;
 			drawMatches(
@@ -289,8 +285,12 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 			updated_possible_object->mutable_features(features_num)->set_result_match(str);
 		}
 	}
-	sort(match_percentages.begin(), match_percentages.end(), std::greater<double>());
-	certainty = (match_percentages.empty()) ? 0 : match_percentages[0];
+	sort(match_sizes.begin(), match_sizes.end(), std::greater<int>());
+	if (match_sizes.empty()) {
+		certainty = 0;
+	} else {
+		certainty = min<int>(1, 1. * match_sizes[0] / Constants::MAX_MATCHES_FOR_BEST_CONFIDENCE);
+	}
 
 	findBoundingBox(current_features.key_points, best_matches, bounding_box);
 	return certainty;
