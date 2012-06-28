@@ -22,6 +22,7 @@ vector<DMatch> RANSACMatchPurger::purgeMatches(
 	vector<DMatch> good_matches;
 	if (matches.size() < 8) {
 		// RANSAC needs >= 8 matches
+		printStatistics(0, matches.size());
 		return good_matches;
 	}
 
