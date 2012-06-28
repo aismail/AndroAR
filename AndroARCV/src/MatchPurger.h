@@ -31,9 +31,15 @@ public:
 			const Features& train_features) = 0;
 
 	virtual void printStatistics(int size_after, int size_before) {
-		std::cout << "[" << getName() << "] Purged " << 100 * (1 - 1. * size_after / size_before)
-				<< "% (" << (size_before - size_after) << "/" << size_before << ") features."
-				<< std::endl;
+		double ratio;
+		if (size_before == 0) {
+			ratio = 0;
+		} else {
+			ratio = 1. * size_after / size_before;
+		}
+		std::cout << "[" << getName() << "] Purged " << 100 * (1 - ratio)
+				<< "% (" << (size_before - size_after) << "/" << size_before << ") features. "
+				<< "Only " << size_after << " features remain." << std::endl;
 	}
 
 	virtual string getName() const {
