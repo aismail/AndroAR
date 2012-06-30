@@ -29,8 +29,8 @@
         android:icon="@drawable/ar_icon"
         android:label="@string/app_name" >
         <activity
-            android:label="@string/app_name"
-            android:name="com.androar.AndroAR" >
+            android:name="com.androar.Intro"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
             <intent-filter >
                 <action android:name="android.intent.action.MAIN" />
 
@@ -38,9 +38,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:label="@string/crop_image"
-            android:name="com.androar.CropOptionActivity"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+            android:label="@string/app_name"
+            android:name="com.androar.AndroAR" >
+            <intent-filter >
+                <action android:name="com.androar.AndroAR" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
         <activity
             android:label="@string/camera_preview"

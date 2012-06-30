@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent"
+    android:background="@drawable/ar_bg" >
 
     <LinearLayout
         android:id="@+id/vg"
@@ -16,36 +17,23 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:paddingBottom="30dp"
+            android:paddingTop="100dp"
             android:text="@string/AndroAR_Title"
             android:textAppearance="@android:style/TextAppearance.Large"
-            android:textSize="20dp" />
+            android:textSize="25dp" />
 
-        <Button
-            android:id="@+id/bNavigateActivity"
+        <RelativeLayout
             android:layout_width="fill_parent"
-            android:layout_height="100dp"
-            android:text="@string/navigation" />
+            android:layout_height="200dp" >
 
-        <Button
-            android:id="@+id/bAddData"
-            android:layout_width="fill_parent"
-            android:layout_height="100dp"
-            android:layout_marginTop="20dp"
-            android:text="@string/add_data" />
-
-        <Button
-            android:id="@+id/bCameraPreview"
-            android:layout_width="fill_parent"
-            android:layout_height="100dp"
-            android:layout_marginTop="20dp"
-            android:text="@string/camera_preview" />
-
-        <Button
-            android:id="@+id/bCropImage"
-            android:layout_width="fill_parent"
-            android:layout_height="100dp"
-            android:layout_marginTop="20dp"
-            android:text="@string/crop_image" />
+            <Button
+                android:id="@+id/bCameraPreview"
+                android:layout_width="250dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="20dp"
+                android:layout_centerInParent="true"
+                android:text="@string/camera_preview" />
+        </RelativeLayout>
     </LinearLayout>
 
 </ScrollView>

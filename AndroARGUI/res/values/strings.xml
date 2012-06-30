@@ -14,7 +14,7 @@
     <string name="send_button">Send</string>
     <string name="navigation">Navigate</string>
     <string name="add_data">Add data</string>
-    <string name="camera_preview">Camera Preview</string>
+    <string name="camera_preview">Augmented Camera</string>
     <string name="crop_image">Crop Image</string>
     <string name="capture">Capture</string>
 </resources>
