@@ -37,18 +37,6 @@ import android.view.View.OnTouchListener;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.androar.comm.Communication;
-import com.androar.comm.CommunicationProtos.ClientMessage;
-import com.androar.comm.CommunicationProtos.ClientMessage.ClientMessageType;
-import com.androar.comm.ImageFeaturesProtos.CompassPosition;
-import com.androar.comm.ImageFeaturesProtos.DetectedObject;
-import com.androar.comm.ImageFeaturesProtos.GPSPosition;
-import com.androar.comm.ImageFeaturesProtos.Image;
-import com.androar.comm.ImageFeaturesProtos.ImageContents;
-import com.androar.comm.ImageFeaturesProtos.LocalizationFeatures;
-import com.androar.comm.ImageFeaturesProtos.ObjectBoundingBox;
-import com.google.protobuf.ByteString;
-
 public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 
 	private SurfaceView surfaceView;
@@ -278,8 +266,8 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 
 		case CROP_FROM_CAMERA:
 			try {
-				send_to_server();
-			} catch (IOException e) {
+//				send_to_server();
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			/* Crop image is at /sdcard/Android/androAR/photoCropped.jpg. */
@@ -288,71 +276,6 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 				Toast.makeText(this, "Poza a fost croppuita", Toast.LENGTH_LONG);
 				f.delete();
 			}
-		}
-	}
-
-	public void send_to_server() throws IOException {
-		File in_file = new File(pictureDir.getPath() + "/photo.jpg");
-		FileInputStream fin = new FileInputStream(in_file);
-		byte image[] = new byte[(int) in_file.length()];
-		fin.read(image);
-
-		in_file = new File(pictureDir.getPath() + "/photoCropped.jpg");
-		fin = new FileInputStream(in_file);
-		byte imageCropped[] = new byte[(int) in_file.length()];
-		fin.read(imageCropped);
-
-		String random_hash = Double.toString(Math.random());
-
-		// Create image
-		Image.Builder image_builder = Image.newBuilder();
-		image_builder.setImage(ImageContents.newBuilder()
-				.setImageHash(random_hash)
-				.setImageContents(ByteString.copyFrom(image))
-				.build());
-		// Localization features
-		GPSPosition gps_position = GPSPosition.newBuilder().setLatitude(latitude)
-				.setLongitude(longitude).build();
-		CompassPosition compass_position = CompassPosition.newBuilder().setAngle(azimuth).build();
-		image_builder.setLocalizationFeatures(
-				LocalizationFeatures.newBuilder()
-				.setGpsPosition(gps_position)
-				.setCompassPosition(compass_position)
-				.build());
-		// Detected objects
-		// We only have 1 detected object
-		DetectedObject detected_object = DetectedObject.newBuilder()
-				.setBoundingBox(ObjectBoundingBox.newBuilder().setTop(0).setBottom(0).setLeft(0)
-						.setRight(0).build())
-				.setId("NAME")
-				.setCroppedImage(ByteString.copyFrom(imageCropped))
-				.build();
-		image_builder.addDetectedObjects(detected_object);
-		
-        // Client message
-        ClientMessage client_message;
-        client_message = ClientMessage.newBuilder()
-        		.setMessageType(ClientMessageType.IMAGES_TO_STORE)
-                .addImagesToStore(image_builder.build())
-                .build();
-        
-		Socket socket;
-		DataOutputStream out;
-		DataInputStream in;
-
-		try {
-			socket = new Socket("192.168.1.73", 6666);
-			out = new DataOutputStream(socket.getOutputStream());
-			in = new DataInputStream(socket.getInputStream());
-
-			// Read a message
-			Communication.readMessage(in);
-			// Assume that the message was a HELLO. Let's now send an image to
-			// see if this works.
-			Communication.sendMessage(client_message, out);
-			socket.close();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
