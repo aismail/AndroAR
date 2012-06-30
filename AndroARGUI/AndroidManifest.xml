@@ -38,13 +38,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:label="@string/move_selection"
-            android:name="com.androar.MoveSelectionActivity" >
-        </activity>
-        <activity
-            android:label="@string/navigation"
-            android:name="com.androar.NavigationActivity"
-            android:screenOrientation="landscape" >
+            android:label="@string/crop_image"
+            android:name="com.androar.CropOptionActivity"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         </activity>
         <activity
             android:label="@string/camera_preview"
