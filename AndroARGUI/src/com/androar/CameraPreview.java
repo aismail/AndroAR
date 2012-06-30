@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.hardware.Camera;
@@ -46,7 +48,7 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 	private ArrayList<Rect> rectangles;
 	private RenderRectanglesView rectanglesView;
 	private LinearLayout layout;
-	private File pictureDir;
+	private static File pictureDir;
 	private float latitude = 0, longitude = 0, azimuth = 0;
 	
 	private LocationListener locationListener;
@@ -96,6 +98,7 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 	public void onResume() {
 		super.onResume();
 		camera = Camera.open();
+		inPreview = true;
 	}
 
 	@Override
@@ -143,6 +146,7 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		rectanglesView.init();
 		rectanglesView.setRects(rectangles);
 		rectanglesView.invalidate();
+		getOrientation();
 	}
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
@@ -249,7 +253,7 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 
 		@Override
 		public void onPictureTaken(byte[] data, Camera camera) {
-			new SavePhotoTask().execute(data);
+			new SavePhotoTask("photo.jpg").execute(data);
 
 			Intent i = new Intent(CameraPreview.this, CropOptionActivity.class);
 			camera.stopPreview();
@@ -263,30 +267,43 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 		// if (resultCode != RESULT_OK) return;
 
 		switch (requestCode) {
-
-		case CROP_FROM_CAMERA:
-			try {
-//				send_to_server();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			/* Crop image is at /sdcard/Android/androAR/photoCropped.jpg. */
-			File f = new File(pictureDir.getPath() + "/photoCropped.jpg");
-			if (f.exists()) {
-				Toast.makeText(this, "Poza a fost croppuita", Toast.LENGTH_LONG);
-				f.delete();
-			}
+			case CROP_FROM_CAMERA:
+				/* Crop image is at /sdcard/Android/androAR/photoCropped.jpg. */
+				String croppedPath = pictureDir.getPath() + "/photoCropped.jpg";
+				File f = new File(croppedPath);
+				if (f.exists()) {
+					System.out.println("Poza a fost croppuita");
+	
+					try {
+						// Create a new activity with a place to label the image to send to
+						// server.
+						Bitmap picture = BitmapFactory.decodeFile(croppedPath);
+						Intent i = new Intent(this, LabelCroppedImage.class);
+						i.putExtra("data", picture);
+						startActivity(i);
+	//					send_to_server();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else
+					System.out.println("Poza croppuita nu exista");
 		}
 	}
 
 	class SavePhotoTask extends AsyncTask<byte[], String, String> {
+		String photoName;
+		
+		public SavePhotoTask(String photoName) {
+			this.photoName = photoName;
+		}
+		
 		@Override
 		protected String doInBackground(byte[]... jpeg) {
 			pictureDir = new File(Environment.getExternalStorageDirectory()
 					.getPath() + "/Android/data/com.androar");
 			if (!pictureDir.isDirectory())
 				pictureDir.mkdirs();
-			File photo = new File(pictureDir, "photo.jpg");
+			File photo = new File(pictureDir, photoName);
 			if (photo.exists())
 				photo.delete();
 
@@ -300,5 +317,9 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 			}
 			return (null);
 		}
+	}
+	
+	public static String getPictureDir() {
+		return pictureDir.getPath();
 	}
 }

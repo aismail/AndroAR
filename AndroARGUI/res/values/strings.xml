@@ -17,4 +17,7 @@
     <string name="camera_preview">Augmented Camera</string>
     <string name="crop_image">Crop Image</string>
     <string name="capture">Capture</string>
+    <string name="CroppedPictureHint">Please provide a good labeling keyword.</string>
+    <string name="CroppedPictureDesc">Please add a description.</string>
+
 </resources>

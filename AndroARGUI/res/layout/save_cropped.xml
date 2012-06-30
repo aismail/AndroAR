@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="100" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="40" >
+
+        <ImageView
+            android:id="@+id/ivCroppedPicture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="60" >
+
+        <EditText
+            android:id="@+id/etCroppedPictureName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/CroppedPictureHint"
+            android:minWidth="50dp" >
+        </EditText>
+
+        <EditText
+            android:id="@+id/etCroppedPictureName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:gravity="top"
+            android:hint="@string/CroppedPictureDesc"
+            android:lines="5"
+            android:minWidth="50dp"
+            android:singleLine="false" >
+        </EditText>
+
+        <Button
+            android:id="@+id/button1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Button" />
+    </LinearLayout>
+
+</LinearLayout>
