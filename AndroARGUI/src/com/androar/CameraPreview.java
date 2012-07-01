@@ -87,7 +87,7 @@ public class CameraPreview extends Activity implements SurfaceHolder.Callback {
 				int x = (int) event.getX();
 				int y = (int) event.getY();
 				rectangles.clear();
-				rectangles.add(new Rect(x, y, x + 20, y + 40));
+				rectangles.add(new Rect(x, y, x + 200, y + 200));
 				rectanglesView.invalidate();
 				return true;
 			}

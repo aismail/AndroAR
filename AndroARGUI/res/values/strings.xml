@@ -19,5 +19,7 @@
     <string name="capture">Capture</string>
     <string name="CroppedPictureHint">Please provide a good labeling keyword.</string>
     <string name="CroppedPictureDesc">Please add a description.</string>
+    <string name="labelName">Name: keyboard</string>
+    <string name="labelDesc">Description: macbook air keyboard</string>
 
 </resources>
