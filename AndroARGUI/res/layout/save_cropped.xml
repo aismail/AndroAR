@@ -8,27 +8,31 @@
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="40" >
+        android:layout_weight="55" >
 
         <ImageView
             android:id="@+id/ivCroppedPicture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true" />
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true" />
     </RelativeLayout>
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="60" >
+        android:layout_weight="45"
+        android:orientation="vertical" >
 
         <EditText
             android:id="@+id/etCroppedPictureName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:hint="@string/CroppedPictureHint"
-            android:minWidth="50dp" >
+            android:minWidth="20dp" >
         </EditText>
 
         <EditText
@@ -39,16 +43,23 @@
             android:layout_marginRight="10dp"
             android:gravity="top"
             android:hint="@string/CroppedPictureDesc"
-            android:lines="5"
+            android:lines="3"
             android:minWidth="50dp"
             android:singleLine="false" >
         </EditText>
 
-        <Button
-            android:id="@+id/button1"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Button" />
+            android:layout_marginRight="10dp" >
+
+            <Button
+                android:id="@+id/button1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:text="@string/send_button" />
+        </RelativeLayout>
     </LinearLayout>
 
 </LinearLayout>
