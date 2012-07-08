@@ -1,8 +1,10 @@
-3 3
+6 3
 universitate.jpg 2 tnb tnb.jpg intercontinental intercontinental.jpg
 universitate3.jpg 1 tnb tnb2.jpg
 universitate2.jpg 1 intercontinental intercontinental2.jpg
+poli.jpg 1 rectorat rectorat.jpg
+r1.png 1 rectorat r1.png
+r2.png 1 rectorat r2.png
 test_intercontinental.jpg 1 intercontinental
-tnb.jpg 1 tnb
-intercontinental.jpg 1 intercontinental
-
+test_tnb1.jpg 1 tnb
+test_tnb2.jpg 1 tnb
