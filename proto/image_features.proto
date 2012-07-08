@@ -60,6 +60,7 @@ message OpenCVFeatures {
 	// DEBUG fields
 	optional bytes cropped_image = 100;
 	optional bytes result_match = 101;
+	optional float certainty = 102;
 }
 
 // Next id = 2
