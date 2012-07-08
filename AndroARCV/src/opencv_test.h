@@ -13,8 +13,8 @@ using namespace androar;
 using namespace cv;
 using namespace std;
 
-void run_tests(string filename) {
-
+Image run_tests(string filename, int* time_processing) {
+	*time_processing = 0;
 	ObjectClassifier classifier;
 
 	map<string, vector<OpenCVFeatures> > all_objects;
@@ -100,11 +100,17 @@ void run_tests(string filename) {
 			fscanf(fin, "%s", str);
 			expected_result.push_back(string(str));
 		}
+		struct timeval start_time, end_time;
+		gettimeofday(&start_time, NULL);
 		classifier.processImage(&image);
+		gettimeofday(&end_time, NULL);
+		*time_processing += MILLISEC(start_time, end_time);
 		image.mutable_image()->clear_image_contents();
+		image.clear_possible_present_objects();
 		// Let's check if everything is ok
 		cout << "********** TEST " << (i + 1) << " **********" << endl;
 		cout << image.DebugString() << endl;
 		//assert((int) expected_result.size() == image.detected_objects_size());
 	}
+	return image_template;
 }

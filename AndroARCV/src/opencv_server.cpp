@@ -18,6 +18,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "ObjectClassifier.h"
 #include "Socket.h"
+#include "VideoFeedParser.h"
 
 using namespace androar;
 using namespace cv;
@@ -35,10 +36,25 @@ int main(int argc, char** argv) {
 				argv[2] :
 				string(Constants::TEST_FOLDER).append("features_test_input.txt");
 		struct timeval start_time, end_time;
+		int time_processing;
 		gettimeofday(&start_time, NULL);
-		run_tests(filename);
+		run_tests(filename, &time_processing);
 		gettimeofday(&end_time, NULL);
-		cout << "[opencv_test] Testing took " << MILLISEC(start_time, end_time) << " milliseconds." << endl;
+		cout << "[opencv_test] Testing took " << MILLISEC(start_time, end_time)
+				<< " milliseconds. Processing took " << time_processing << " milliseconds."
+				<< endl;
+		return 0;
+	}
+	if (argc > 1 && strcmp(argv[1], "--video") == 0) {
+		string train_filename = (argc > 3) ?
+				argv[3] :
+				string(Constants::TEST_FOLDER).append("features_test_input.txt");
+		string filename = (argc > 2) ?
+				argv[2] :
+				string(Constants::TEST_FOLDER).append("test.avi");
+		int time_processing = 0;
+		Image image_template = run_tests(train_filename, &time_processing);
+		VideoFeedParser::parseVideo(filename, image_template, "rectorat", 30, 0);
 		return 0;
 	}
 
