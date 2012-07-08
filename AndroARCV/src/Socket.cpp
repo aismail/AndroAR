@@ -24,8 +24,6 @@ Socket::~Socket() {
 }
 
 bool Socket::initSocket() {
-	int sd_current, cc, fromlen, tolen;
-
 	if ((socket_descriptor = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
 		perror("Unable to create socket");
 		return false;
