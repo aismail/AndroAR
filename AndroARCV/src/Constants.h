@@ -8,6 +8,8 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
+#define MILLISEC(s, e) ((e.tv_sec - s.tv_sec) * 1000 + (e.tv_usec - s.tv_usec) / 1000)
+
 class Constants {
 private:
 	Constants() {}
@@ -17,13 +19,9 @@ public:
 	static const int PORT = 6667;
 	static const double CONFIDENCE_THRESHOLD = 0.8;
 	static const char* TEST_FOLDER;
-#ifdef TESTING
-	static const bool DEBUG = false;
-#else
 	static const bool DEBUG = true;
-#endif
 
-	static const double MAX_MATCHES_FOR_BEST_CONFIDENCE = 15;
+	static const double MAX_MATCHES_FOR_BEST_CONFIDENCE = 10;
 };
 
 
