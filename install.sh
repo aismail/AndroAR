@@ -1,2 +1,0 @@
-#install jre + jdk
-
