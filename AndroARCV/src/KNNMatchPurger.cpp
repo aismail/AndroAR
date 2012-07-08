@@ -24,7 +24,7 @@ vector<vector<DMatch> > KNNMatchPurger::purgeMatches(
 		const Features& query_features,
 		const Features& train_features) {
 	vector<vector<DMatch> > good_matches;
-	for (unsigned int i = 0; i < matches.size(); ++i) {
+	for (register unsigned int i = 0; i < matches.size(); ++i) {
 		if (matches[i].size() < 2) {
 			//TODO(alex) Remove the match? Or keep it?
 			continue;
