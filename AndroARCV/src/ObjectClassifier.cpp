@@ -202,7 +202,7 @@ namespace {
 double ObjectClassifier::matchObject(const Features& current_features, const PossibleObject& object,
 		ObjectBoundingBox* bounding_box, PossibleObject* updated_possible_object) {
 	// Match the current features against what we got from storage
-	BruteForceMatcher<L2<float> > matcher;
+	FlannBasedMatcher matcher;
 	KNNMatchPurger knn_match_purger;
 	RANSACMatchPurger ransac_match_purger;
 
@@ -210,9 +210,7 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 	vector<vector<DMatch> > knn_matches1, knn_matches2;
 	vector<DMatch> best_matches;
 
-	vector<int> match_sizes;
-
-	double certainty = 0;
+	float certainty = 0;
 
 	for (int features_num = 0; features_num < object.features_size(); ++features_num) {
 		cout << "[ObjectClassifier] Matching image against object " << object.id() << " " << features_num << endl;
@@ -254,7 +252,9 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 		if (good_matches.size() > best_matches.size()) {
 			best_matches = good_matches;
 		}
-		match_sizes.push_back(good_matches.size());
+		double current_certainty =
+				min<float>(1, 1. * good_matches.size() / Constants::MAX_MATCHES_FOR_BEST_CONFIDENCE);
+		certainty = max<float>(certainty, current_certainty);
 		if (Constants::DEBUG && updated_possible_object != NULL) {
 			Mat overall_matches;
 			drawMatches(
@@ -283,13 +283,9 @@ double ObjectClassifier::matchObject(const Features& current_features, const Pos
 			unlink(filename);
 
 			updated_possible_object->mutable_features(features_num)->set_result_match(str);
+			updated_possible_object->mutable_features(features_num)->
+					set_certainty(current_certainty);
 		}
-	}
-	sort(match_sizes.begin(), match_sizes.end(), std::greater<int>());
-	if (match_sizes.empty()) {
-		certainty = 0;
-	} else {
-		certainty = min<int>(1, 1. * match_sizes[0] / Constants::MAX_MATCHES_FOR_BEST_CONFIDENCE);
 	}
 
 	findBoundingBox(current_features.key_points, best_matches, bounding_box);
